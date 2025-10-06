@@ -1,0 +1,15 @@
+#root {
+  max-width: 1280px;
+}
+
+/* Removed unused .logo animations and spin keyframes for a minimal, fast UI */
+/* Removed drop-shadow hover, transition, and @keyframes */
+
+/* Keep these as generic helpers if used elsewhere */
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
