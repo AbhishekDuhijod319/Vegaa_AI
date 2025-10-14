@@ -119,7 +119,7 @@ const Header = () => {
     <div
       className={cn(
         // Overlay wrapper: fixed, centered, high z-index
-        "fixed inset-x-0 top-2 sm:top-3 z-50",
+        "fixed inset-x-0 z-50 top-[clamp(0.25rem,0.5vw,0.75rem)]",
         // Let clicks pass only to the inner header (prevents layout issues at edges)
         "pointer-events-none"
       )}
@@ -129,24 +129,29 @@ const Header = () => {
         className={cn(
           "max-w-7xl w-full mx-auto",
           // Spacing and layout
-          "px-4 sm:px-5 py-2.5 sm:py-3 lg:py-3.5 flex items-center justify-between",
+          "px-[clamp(0.75rem,1rem+1vw,2rem)] py-[clamp(0.5rem,0.75rem+0.5vw,1rem)]",
+          "flex items-center justify-between",
+          "gap-[clamp(0.5rem,0.6rem+0.8vw,1.25rem)]",
           // Visual style: pill, subtle border/shadow, semi-transparent
-          "rounded-2xl border bg-background shadow-lg",
+          "rounded-[clamp(0.75rem,1.5vw,1.25rem)] border bg-background shadow-lg",
           // Enable interactions on the header, while wrapper remains non-interactive
           "pointer-events-auto"
         )}
       >
         {/* Left: Brand only */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center">
           <Brand />
         </div>
         {/* Center: Nav (desktop only, lg and up) */}
         <Nav currentUser={currentUser} />
         {/* Right: Theme + Auth + Mobile menu (hamburger on sm/md) */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-[clamp(0.5rem,0.6rem+0.8vw,1.25rem)]">
           {/* Theme toggle removed for light-only */}
           {!currentUser ? (
-            <Button className="transition-colors hidden lg:inline-flex" onClick={() => login()}>
+            <Button
+              className="transition-colors hidden lg:inline-flex text-[clamp(0.9rem,0.85rem+0.25vw,1rem)] px-[clamp(0.6rem,0.5rem+0.7vw,1.2rem)] py-[clamp(0.4rem,0.3rem+0.5vw,0.65rem)]"
+              onClick={() => login()}
+            >
               Sign In
             </Button>
           ) : (
@@ -161,33 +166,33 @@ const Header = () => {
               variant="outline"
               size="icon"
               aria-label="Open menu"
-              className="size-12 rounded-md"
+              className="h-[clamp(40px,7vw,48px)] w-[clamp(40px,7vw,48px)] rounded-md"
               title="Open menu"
               onClick={() => setMenuOpen((v) => !v)}
             >
               <Menu aria-hidden />
             </Button>
             {menuOpen && (
-              <div className="absolute right-0 top-full mt-2 w-72 rounded-xl border bg-white shadow-lg">
+              <div className="absolute right-0 top-full mt-2 w-[clamp(16rem,80vw,22rem)] rounded-xl border bg-white shadow-lg">
                 <div className="absolute -top-2 right-6 h-4 w-4 rotate-45 bg-card border-l border-t" aria-hidden />
                 <nav className="grid gap-1 p-2" aria-label="Mobile navigation">
                   <Button
                     variant="ghost"
-                    className="justify-start h-12 text-base"
+                    className="justify-start h-[clamp(2.5rem,6.5vw,3rem)] text-[clamp(0.95rem,0.85rem+0.25vw,1rem)]"
                     onClick={() => goTo("hero")}
                   >
                     Home
                   </Button>
                   <Button
                     variant="ghost"
-                    className="justify-start h-12 text-base"
+                    className="justify-start h-[clamp(2.5rem,6.5vw,3rem)] text-[clamp(0.95rem,0.85rem+0.25vw,1rem)]"
                     onClick={() => navigate('/about')}
                   >
                     About Us
                   </Button>
                   <Button
                     variant="ghost"
-                    className="justify-start h-12 text-base"
+                    className="justify-start h-[clamp(2.5rem,6.5vw,3rem)] text-[clamp(0.95rem,0.85rem+0.25vw,1rem)]"
                     onClick={() => goTo("faq")}
                   >
                     FAQ
@@ -196,7 +201,7 @@ const Header = () => {
                     <>
                       <Button
                         variant="ghost"
-                        className="justify-start h-12 text-base"
+                        className="justify-start h-[clamp(2.5rem,6.5vw,3rem)] text-[clamp(0.95rem,0.85rem+0.25vw,1rem)]"
                         onClick={() => {
                           navigate("/my-trips");
                           setMenuOpen(false);
@@ -206,7 +211,7 @@ const Header = () => {
                       </Button>
                       <Button
                         variant="ghost"
-                        className="justify-start h-12 text-base"
+                        className="justify-start h-[clamp(2.5rem,6.5vw,3rem)] text-[clamp(0.95rem,0.85rem+0.25vw,1rem)]"
                         onClick={() => {
                           navigate("/profile");
                           setMenuOpen(false);
@@ -218,11 +223,11 @@ const Header = () => {
                   )}
                   <div className="my-2 border-t" />
                   {!currentUser ? (
-                    <Button className="justify-start h-12 text-base" onClick={() => { login(); setMenuOpen(false); }}>
+                    <Button className="justify-start h-[clamp(2.5rem,6.5vw,3rem)] text-[clamp(0.95rem,0.85rem+0.25vw,1rem)]" onClick={() => { login(); setMenuOpen(false); }}>
                       Sign In
                     </Button>
                   ) : (
-                    <Button variant="destructive" className="justify-start h-12 text-base" onClick={() => { setMenuOpen(false); onLogout(); }}>
+                    <Button variant="destructive" className="justify-start h-[clamp(2.5rem,6.5vw,3rem)] text-[clamp(0.95rem,0.85rem+0.25vw,1rem)]" onClick={() => { setMenuOpen(false); onLogout(); }}>
                       Logout
                     </Button>
                   )}

@@ -184,10 +184,15 @@ function DestinationsSection({ destinations }) {
     <section
       id="destinations"
       data-section
-      className="scroll-mt-24 min-h-[100svh] flex flex-col items-center [contain-intrinsic-size:1px_1000px]"
+      className="min-h-[100svh] flex flex-col items-center [contain-intrinsic-size:1px_1000px]"
       aria-label="Popular Destinations"
+      style={{
+        // Align start using dynamic header offset and add bottom margin so pagination remains visible
+        scrollMarginTop: "var(--app-header-offset)",
+        scrollMarginBottom: "max(16px, calc(var(--app-header-offset) / 2))",
+      }}
     >
-      <div className="px-6 md:px-8 lg:px-16 py-8 sm:py-9 md:py-10 lg:py-12 mt-24 max-w-8xl mx-auto w-full">
+      <div className="px-6 md:px-8 lg:px-16 py-8 sm:py-9 md:py-10 lg:py-12 max-w-8xl mx-auto w-full">
         <div className="flex items-end justify-between gap-4">
           <div>
             <h2 className="text-2xl md:text-3xl font-bold">
@@ -200,7 +205,7 @@ function DestinationsSection({ destinations }) {
         </div>
       </div>
 
-      <div className="mt-4 px-6 md:px-8 lg:px-16 max-w-8xl mx-auto w-full">
+      <div className="mt-4 px-6 md:px-8 lg:px-16 pb-8 sm:pb-10 md:pb-12 max-w-8xl mx-auto w-full">
         <div className="relative">
           <button
             aria-label="Previous"
@@ -251,7 +256,6 @@ function DestinationsSection({ destinations }) {
                 aria-selected={i === currentIdx}
               >
                 <SmartImage
-                  src={stableDestImages?.[d.id]}
                   query={d.title || d.city || "travel destination"}
                   alt={d.city}
                   className="absolute inset-0 w-full h-full object-cover"
@@ -323,12 +327,14 @@ function HowItWorksSections({ steps }) {
               <div className="relative rounded-2xl overflow-hidden border bg-card shadow-sm">
                 <div className="w-full h-[50vh] md:h-[60vh]">
                   <SmartImage
-                    src={stableStepImages?.[s.id]}
                     query={s.query || s.title}
                     alt={s.title}
                     className="w-full h-full object-cover"
                     pexelsFallback={true}
                     sizes="(min-width: 768px) 50vw, 100vw"
+                    width={1200}
+                    height={800}
+                    fetchpriority="low"
                   />
                 </div>
               </div>

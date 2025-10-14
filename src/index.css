@@ -88,15 +88,9 @@
   --sidebar-ring: var(--ring);
 
   /* Responsive header offset for snapping alignment */
-  --app-header-offset: 72px;
+  --app-header-offset: clamp(64px, 6.5vw + 48px, 104px);
 }
 
-@media (min-width: 640px) {
-  :root { --app-header-offset: 80px; }
-}
-@media (min-width: 1024px) {
-  :root { --app-header-offset: 92px; }
-}
 
 
 

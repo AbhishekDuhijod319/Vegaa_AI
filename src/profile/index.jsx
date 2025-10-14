@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -101,25 +100,7 @@ export default function Profile() {
         </div>
       </section>
 
-      {/* Danger Zone */}
-      <section className="mt-6 rounded-xl border border-border bg-card">
-        <div className="flex items-center justify-between p-5">
-          <div>
-            <div className="font-medium">Delete Account</div>
-            <div className="text-sm text-muted-foreground">
-              Permanently delete your account data.
-            </div>
-          </div>
-          <Button
-            variant="destructive"
-            onClick={() =>
-              toast("Account deletion is not available in this demo.")
-            }
-          >
-            Delete
-          </Button>
-        </div>
-      </section>
+      {/* Danger Zone removed: account deletion is not supported */}
     </main>
   );
 }

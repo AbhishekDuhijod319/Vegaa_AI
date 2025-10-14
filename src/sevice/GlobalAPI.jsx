@@ -136,25 +136,72 @@ export const searchPlaceRich = async (textQuery) => {
   }
 };
 
-// Weather API (OpenWeatherMap) — unchanged
+// Weather API (OpenWeatherMap) — normalized with caching and graceful errors
 const WEATHER_BASE = 'https://api.openweathermap.org/data/2.5';
 
+// Simple in-memory cache to avoid repeated calls and flicker
+const WEATHER_CACHE = new Map(); // key -> { data, ts }
+const WEATHER_PENDING = new Map(); // key -> Promise
+const WEATHER_TTL_MS = 15 * 60 * 1000; // 15 minutes
+
+const normalizeCity = (city) => {
+  const raw = String(city || '').trim();
+  if (!raw) return '';
+  const basic = raw.split(',')[0].trim();
+  return basic || raw;
+};
+
 export const getWeatherByCity = async (city) => {
-  if (!city) return null;
-  const key = import.meta.env.VITE_OPENWEATHER_API_KEY;
-  if (!key) return null;
-  try {
-    const resp = await axios.get(`${WEATHER_BASE}/weather`, {
-      params: { q: city, units: 'metric', appid: key },
-    });
-    return resp.data;
-  } catch (e) {
-    console.error('Weather API error', e?.response?.data || e?.message);
-    return null;
+  // In dev, optionally disable live weather calls to reduce noisy logs
+  const devDisabled = import.meta.env.DEV && import.meta.env.VITE_ENABLE_WEATHER_DEV !== '1';
+  if (devDisabled) {
+    return { data: null, error: null, status: 'disabled' };
   }
+  const key = import.meta.env.VITE_OPENWEATHER_API_KEY;
+  const q = normalizeCity(city);
+  if (!q || !key) return null;
+
+  const cacheKey = q.toLowerCase();
+  const now = Date.now();
+  const cached = WEATHER_CACHE.get(cacheKey);
+  if (cached && (now - cached.ts) < WEATHER_TTL_MS) {
+    return cached.data;
+  }
+  if (WEATHER_PENDING.has(cacheKey)) {
+    try {
+      return await WEATHER_PENDING.get(cacheKey);
+    } catch {
+      // fall through to a fresh request
+    }
+  }
+
+  const request = (async () => {
+    try {
+      const resp = await axios.get(`${WEATHER_BASE}/weather`, {
+        params: { q, units: 'metric', appid: key },
+        timeout: 8000,
+      });
+      const data = resp?.data || null;
+      if (data) WEATHER_CACHE.set(cacheKey, { data, ts: Date.now() });
+      return data;
+    } catch (e) {
+      // Gracefully handle errors without noisy console output
+      // Common cases: city not found (404), network issues
+      return null;
+    } finally {
+      WEATHER_PENDING.delete(cacheKey);
+    }
+  })();
+
+  WEATHER_PENDING.set(cacheKey, request);
+  return await request;
 };
 
 export const getForecastByCity = async (city) => {
+  const devDisabled = import.meta.env.DEV && import.meta.env.VITE_ENABLE_WEATHER_DEV !== '1';
+  if (devDisabled) {
+    return { data: null, error: null, status: 'disabled' };
+  }
   if (!city) return null;
   const key = import.meta.env.VITE_OPENWEATHER_API_KEY;
   if (!key) return null;

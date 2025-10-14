@@ -367,6 +367,8 @@ function InfoSection({ trip }) {
           alt={`${destLabel} background`}
           className="absolute inset-0 w-full h-full object-cover"
           enhance={true}
+          sizes="100vw"
+          fetchpriority="high"
         />
         {/* Overlay gradient for readability */}
         <div

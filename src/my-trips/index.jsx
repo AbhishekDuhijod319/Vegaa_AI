@@ -139,9 +139,19 @@ function MyTrips() {
 
   return (
     <div className='mx-auto max-w-7xl px-5 sm:px-8 md:px-12 lg:px-16 xl:px-20 pt-24 pb-12'>
-      <h1 className='text-2xl font-semibold mb-4'>My Trips</h1>
+      <div className='flex items-center justify-between gap-3 mb-4'>
+        <h1 className='text-2xl font-semibold'>My Trips</h1>
+        {trips.length > 0 && (
+          <Button className='h-11 px-5' onClick={() => navigate('/create-trip')} title='Create a new trip'>
+            Create Trip
+          </Button>
+        )}
+      </div>
       {trips.length === 0 ? (
-        <p className='text-muted-foreground'>No trips yet. Create one from the Home page.</p>
+        <div className='min-h-[40svh] flex flex-col items-center justify-center text-center text-muted-foreground'>
+          <p>No trips yet. Start by creating your first trip.</p>
+          <Button className='mt-3' onClick={() => navigate('/create-trip')} title='Create your first trip'>Create Trip</Button>
+        </div>
       ) : (
         <div className='grid grid-cols-1 md:grid-cols-2 min-[1200px]:grid-cols-3 gap-4'>
           {trips.map((t) => {
@@ -180,7 +190,13 @@ function MyTrips() {
 
                   {/* Image */}
                   <div className='w-full overflow-hidden bg-muted' style={{ aspectRatio: '16/9' }}>
-                    <SmartImage query={city} alt={city} className='w-full h-full object-cover' />
+                    <SmartImage
+                      query={city}
+                      alt={city}
+                      className='w-full h-full object-cover'
+                      sizes='(min-width: 1200px) 33vw, (min-width: 768px) 50vw, 100vw'
+                      fetchpriority='low'
+                    />
                   </div>
 
                   {/* Body */}
@@ -237,16 +253,23 @@ function TripWeather({ city }) {
   useEffect(() => {
     let cancelled = false
     const run = async () => {
-      if (!city) return setState({ loading: false, temp: null, main: '', desc: '' })
+      const normalized = String(city || '').split(',')[0].trim()
+      if (!normalized || normalized.toLowerCase() === 'trip') {
+        return setState({ loading: false, temp: null, main: '', desc: '' })
+      }
       try {
-        const w = await getWeatherByCity(city)
+        const w = await getWeatherByCity(normalized)
         if (!cancelled) {
-          setState({
-            loading: false,
-            temp: Math.round(w?.main?.temp ?? 0),
-            main: w?.weather?.[0]?.main || '',
-            desc: w?.weather?.[0]?.description || ''
-          })
+          if (w && w.main && Array.isArray(w.weather)) {
+            setState({
+              loading: false,
+              temp: Number.isFinite(w?.main?.temp) ? Math.round(w.main.temp) : null,
+              main: w.weather[0]?.main || '',
+              desc: w.weather[0]?.description || ''
+            })
+          } else {
+            setState({ loading: false, temp: null, main: '', desc: '' })
+          }
         }
       } catch {
         if (!cancelled) setState({ loading: false, temp: null, main: '', desc: '' })
@@ -260,13 +283,20 @@ function TripWeather({ city }) {
     return <div className='mt-3 h-6 w-28 bg-muted animate-pulse rounded' />
   }
 
-  if (state.temp == null) return null
-
   return (
     <div className='mt-3 inline-flex items-center gap-2 text-sm'>
       <WeatherIcon main={state.main} />
-      <span className='font-medium'>{state.temp}°C</span>
-      <span className='text-muted-foreground capitalize'>{state.desc}</span>
+      {state.temp != null ? (
+        <>
+          <span className='font-medium'>{state.temp}°C</span>
+          {state.desc && <span className='text-muted-foreground capitalize'>{state.desc}</span>}
+        </>
+      ) : (
+        <>
+          <span className='font-medium'>—°C</span>
+          <span className='text-muted-foreground'>Weather unavailable</span>
+        </>
+      )}
     </div>
   )
 }

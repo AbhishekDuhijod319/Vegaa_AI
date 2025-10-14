@@ -74,22 +74,100 @@ export async function searchPexels(query, perPage = 6) {
     writeCache(key, json);
     return json;
   } catch (err) {
-    console.error("Pexels fetch failed:", err?.message || err);
-    throw err;
+    // Suppress noisy errors; return empty result for graceful fallbacks
+    return { photos: [] };
+  }
+}
+
+function withCompress(url) {
+  if (!url) return url;
+  try {
+    const u = new URL(url);
+    const params = u.searchParams;
+    // Deduplicate and ensure compression params exist exactly once
+    if (!params.has("auto")) params.set("auto", "compress");
+    if (!params.has("cs")) params.set("cs", "tinysrgb");
+    u.search = params.toString();
+    return u.toString();
+  } catch {
+    // Fallback to naive append if URL parsing fails (unlikely for Pexels URLs)
+    const hasQ = url.includes("?");
+    const sep = hasQ ? "&" : "?";
+    // Only append if not already present
+    if (url.includes("auto=compress") || url.includes("cs=tinysrgb")) return url;
+    return `${url}${sep}auto=compress&cs=tinysrgb`;
+  }
+}
+
+function widthFromUrl(url) {
+  if (!url) return null;
+  try {
+    const u = new URL(url);
+    const w = Number(u.searchParams.get("w"));
+    const dpr = Number(u.searchParams.get("dpr")) || 1;
+    if (Number.isFinite(w) && w > 0) return Math.round(w * dpr);
+    return null;
+  } catch {
+    return null;
   }
 }
 
 export function toImageSet(photo) {
-  // Build responsive srcset using provided sizes
+  // Build responsive srcset using accurate width descriptors and apply compression
   const s = photo?.src || {};
-  const src = s.large2x || s.large || s.medium || s.original || s.small || s.landscape || s.portrait || s.tiny;
-  const srcSet = [
-    s.small && `${s.small} 640w`,
-    s.medium && `${s.medium} 800w`,
-    s.large && `${s.large} 1080w`,
-    s.large2x && `${s.large2x} 1600w`,
-  ].filter(Boolean).join(", ");
-  return { src, srcSet, sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" };
+  // Choose a sensible default src (prefer high quality variants)
+  const src = withCompress(
+    s.large2x || s.landscape || s.large || s.medium || s.original || s.small || s.portrait || s.tiny
+  );
+
+  const candidates = [];
+  // Collect available variants with their true widths (accounting for DPR)
+  const variants = [
+    s.tiny,
+    s.small,
+    s.medium,
+    s.large,
+    s.large2x,
+    s.landscape,
+    s.portrait,
+  ].filter(Boolean);
+
+  for (const v of variants) {
+    const w = widthFromUrl(v);
+    if (w && w > 0) {
+      candidates.push(`${withCompress(v)} ${w}w`);
+    }
+  }
+
+  // Include original at its native width for ultra-wide / retina screens when available
+  const origWidth = Number(photo?.width) || null;
+  if (s.original && origWidth && Number.isFinite(origWidth)) {
+    candidates.push(`${withCompress(s.original)} ${origWidth}w`);
+  }
+
+  // Deduplicate by width and sort ascending to help the browser
+  const seen = new Set();
+  const srcSet = candidates
+    .map((c) => {
+      const m = c.match(/\s(\d+)w$/);
+      return m ? { w: Number(m[1]), s: c } : null;
+    })
+    .filter(Boolean)
+    .sort((a, b) => a.w - b.w)
+    .filter(({ w }) => {
+      if (seen.has(w)) return false;
+      seen.add(w);
+      return true;
+    })
+    .map(({ s }) => s)
+    .join(", ");
+
+  return {
+    src,
+    srcSet,
+    // Provide a sensible default; components can override with a context-aware sizes prop
+    sizes: "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw",
+  };
 }
 
 export async function getFirstImageForQuery(query) {
@@ -115,8 +193,8 @@ export async function getPhotoById(id) {
     writeCache(key, json);
     return toImageSet(json);
   } catch (err) {
-    console.error("Pexels getPhotoById failed:", err?.message || err);
-    throw err;
+    // Suppress noisy errors; signal absence by returning null
+    return null;
   }
 }
 
