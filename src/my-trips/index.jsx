@@ -26,10 +26,10 @@ function diffDays(start, end) {
 function formatCurrency(amount, currency) {
   if (amount == null || amount === '') return null
   try {
-    return new Intl.NumberFormat(undefined, { style: 'currency', currency: currency || 'USD', maximumFractionDigits: 0 }).format(Number(amount))
+    return new Intl.NumberFormat(undefined, { style: 'currency', currency: currency || 'INR', maximumFractionDigits: 0 }).format(Number(amount))
   } catch {
     // Fallback formatting
-    return `${currency || 'USD'} ${amount}`
+    return `${currency || 'INR'} ${amount}`
   }
 }
 

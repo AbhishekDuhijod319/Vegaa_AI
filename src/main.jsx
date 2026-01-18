@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useLayoutEffect } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";
@@ -18,16 +18,19 @@ import EditTrip from "./edit-trip/[tripId]/index.jsx";
 import ErrorBoundary from "./components/misc/ErrorBoundary.jsx";
 import AboutPage from "./about/index.jsx";
 import Profile from "./profile/index.jsx";
+import AuthPage from "./auth/index.jsx";
 
 // Scroll manager: reset to top on route changes; preserve scroll during component updates
 const ScrollManager = () => {
   const location = useLocation();
-  useEffect(() => {
+  useLayoutEffect(() => {
     try {
-      window.history.scrollRestoration = "manual";
+      if ('scrollRestoration' in window.history) {
+        window.history.scrollRestoration = "manual";
+      }
     } catch {}
     // On route change, scroll to top immediately (no smooth to avoid fighting with snap/offset)
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }, [location.pathname, location.search]);
   return null;
 };
@@ -96,6 +99,12 @@ const router = createBrowserRouter([
       <Layout hideFooter>
         <EditTrip />
       </Layout>
+    ),
+  },
+  {
+    path: "/auth",
+    element: (
+      <AuthPage />
     ),
   },
 ]);

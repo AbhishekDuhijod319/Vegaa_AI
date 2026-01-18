@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -41,36 +44,38 @@
 }
 
 :root {
-  /* Light theme: neutral, accessible contrast */
-  --radius: 0.625rem;
+  font-family: 'Inter', sans-serif;
+  
+  /* Modern iOS-inspired values */
+  --radius: 1rem; /* More rounded corners */
 
-  --background: oklch(0.98 0 0);
-  --foreground: oklch(0.20 0 0);
+  /* Light theme: Soft, airy, modern */
+  --background: oklch(0.99 0 0); /* Very slight off-white */
+  --foreground: oklch(0.15 0.02 260); /* Softer black */
 
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.20 0 0);
+  --card-foreground: oklch(0.15 0.02 260);
 
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.20 0 0);
+  --popover-foreground: oklch(0.15 0.02 260);
 
-  --primary: oklch(0.25 0 0);
+  --primary: oklch(0.45 0.15 260); /* Modern blue-ish primary */
   --primary-foreground: oklch(0.98 0 0);
+  --primary-rgb: 0, 119, 237; /* RGB fallback for rgba helpers */
 
-  --secondary: oklch(0.96 0 0);
-  --secondary-foreground: oklch(0.25 0 0);
+  --secondary: oklch(0.96 0.01 260);
+  --secondary-foreground: oklch(0.25 0.05 260);
 
-  /* Muted surfaces need darker text to consistently hit ≥4.5:1 */
-  --muted: oklch(0.96 0 0);
-  --muted-foreground: oklch(0.34 0 0);
+  --muted: oklch(0.96 0.01 260);
+  --muted-foreground: oklch(0.45 0.02 260);
 
-  /* Accent surfaces mirror muted; ensure readable default text */
-  --accent: oklch(0.96 0 0);
-  --accent-foreground: oklch(0.34 0 0);
+  --accent: oklch(0.95 0.02 260);
+  --accent-foreground: oklch(0.25 0.05 260);
 
-  --destructive: oklch(0.60 0.25 25);
-  --border: oklch(0.86 0 0);
-  --input: oklch(0.92 0 0);
-  --ring: oklch(0.50 0 0);
+  --destructive: oklch(0.60 0.20 25);
+  --border: oklch(0.90 0.01 260);
+  --input: oklch(0.92 0.01 260);
+  --ring: oklch(0.45 0.15 260);
 
   --chart-1: oklch(0.48 0.24 264.376);
   --chart-2: oklch(0.64 0.20 162.48);
@@ -89,6 +94,32 @@
 
   /* Responsive header offset for snapping alignment */
   --app-header-offset: clamp(64px, 6.5vw + 48px, 104px);
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar for Webkit */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: oklch(0.85 0 0);
+  border-radius: 20px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: oklch(0.75 0 0);
 }
 
 

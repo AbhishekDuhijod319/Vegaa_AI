@@ -144,6 +144,7 @@ const SmartImage = ({
         setError(true);
       }}
       fetchpriority={fetchpriority}
+      // {...rest}
     />
   );
 };

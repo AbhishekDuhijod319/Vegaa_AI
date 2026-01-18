@@ -29,22 +29,22 @@ const UserMenu = ({ user, onLogout }) => {
     <div className='relative'>
       <button
         ref={buttonRef}
-        className='flex items-center gap-3 cursor-pointer px-2 py-1.5 rounded-md hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring'
+        className='flex items-center gap-3 cursor-pointer pl-4 pr-1.5 py-1.5 rounded-full hover:bg-black/5 focus:outline-none focus:bg-black/5 transition-all duration-300 hover:scale-[1.02]'
         aria-haspopup='menu'
         aria-expanded={menuOpen}
         onClick={() => setMenuOpen((s) => !s)}
       >
         {/* User name aligned to the left of profile photo */}
         {displayName && (
-          <span className='hidden xl:inline text-sm text-foreground font-medium truncate max-w-[160px]' title={displayName}>
+          <span className='hidden xl:inline text-sm text-foreground/90 font-medium truncate max-w-[160px]' title={displayName}>
             {displayName}
           </span>
         )}
         <div className='relative'>
           {user?.picture ? (
-            <img src={user.picture} referrerPolicy='no-referrer' onError={(e)=>{e.currentTarget.style.display='none'}} alt={user.name || 'User'} className='h-9 w-9 rounded-full object-cover border' />
+            <img src={user.picture} referrerPolicy='no-referrer' onError={(e)=>{e.currentTarget.style.display='none'}} alt={user.name || 'User'} className='h-9 w-9 rounded-full object-cover border border-white/40 shadow-sm' />
           ) : (
-            <div className='h-9 w-9 rounded-full bg-secondary border flex items-center justify-center font-semibold'>
+            <div className='h-9 w-9 rounded-full bg-secondary border border-white/40 flex items-center justify-center font-semibold shadow-sm text-foreground/80'>
               {initial}
             </div>
           )}
@@ -56,12 +56,12 @@ const UserMenu = ({ user, onLogout }) => {
           ref={menuRef}
           role='menu'
           aria-label='User menu'
-          className='absolute right-0 mt-2 w-44 bg-card border rounded-md shadow-md text-sm p-1'
+          className='absolute right-0 mt-3 w-44 bg-white/90 backdrop-blur-xl border border-white/20 rounded-2xl shadow-floating p-1.5 animate-in zoom-in-95 fade-in duration-200 origin-top-right'
         >
           <button
             role='menuitem'
             onClick={()=>setConfirmOpen(true)}
-            className='w-full text-left block px-3 py-2 rounded-sm text-destructive hover:bg-accent hover:text-destructive'
+            className='w-full text-left block px-4 py-2.5 rounded-xl text-destructive font-medium hover:bg-red-50 hover:text-red-600 transition-colors'
           >
             Logout
           </button>

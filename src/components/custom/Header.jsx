@@ -119,89 +119,84 @@ const Header = () => {
     <div
       className={cn(
         // Overlay wrapper: fixed, centered, high z-index
-        "fixed inset-x-0 z-50 top-[clamp(0.25rem,0.5vw,0.75rem)]",
-        // Let clicks pass only to the inner header (prevents layout issues at edges)
-        "pointer-events-none"
+        "fixed inset-x-0 z-[100] top-4 md:top-6 pointer-events-none flex justify-center px-4"
       )}
-      style={{ marginTop: "env(safe-area-inset-top, 0px)" }}
     >
-      <div
+      <header
         className={cn(
-          "max-w-7xl w-full mx-auto",
+          "relative w-full max-w-5xl mx-auto",
           // Spacing and layout
-          "px-[clamp(0.75rem,1rem+1vw,2rem)] py-[clamp(0.5rem,0.75rem+0.5vw,1rem)]",
+          "px-2 py-2 pl-6",
           "flex items-center justify-between",
-          "gap-[clamp(0.5rem,0.6rem+0.8vw,1.25rem)]",
-          // Visual style: pill, subtle border/shadow, semi-transparent
-          "rounded-[clamp(0.75rem,1.5vw,1.25rem)] border bg-background shadow-lg",
-          // Enable interactions on the header, while wrapper remains non-interactive
-          "pointer-events-auto"
+          // Visual style: Glassmorphism, pill shape, soft shadow
+          "rounded-full border border-white/40 bg-white/70 backdrop-blur-3xl shadow-soft",
+          // Enable interactions on the header
+          "pointer-events-auto transition-all duration-500 ease-spring",
+          // Hover effect for the container
+          "hover:shadow-lg hover:scale-[1.002]"
         )}
       >
         {/* Left: Brand only */}
         <div className="flex items-center">
           <Brand />
         </div>
-        {/* Center: Nav (desktop only, lg and up) */}
+        
+        {/* Center: Nav (desktop only) */}
         <Nav currentUser={currentUser} />
-        {/* Right: Theme + Auth + Mobile menu (hamburger on sm/md) */}
-        <div className="flex items-center gap-[clamp(0.5rem,0.6rem+0.8vw,1.25rem)]">
-          {/* Theme toggle removed for light-only */}
+        
+        {/* Right: Theme + Auth + Mobile menu */}
+        <div className="flex items-center gap-3 pr-2">
+          {/* Auth Button */}
           {!currentUser ? (
-            <Button
-              className="transition-colors hidden lg:inline-flex text-[clamp(0.9rem,0.85rem+0.25vw,1rem)] px-[clamp(0.6rem,0.5rem+0.7vw,1.2rem)] py-[clamp(0.4rem,0.3rem+0.5vw,0.65rem)]"
-              onClick={() => login()}
-            >
-              Sign In
-            </Button>
+            <div className="relative group">
+              <Button
+                className="relative bg-black text-white hover:bg-black/80 rounded-full px-8 py-5 h-10 text-sm font-medium transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 border border-transparent"
+                onClick={() => navigate('/auth')}
+              >
+                Sign In
+              </Button>
+            </div>
           ) : (
             <div className="hidden lg:block">
               <UserMenu user={currentUser} onLogout={onLogout} />
             </div>
           )}
 
-          {/* Mobile/Tablet: Hamburger menu at top-right, aligned with header */}
+          {/* Mobile Menu Toggle */}
           <div className="relative lg:hidden">
             <Button
-              variant="outline"
+              variant="ghost"
               size="icon"
               aria-label="Open menu"
-              className="h-[clamp(40px,7vw,48px)] w-[clamp(40px,7vw,48px)] rounded-md"
-              title="Open menu"
+              className="rounded-full text-foreground/80 hover:bg-black/5 hover:text-foreground transition-colors"
               onClick={() => setMenuOpen((v) => !v)}
             >
-              <Menu aria-hidden />
+              <Menu className="w-6 h-6" aria-hidden />
             </Button>
+            
+            {/* Mobile Menu Dropdown */}
             {menuOpen && (
-              <div className="absolute right-0 top-full mt-2 w-[clamp(16rem,80vw,22rem)] rounded-xl border bg-white shadow-lg">
-                <div className="absolute -top-2 right-6 h-4 w-4 rotate-45 bg-card border-l border-t" aria-hidden />
-                <nav className="grid gap-1 p-2" aria-label="Mobile navigation">
+              <div className="absolute right-0 top-full mt-4 w-[90vw] max-w-sm rounded-3xl border border-white/40 bg-white/90 backdrop-blur-3xl shadow-2xl p-4 animate-in slide-in-from-top-4 fade-in duration-300 origin-top-right">
+                <nav className="grid gap-2" aria-label="Mobile navigation">
                   <Button
                     variant="ghost"
-                    className="justify-start h-[clamp(2.5rem,6.5vw,3rem)] text-[clamp(0.95rem,0.85rem+0.25vw,1rem)]"
+                    className="justify-start text-lg font-medium text-foreground/90 rounded-2xl h-14 pl-6 hover:bg-black/5 transition-colors"
                     onClick={() => goTo("hero")}
                   >
                     Home
                   </Button>
                   <Button
                     variant="ghost"
-                    className="justify-start h-[clamp(2.5rem,6.5vw,3rem)] text-[clamp(0.95rem,0.85rem+0.25vw,1rem)]"
+                    className="justify-start text-lg font-medium text-foreground/90 rounded-2xl h-14 pl-6 hover:bg-black/5 transition-colors"
                     onClick={() => navigate('/about')}
                   >
                     About Us
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="justify-start h-[clamp(2.5rem,6.5vw,3rem)] text-[clamp(0.95rem,0.85rem+0.25vw,1rem)]"
-                    onClick={() => goTo("faq")}
-                  >
-                    FAQ
                   </Button>
                   {currentUser && (
                     <>
                       <Button
                         variant="ghost"
-                        className="justify-start h-[clamp(2.5rem,6.5vw,3rem)] text-[clamp(0.95rem,0.85rem+0.25vw,1rem)]"
+                        className="justify-start text-lg font-medium text-foreground/90 rounded-2xl h-14 pl-6 hover:bg-black/5 transition-colors"
                         onClick={() => {
                           navigate("/my-trips");
                           setMenuOpen(false);
@@ -211,7 +206,7 @@ const Header = () => {
                       </Button>
                       <Button
                         variant="ghost"
-                        className="justify-start h-[clamp(2.5rem,6.5vw,3rem)] text-[clamp(0.95rem,0.85rem+0.25vw,1rem)]"
+                        className="justify-start text-lg font-medium text-foreground/90 rounded-2xl h-14 pl-6 hover:bg-black/5 transition-colors"
                         onClick={() => {
                           navigate("/profile");
                           setMenuOpen(false);
@@ -221,13 +216,20 @@ const Header = () => {
                       </Button>
                     </>
                   )}
-                  <div className="my-2 border-t" />
+                  <div className="my-2 border-t border-black/5" />
                   {!currentUser ? (
-                    <Button className="justify-start h-[clamp(2.5rem,6.5vw,3rem)] text-[clamp(0.95rem,0.85rem+0.25vw,1rem)]" onClick={() => { login(); setMenuOpen(false); }}>
+                    <Button 
+                      className="justify-center text-lg font-bold rounded-2xl h-14 w-full bg-black text-white shadow-lg hover:shadow-xl hover:scale-[1.01] transition-all" 
+                      onClick={() => { navigate('/auth'); setMenuOpen(false); }}
+                    >
                       Sign In
                     </Button>
                   ) : (
-                    <Button variant="destructive" className="justify-start h-[clamp(2.5rem,6.5vw,3rem)] text-[clamp(0.95rem,0.85rem+0.25vw,1rem)]" onClick={() => { setMenuOpen(false); onLogout(); }}>
+                    <Button 
+                      variant="destructive" 
+                      className="justify-center text-lg font-bold rounded-2xl h-14 w-full shadow-soft hover:scale-[1.01] transition-transform" 
+                      onClick={() => { setMenuOpen(false); onLogout(); }}
+                    >
                       Logout
                     </Button>
                   )}
@@ -236,7 +238,7 @@ const Header = () => {
             )}
           </div>
         </div>
-      </div>
+      </header>
     </div>
   );
 };

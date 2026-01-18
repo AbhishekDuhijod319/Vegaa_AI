@@ -214,10 +214,7 @@ const CreateTrip = () => {
 
   return (
     <div className="no-caret-glow p-5 md:px-16 lg:px-40 xl:px-56">
-      {/* Header bar */}
-      <div className="h-10 rounded-full bg-background border border-border mb-6" />
-
-      {/* Plan Your Journey card */}
+          {/* Plan Your Journey card */}
       <div className="mt-20">
         <div className="flex items-center gap-4">
           <div>

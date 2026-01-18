@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import SmartImage from "@/components/ui/SmartImage";
 import { useImageLuminance } from "@/lib/useImageLuminance";
+import Hero from "@/components/custom/Hero";
 import { Button } from "./components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -28,274 +29,236 @@ const AppContext = React.createContext({
   },
 });
 
-// 1) Hero Section
-function HeroSection() {
-  const { hero, actions } = useContext(AppContext);
-  const { bgUrl, isDarkTextSafe } = hero;
-  const { onGetStarted, onLearnMore } = actions;
 
-  const titleTextClass =
-    isDarkTextSafe === null
-      ? "text-foreground"
-      : isDarkTextSafe
-      ? "text-white"
-      : "text-foreground";
-  const descTextClass = isDarkTextSafe
-    ? "text-white/85"
-    : "text-muted-foreground";
-
-  const overlayClass = `absolute inset-0 ${
-    isDarkTextSafe === null
-      ? "bg-black/30"
-      : isDarkTextSafe
-      ? "bg-black/20"
-      : "bg-black/50"
-  }`;
-
-  return (
-    <section
-      id="hero"
-      data-section
-      className="relative scroll-mt-24 min-h-[100svh] grid md:grid-cols-2 [content-visibility:auto] [contain-intrinsic-size:1px_1000px]"
-      aria-label="Hero"
-      style={{
-        backgroundImage: bgUrl ? `url('${bgUrl}')` : "none",
-        backgroundPosition: "center",
-        backgroundSize: "cover",
-        backgroundRepeat: "no-repeat",
-      }}
-    >
-      {bgUrl && <div className={overlayClass} aria-hidden />}
-
-      {/* Left: Heading + description */}
-      <div className="relative flex flex-col justify-center px-6 md:px-8 lg:px-16 gap-4 mx-auto w-full max-w-3xl">
-        <h1
-          className={`font-bold text-white leading-tight drop-shadow-md text-4xl sm:text-5xl md:text-6xl ${titleTextClass}`}
-        >
-          Plan smarter trips in minutes
-        </h1>
-        <p className={`max-w-xl text-base sm:text-lg text-white ${descTextClass}`}>
-          Describe your trip goals, budget, and companions. Get a personalized
-          itinerary with curated places to visit, hotels to stay, and
-          experiences to enjoy.
-        </p>
-        <a
-          href="https://www.pexels.com/photo/maldives-island-1450340/"
-          target="_blank"
-          rel="noreferrer noopener"
-          className="text-xs text-white/80 hover:text-white underline underline-offset-2 mt-2"
-        >
-          Photo by Asad Photo Maldives from Pexels
-        </a>
-      </div>
-
-      {/* Right: CTA card */}
-      <div className="relative flex items-center justify-center mx-auto w-full max-w-md">
-        <div className="rounded-2xl p-6 md:p-8 shadow-lg w-[90%] md:w-[80%] max-w-sm bg-card/80 backdrop-blur supports-[backdrop-filter]:bg-card/70">
-          <div className="space-y-4">
-            <Button
-              className="w-full font-bold"
-              size="lg"
-              onClick={onGetStarted}
-            >
-              Get Started
-            </Button>
-            <Button
-              className="w-full font-bold"
-              size="lg"
-              variant="outline"
-              onClick={onLearnMore}
-            >
-              Learn More
-            </Button>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
 
 // 2) Popular Destinations
 function DestinationsSection({ destinations }) {
-  const { images, actions } = useContext(AppContext);
-  const { stableDestImages } = images;
+  const { images } = useContext(AppContext);
   const trackRef = useRef(null);
-  const rafId = useRef(0);
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [autoplay, setAutoplay] = useState(true);
   const [isPaused, setIsPaused] = useState(false);
 
-  const updateActive = useCallback(() => {
-    const track = trackRef.current;
-    if (!track) return;
-    const slides = track.children;
-    if (!slides || !slides.length) return;
-    const center = track.scrollLeft + track.clientWidth / 2;
-    let closestIdx = 0;
-    let minDist = Infinity;
-    for (let i = 0; i < slides.length; i++) {
-      const el = slides[i];
-      const elCenter = el.offsetLeft - track.offsetLeft + el.clientWidth / 2;
-      const dist = Math.abs(elCenter - center);
-      if (dist < minDist) {
-        minDist = dist;
-        closestIdx = i;
-      }
-    }
-    setCurrentIdx(closestIdx);
-  }, []);
+  // Double the items for continuous loop
+  const items = useMemo(() => [...destinations, ...destinations], [destinations]);
 
-  const handleScroll = useCallback(() => {
-    if (rafId.current) return;
-    rafId.current = requestAnimationFrame(() => {
-      rafId.current = 0;
-      updateActive();
-    });
-  }, [updateActive]);
-
-  const goTo = useCallback((idx) => {
-    const track = trackRef.current;
-    if (!track) return;
-    const slides = track.children;
-    if (!slides || !slides.length) return;
-    const clamped = Math.max(0, Math.min(idx, slides.length - 1));
-    const el = slides[clamped];
-    const left = el.offsetLeft - track.offsetLeft;
-    track.scrollTo({ left, behavior: "smooth" });
-    setCurrentIdx(clamped);
-  }, []);
-
-  const prev = useCallback(() => {
-    goTo(currentIdx - 1);
-  }, [goTo, currentIdx]);
-  const next = useCallback(() => {
-    goTo(currentIdx + 1);
-  }, [goTo, currentIdx]);
-
+  // Autoscroll & Scale Animation
   useEffect(() => {
-    if (!autoplay || isPaused) return;
-    const id = setInterval(() => {
-      next();
-    }, 5000);
-    return () => clearInterval(id);
-  }, [autoplay, isPaused, next]);
+    const track = trackRef.current;
+    if (!track) return;
+
+    let rafId;
+    let lastTime = performance.now();
+    const speed = 30; // px/s
+
+    const animate = (time) => {
+      const delta = time - lastTime;
+      lastTime = time;
+
+      // 1. Auto-scroll
+      if (!isPaused) {
+        track.scrollLeft += (speed * delta) / 1000;
+      }
+
+      // 2. Loop Logic
+      // Use offset of the second set start to determine exact loop period
+      // Safety check for children existence
+      if (track.children.length > destinations.length) {
+        const firstItem = track.children[0];
+        const secondSetStartItem = track.children[destinations.length];
+        
+        if (firstItem && secondSetStartItem) {
+          const period = secondSetStartItem.offsetLeft - firstItem.offsetLeft;
+          
+          if (track.scrollLeft >= period) {
+             track.scrollLeft -= period;
+          } else if (track.scrollLeft <= 0) {
+             track.scrollLeft += period;
+          }
+        }
+      }
+
+      // 3. Scale/Opacity based on distance to center
+      const center = track.scrollLeft + track.clientWidth / 2;
+      const children = track.children;
+      let closestDist = Infinity;
+      let closestIndex = 0;
+
+      for (let i = 0; i < children.length; i++) {
+        const wrapper = children[i];
+        // Wrapper center relative to track visible area?
+        // offsetLeft is relative to track content start.
+        // We want distance from 'center' (which is in content coordinates).
+        const wrapperCenter = wrapper.offsetLeft + wrapper.clientWidth / 2;
+        const dist = Math.abs(wrapperCenter - center);
+        
+        // Scale calculation
+        // Viewport width
+        const viewW = track.clientWidth;
+        // Scale 1.0 at center, drops to 0.9 at edges
+        const scale = Math.max(0.9, 1 - (dist / viewW) * 0.3);
+        const opacity = Math.max(0.6, 1 - (dist / viewW) * 0.6);
+        
+        wrapper.style.transform = `scale(${scale})`;
+        wrapper.style.opacity = opacity;
+
+        if (dist < closestDist) {
+          closestDist = dist;
+          closestIndex = i;
+        }
+      }
+
+      // Update active index for progress bar
+      const realIndex = closestIndex % destinations.length;
+      setCurrentIdx(prev => prev !== realIndex ? realIndex : prev);
+
+      rafId = requestAnimationFrame(animate);
+    };
+
+    rafId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafId);
+  }, [isPaused, destinations.length]);
+
+  // Tilt Handlers
+  const handleMouseMove = useCallback((e) => {
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    // Max 15 degrees
+    const rotateX = ((y - centerY) / centerY) * -15; 
+    const rotateY = ((x - centerX) / centerX) * 15;
+    
+    // Apply transform with perspective
+    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+  }, []);
+
+  const handleMouseLeave = useCallback((e) => {
+    e.currentTarget.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+  }, []);
+
+  // Manual Navigation Helpers
+  const scrollBy = (amount) => {
+    if (trackRef.current) {
+      trackRef.current.scrollLeft += amount;
+    }
+  };
 
   return (
     <section
       id="destinations"
       data-section
-      className="min-h-[100svh] flex flex-col items-center [contain-intrinsic-size:1px_1000px]"
+      className="min-h-[100svh] flex flex-col justify-center pt-24 md:pt-32 pb-12 md:pb-16 bg-gradient-to-b from-background via-secondary/20 to-background overflow-hidden snap-start snap-always"
       aria-label="Popular Destinations"
-      style={{
-        // Align start using dynamic header offset and add bottom margin so pagination remains visible
-        scrollMarginTop: "var(--app-header-offset)",
-        scrollMarginBottom: "max(16px, calc(var(--app-header-offset) / 2))",
-      }}
+      style={{ scrollMarginTop: "var(--app-header-offset)" }}
     >
-      <div className="px-6 md:px-8 lg:px-16 py-8 sm:py-9 md:py-10 lg:py-12 max-w-8xl mx-auto w-full">
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            <h2 className="text-2xl md:text-3xl font-bold">
-              Popular Destinations to Visit
+      <div className="container px-6 mx-auto mb-8 md:mb-12 text-center md:text-left">
+        <div className="flex flex-col md:flex-row items-end justify-between gap-6">
+          <div className="max-w-2xl space-y-4">
+            {/* <span className="text-primary font-semibold tracking-wide uppercase text-xs md:text-sm bg-primary/10 px-3 py-1 rounded-full w-fit mx-auto md:mx-0">
+              Inspiration for your next trip
+            </span> */}
+            <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-foreground leading-tight">
+              Popular <br className="hidden md:block"/>Destinations
             </h2>
-            <p className="text-muted-foreground mt-1">
-              Popular places across the globe to visit
+            <p className="text-muted-foreground text-lg md:text-xl leading-relaxed max-w-lg mx-auto md:mx-0">
+              Discover the most breathtaking places across the globe, curated just for you.
             </p>
+          </div>
+          
+          {/* Controls */}
+          <div 
+            className="hidden md:flex items-center gap-3"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+          >
+            <button
+              aria-label="Previous destination"
+              onClick={() => scrollBy(-300)}
+              className="h-12 w-12 rounded-full bg-white/80 dark:bg-white/10 backdrop-blur-xl border border-white/20 shadow-ios-subtle flex items-center justify-center hover:scale-105 transition-all active:scale-95 text-foreground"
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </button>
+            <button
+              aria-label="Next destination"
+              onClick={() => scrollBy(300)}
+              className="h-12 w-12 rounded-full bg-white/80 dark:bg-white/10 backdrop-blur-xl border border-white/20 shadow-ios-subtle flex items-center justify-center hover:scale-105 transition-all active:scale-95 text-foreground"
+            >
+              <ChevronRight className="h-6 w-6" />
+            </button>
           </div>
         </div>
       </div>
 
-      <div className="mt-4 px-6 md:px-8 lg:px-16 pb-8 sm:pb-10 md:pb-12 max-w-8xl mx-auto w-full">
-        <div className="relative">
-          <button
-            aria-label="Previous"
-            onClick={prev}
-            className="md:hidden absolute left-1 top-1/2 -translate-y-1/2 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full border bg-card/80 bg-white hover:bg-muted transition-colors disabled:opacity-40"
-            disabled={currentIdx === 0}
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <button
-            aria-label="Next"
-            onClick={next}
-            className="md:hidden absolute right-1 top-1/2 -translate-y-1/2 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full border bg-card/80 bg-white hover:bg-muted transition-colors disabled:opacity-40"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
-
-          <div
-            ref={trackRef}
-            id="destinations-carousel"
-            className="grid grid-flow-col auto-cols-[minmax(280px,1fr)] gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory scroll-smooth py-2"
-            role="listbox"
-            aria-label="Popular destinations carousel"
-            tabIndex={0}
-            onScroll={handleScroll}
-            onKeyDown={(e) => {
-              if (e.key === "ArrowLeft") {
-                e.preventDefault();
-                prev();
-              }
-              if (e.key === "ArrowRight") {
-                e.preventDefault();
-                next();
-              }
-            }}
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
-            onFocus={() => setIsPaused(true)}
-            onBlur={() => setIsPaused(false)}
-            onTouchStart={() => setIsPaused(true)}
-            onTouchEnd={() => setIsPaused(false)}
-          >
-            {destinations.map((d, i) => (
+      {/* Full-width Carousel */}
+      <div className="w-full relative group">
+        <div
+          ref={trackRef}
+          id="destinations-carousel"
+          className="flex overflow-x-auto gap-6 px-[5vw] md:px-[10vw] no-scrollbar pb-12 pt-4"
+          role="listbox"
+          aria-label="Popular destinations carousel"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+          onTouchStart={() => setIsPaused(true)}
+          onTouchEnd={() => setIsPaused(false)}
+        >
+          {items.map((d, i) => (
+            <div
+              key={`${d.id}-${i}`}
+              className="relative flex-shrink-0 w-[85vw] sm:w-[45vw] lg:w-[28vw] xl:w-[22vw] aspect-[3/4] transition-all duration-300 ease-out will-change-transform"
+            >
               <article
-                key={d.id}
-                className="group relative rounded-2xl overflow-hidden border bg-card aspect-[3/4] snap-center shadow-sm"
-                role="option"
-                aria-selected={i === currentIdx}
+                className="w-full h-full rounded-3xl overflow-hidden cursor-pointer shadow-2xl transition-transform duration-100 ease-out will-change-transform relative"
+                onMouseMove={handleMouseMove}
+                onMouseLeave={handleMouseLeave}
               >
+                <div className="absolute inset-0 bg-muted animate-pulse" />
+                
                 <SmartImage
                   query={d.title || d.city || "travel destination"}
                   alt={d.city}
-                  className="absolute inset-0 w-full h-full object-cover"
+                  className="absolute inset-0 w-full h-full object-cover select-none"
+                  draggable="false"
                   pexelsFallback={true}
-                  width={1200}
-                  height={1600}
-                  sizes="(min-width:1280px) 25vw, (min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
-                  fetchpriority={i === currentIdx ? "high" : "low"}
+                  width={800}
+                  height={1200}
+                  sizes="(min-width:1280px) 25vw, (min-width:1024px) 33vw, (min-width:640px) 50vw, 85vw"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/20 to-transparent" />
-                <div className="absolute inset-0 p-4 flex flex-col">
-                  <span className="inline-flex items-center rounded-lg px-3 py-1 text-[13px] font-medium text-white/95 bg-white/20 backdrop-blur-sm">
-                    {d.city}
-                  </span>
-                  <h3 className="mt-auto text-white text-base sm:text-lg font-semibold leading-snug drop-shadow-md">
+                
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90 pointer-events-none" />
+                
+                {/* Content */}
+                <div className="absolute inset-0 p-6 flex flex-col justify-end text-white pointer-events-none">
+                  <div className="mb-3">
+                    <span className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-white/20 backdrop-blur-md border border-white/10">
+                      {d.city}
+                    </span>
+                  </div>
+                  <h3 className="text-2xl md:text-3xl font-bold leading-tight mb-2 drop-shadow-lg">
                     {d.title}
                   </h3>
+                  <p className="text-white/80 text-sm line-clamp-2 mb-4">
+                    Discover the best spots, hidden gems, and local favorites in {d.city}.
+                  </p>
+                  {/* Explore Guide Button REMOVED */}
                 </div>
               </article>
-            ))}
-          </div>
-
-          <div
-            className="flex justify-center mt-4 no-scrollbar"
-            aria-label="Carousel pagination"
-          >
-            <div className="inline-flex items-center gap-2">
-              {destinations.map((_, i) => (
-                <button
-                  key={i}
-                  aria-label={`Go to slide ${i + 1}`}
-                  aria-current={i === currentIdx ? "true" : undefined}
-                  onClick={() => goTo(i)}
-                  className={`h-2.5 w-2.5 rounded-full transition-all ${
-                    i === currentIdx ? "bg-foreground w-6" : "bg-muted"
-                  }`}
-                />
-              ))}
             </div>
-          </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Progress Bar (Mobile) */}
+      <div className="md:hidden flex justify-center px-6 mt-4">
+        <div className="h-1 bg-muted rounded-full w-full max-w-[200px] overflow-hidden">
+          <div 
+            className="h-full bg-primary transition-all duration-300 ease-out"
+            style={{ width: `${((currentIdx + 1) / destinations.length) * 100}%` }}
+          />
         </div>
       </div>
     </section>
@@ -313,10 +276,10 @@ function HowItWorksSections({ steps }) {
           key={s.id}
           id={s.id}
           data-section
-          className="scroll-mt-24 min-h-[100svh] [content-visibility:auto] [contain-intrinsic-size:1px_1000px]"
+          className="scroll-mt-24 min-h-[100svh] flex flex-col justify-center pt-32 pb-16 [content-visibility:auto] [contain-intrinsic-size:1px_1000px] snap-start snap-always"
           aria-label={`How it works - ${s.title}`}
         >
-          <div className="h-full grid md:grid-cols-2 items-center gap-6 px-6 md:px-16 py-8 sm:py-9 md:py-10 lg:py-12 mt-24">
+          <div className="h-full grid md:grid-cols-2 items-center gap-6 px-6 md:px-16">
             <div className="max-w-xl">
               <h3 className="text-2xl md:text-3xl font-semibold mb-3">
                 {s.title}
@@ -345,56 +308,107 @@ function HowItWorksSections({ steps }) {
     </>
   );
 }
+  
+// 4) FAQ Section (Redesigned iOS Style)
+import { Search, Plus, Minus } from "lucide-react";
 
-// 4) FAQ Section
 function FaqSection() {
   const { faq } = useContext(AppContext);
   const { faqs, newQuestion, setNewQuestion, onSubmitQuestion } = faq;
+  const [searchTerm, setSearchTerm] = useState("");
+  const [openIndex, setOpenIndex] = useState(null);
+
+  // Group FAQs for iOS "Grouped List" feel
+  const filteredFaqs = faqs.filter(f => 
+    f.q.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    f.a.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <section
       id="faq"
       data-section
-      className="scroll-mt-24 min-h-[100svh] flex flex-col [content-visibility:auto] [contain-intrinsic-size:1px_1000px]"
+      className="min-h-[100svh] flex flex-col justify-center pt-32 pb-24 bg-[#F2F2F7] dark:bg-black font-sans snap-start snap-always"
       aria-label="FAQ"
     >
-      <div className="px-6 md:px-8 lg:px-16 py-8 sm:py-9 md:py-10 lg:py-12 mt-24 max-w-8xl mx-auto w-full">
-        <h2 className="text-2xl md:text-3xl font-bold">
-          Frequently Asked Questions
-        </h2>
-        <p className="text-muted-foreground mt-1">
-          Find quick answers or ask a new question.
-        </p>
-      </div>
-      <div className="px-6 md:px-8 lg:px-16 mt-6 grid md:grid-cols-5 gap-6 flex-1 max-w-8xl mx-auto w-full">
-        <div className="md:col-span-3 pr-1">
-          <div className="space-y-3">
-            {faqs.map((item, idx) => (
-              <details key={idx} className="rounded-xl border bg-card p-4">
-                <summary className="font-medium cursor-pointer select-none">
-                  {item.q}
-                </summary>
-                <p className="text-muted-foreground mt-2">{item.a}</p>
-              </details>
-            ))}
-          </div>
+      <div className="w-full max-w-3xl mx-auto px-4 sm:px-6">
+        <div className="mb-10 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
+            Frequently Asked Questions
+          </h2>
+          <p className="text-muted-foreground mt-2 text-lg">
+            Find answers to common questions about Vegaa AI.
+          </p>
         </div>
-        <div className="md:col-span-2">
-          <form
-            onSubmit={onSubmitQuestion}
-            className="rounded-xl border bg-card p-4 space-y-3"
-          >
-            <label htmlFor="newQuestion" className="font-medium">
-              Ask a question
-            </label>
+
+        {/* iOS Search Bar */}
+        <div className="relative mb-8">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 text-gray-400" />
+          </div>
+          <input
+            type="text"
+            className="block w-full pl-10 pr-3 py-3 border-none rounded-xl bg-white dark:bg-[#1C1C1E] text-foreground placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 shadow-sm transition-all"
+            placeholder="Search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
+        {/* iOS Grouped List */}
+        <div className="space-y-4">
+          {filteredFaqs.length > 0 ? (
+            <div className="bg-white dark:bg-[#1C1C1E] rounded-2xl overflow-hidden shadow-sm">
+              {filteredFaqs.map((item, idx) => {
+                const isOpen = openIndex === idx;
+                return (
+                  <div key={idx} className="border-b border-gray-100 dark:border-gray-800 last:border-0">
+                    <button
+                      onClick={() => setOpenIndex(isOpen ? null : idx)}
+                      className="w-full flex items-center justify-between p-5 text-left bg-transparent hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+                      aria-expanded={isOpen}
+                    >
+                      <span className="text-[17px] font-semibold text-foreground pr-4">
+                        {item.q}
+                      </span>
+                      <span className={`text-primary transition-transform duration-300 ${isOpen ? "rotate-45" : ""}`}>
+                        <Plus className="h-5 w-5" />
+                      </span>
+                    </button>
+                    <div
+                      className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                        isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                      }`}
+                    >
+                      <div className="p-5 pt-0 text-[16px] text-gray-600 dark:text-gray-300 leading-relaxed">
+                        {item.a}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-10 text-gray-500">
+              No results found.
+            </div>
+          )}
+        </div>
+
+        {/* "Ask a Question" Card */}
+        <div className="mt-8 bg-white dark:bg-[#1C1C1E] rounded-2xl p-6 shadow-sm">
+          <h3 className="text-lg font-semibold mb-4">Have more questions?</h3>
+          <form onSubmit={onSubmitQuestion} className="space-y-4">
             <textarea
-              id="newQuestion"
-              className="w-full min-h-24 rounded-md border bg-background p-3 text-base md:text-sm"
+              className="w-full min-h-[100px] p-4 rounded-xl bg-[#F2F2F7] dark:bg-black border-none text-foreground placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none transition-all"
+              placeholder="Type your question here..."
               value={newQuestion}
               onChange={(e) => setNewQuestion(e.target.value)}
-              placeholder="Type your question here"
             />
             <div className="flex justify-end">
-              <Button type="submit">Submit</Button>
+              <Button type="submit" className="rounded-full px-6 font-semibold">
+                Submit Question
+              </Button>
             </div>
           </form>
         </div>
@@ -657,8 +671,8 @@ export default function App() {
 
   return (
     <AppContext.Provider value={contextValue}>
-      <main>
-        <HeroSection />
+      <main className="w-full">
+        <Hero onGetStarted={onGetStarted} onLearnMore={onLearnMore} />
         <DestinationsSection destinations={destinations} />
         <HowItWorksSections steps={steps} />
         <FaqSection />
