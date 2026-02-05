@@ -1,4 +1,5 @@
 import React, {
+  useLayoutEffect,
   useEffect,
   useMemo,
   useState,
@@ -23,9 +24,9 @@ const AppContext = React.createContext({
   hero: { bgUrl: "", isDarkTextSafe: null },
   images: { stableDestImages: {}, stableStepImages: {} },
   actions: {
-    scrollToId: (_id) => {},
-    onGetStarted: () => {},
-    onLearnMore: () => {},
+    scrollToId: (_id) => { },
+    onGetStarted: () => { },
+    onLearnMore: () => { },
   },
 });
 
@@ -38,10 +39,43 @@ function DestinationsSection({ destinations }) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
-  // Double the items for continuous loop
-  const items = useMemo(() => [...destinations, ...destinations], [destinations]);
+  // Triple the items for continuous loop (Buffer -> Main -> Buffer)
+  const items = useMemo(() => [...destinations, ...destinations, ...destinations], [destinations]);
 
-  // Autoscroll & Scale Animation
+  // Handle initialization and infinite loop
+  useLayoutEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+
+    // 1. Initial Position: Scroll to the middle set immediately
+    // We need to wait for layout paint slightly or assume items are rendered.
+    // Since items are data-driven, let's assume they are there.
+    // Calculate width of one set.
+    // We can measure the first child * number of destinations roughly, or just measure offset of item[N].
+
+    const initScroll = () => {
+      if (track.children.length > destinations.length) {
+        const itemWidth = track.children[0].getBoundingClientRect().width;
+        const gap = 24; // 1.5rem = 24px (from gap-6)
+        // Calculate width of one entire set including gaps
+        // Actually, simpler: finding the offsetLeft of the (destinations.length)-th item
+        const singleSetWidth = track.children[destinations.length].offsetLeft - track.children[0].offsetLeft;
+
+        // Scroll to start of 2nd set
+        track.scrollLeft = singleSetWidth;
+        return true;
+      }
+      return false;
+    };
+
+    // Try immediately
+    if (!initScroll()) {
+      // Retry shortly if images/layout pending? 
+      // For now, assume it works or effect re-runs.
+    }
+  }, [destinations]);
+
+  // Autoscroll & Loop Animation
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
@@ -59,22 +93,41 @@ function DestinationsSection({ destinations }) {
         track.scrollLeft += (speed * delta) / 1000;
       }
 
-      // 2. Loop Logic
-      // Use offset of the second set start to determine exact loop period
-      // Safety check for children existence
-      if (track.children.length > destinations.length) {
+      // 2. Loop Logic (Bidirectional)
+      if (track.children.length >= destinations.length * 3) {
         const firstItem = track.children[0];
-        const secondSetStartItem = track.children[destinations.length];
-        
-        if (firstItem && secondSetStartItem) {
-          const period = secondSetStartItem.offsetLeft - firstItem.offsetLeft;
-          
-          if (track.scrollLeft >= period) {
-             track.scrollLeft -= period;
-          } else if (track.scrollLeft <= 0) {
-             track.scrollLeft += period;
-          }
+        const setLength = destinations.length;
+
+        // Start of Set 2
+        const set2Start = track.children[setLength].offsetLeft;
+        // Start of Set 3
+        const set3Start = track.children[setLength * 2].offsetLeft;
+
+        // Period is the width of one set
+        const period = set2Start - firstItem.offsetLeft;
+
+        // If we've scrolled past the end of Set 2 (into Set 3), jump back to Set 2
+        // Actually, if we are in Set 3, we can subtract period to be in Set 2.
+        if (track.scrollLeft >= set3Start) {
+          track.scrollLeft -= period;
         }
+        // If we've scrolled back into Set 1, jump forward to Set 2
+        else if (track.scrollLeft <= 0) { // Or simpler: if (track.scrollLeft < set2Start - period) ...
+          // Ideally we want to keep it in the "middle" range.
+          // If < set2Start - some_buffer? 
+          // Simplest: if (track.scrollLeft <= 0) scrollLeft += period is for 0-based.
+          // We started at set2Start.
+          // If we go left and hit 0 (start of Set 1), we look like start of Set 2.
+          track.scrollLeft += period;
+        }
+        // Refined backward check: if we are comfortably inside Set 1, jump to Set 2.
+        // Let's say if scrollLeft < (period / 2)? No, we want seamless.
+        // Set 1 is identical to Set 2.
+        // If scrollLeft < set2Start, we are in Set 1.
+        // We want to allow user to scroll left into Set 1, but when they reach the *start* of Set 1 (0), we jump to start of Set 2.
+        // Wait, strictly:
+        // Visual content at Scroll=0 (Start Set 1) is same as Scroll=period (Start Set 2).
+        // So if Scroll <= 0, Scroll = period.
       }
 
       // 3. Scale/Opacity based on distance to center
@@ -90,14 +143,14 @@ function DestinationsSection({ destinations }) {
         // We want distance from 'center' (which is in content coordinates).
         const wrapperCenter = wrapper.offsetLeft + wrapper.clientWidth / 2;
         const dist = Math.abs(wrapperCenter - center);
-        
+
         // Scale calculation
         // Viewport width
         const viewW = track.clientWidth;
         // Scale 1.0 at center, drops to 0.9 at edges
         const scale = Math.max(0.9, 1 - (dist / viewW) * 0.3);
         const opacity = Math.max(0.6, 1 - (dist / viewW) * 0.6);
-        
+
         wrapper.style.transform = `scale(${scale})`;
         wrapper.style.opacity = opacity;
 
@@ -107,7 +160,7 @@ function DestinationsSection({ destinations }) {
         }
       }
 
-      // Update active index for progress bar
+      // Update active index for progress bar (Map large index back to 0..length-1)
       const realIndex = closestIndex % destinations.length;
       setCurrentIdx(prev => prev !== realIndex ? realIndex : prev);
 
@@ -126,11 +179,11 @@ function DestinationsSection({ destinations }) {
     const y = e.clientY - rect.top;
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
-    
+
     // Max 15 degrees
-    const rotateX = ((y - centerY) / centerY) * -15; 
+    const rotateX = ((y - centerY) / centerY) * -15;
     const rotateY = ((x - centerX) / centerX) * 15;
-    
+
     // Apply transform with perspective
     card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
   }, []);
@@ -150,26 +203,26 @@ function DestinationsSection({ destinations }) {
     <section
       id="destinations"
       data-section
-      className="min-h-[100svh] flex flex-col justify-center pt-24 md:pt-32 pb-12 md:pb-16 bg-gradient-to-b from-background via-secondary/20 to-background overflow-hidden snap-start snap-always"
+      className="h-[100svh] flex flex-col justify-start pt-20 md:pt-24 pb-2 bg-gradient-to-b from-background via-secondary/20 to-background overflow-hidden snap-start snap-always"
       aria-label="Popular Destinations"
       style={{ scrollMarginTop: "var(--app-header-offset)" }}
     >
-      <div className="container px-6 mx-auto mb-8 md:mb-12 text-center md:text-left">
-        <div className="flex flex-col md:flex-row items-end justify-between gap-6">
-          <div className="max-w-2xl space-y-4">
+      <div className="container px-6 mx-auto flex-none mb-2 md:mb-6 text-center md:text-left">
+        <div className="flex flex-col md:flex-row items-end justify-between gap-4">
+          <div className="max-w-2xl space-y-2">
             {/* <span className="text-primary font-semibold tracking-wide uppercase text-xs md:text-sm bg-primary/10 px-3 py-1 rounded-full w-fit mx-auto md:mx-0">
               Inspiration for your next trip
             </span> */}
-            <h2 className="text-4xl md:text-6xl font-bold tracking-tight text-foreground leading-tight">
-              Popular <br className="hidden md:block"/>Destinations
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground leading-tight">
+              Popular Destinations
             </h2>
-            <p className="text-muted-foreground text-lg md:text-xl leading-relaxed max-w-lg mx-auto md:mx-0">
+            <p className="text-muted-foreground text-sm md:text-lg leading-relaxed max-w-lg mx-auto md:mx-0">
               Discover the most breathtaking places across the globe, curated just for you.
             </p>
           </div>
-          
+
           {/* Controls */}
-          <div 
+          <div
             className="hidden md:flex items-center gap-3"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
@@ -193,11 +246,11 @@ function DestinationsSection({ destinations }) {
       </div>
 
       {/* Full-width Carousel */}
-      <div className="w-full relative group">
+      <div className="w-full relative group flex-1 min-h-0 flex flex-col justify-center">
         <div
           ref={trackRef}
           id="destinations-carousel"
-          className="flex overflow-x-auto gap-6 px-[5vw] md:px-[10vw] no-scrollbar pb-12 pt-4"
+          className="flex overflow-x-auto gap-4 md:gap-6 px-[5vw] md:px-[10vw] no-scrollbar py-2 md:py-4 will-change-transform items-center h-full"
           role="listbox"
           aria-label="Popular destinations carousel"
           onMouseEnter={() => setIsPaused(true)}
@@ -208,7 +261,8 @@ function DestinationsSection({ destinations }) {
           {items.map((d, i) => (
             <div
               key={`${d.id}-${i}`}
-              className="relative flex-shrink-0 w-[85vw] sm:w-[45vw] lg:w-[28vw] xl:w-[22vw] aspect-[3/4] transition-all duration-300 ease-out will-change-transform"
+              // Adjusted to height-based sizing to fit viewport
+              className="relative flex-shrink-0 h-[85%] w-auto aspect-[3/4] transition-all duration-300 ease-out will-change-transform"
             >
               <article
                 className="w-full h-full rounded-3xl overflow-hidden cursor-pointer shadow-2xl transition-transform duration-100 ease-out will-change-transform relative"
@@ -216,7 +270,7 @@ function DestinationsSection({ destinations }) {
                 onMouseLeave={handleMouseLeave}
               >
                 <div className="absolute inset-0 bg-muted animate-pulse" />
-                
+
                 <SmartImage
                   query={d.title || d.city || "travel destination"}
                   alt={d.city}
@@ -227,10 +281,10 @@ function DestinationsSection({ destinations }) {
                   height={1200}
                   sizes="(min-width:1280px) 25vw, (min-width:1024px) 33vw, (min-width:640px) 50vw, 85vw"
                 />
-                
+
                 {/* Gradient Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90 pointer-events-none" />
-                
+
                 {/* Content */}
                 <div className="absolute inset-0 p-6 flex flex-col justify-end text-white pointer-events-none">
                   <div className="mb-3">
@@ -255,7 +309,7 @@ function DestinationsSection({ destinations }) {
       {/* Progress Bar (Mobile) */}
       <div className="md:hidden flex justify-center px-6 mt-4">
         <div className="h-1 bg-muted rounded-full w-full max-w-[200px] overflow-hidden">
-          <div 
+          <div
             className="h-full bg-primary transition-all duration-300 ease-out"
             style={{ width: `${((currentIdx + 1) / destinations.length) * 100}%` }}
           />
@@ -276,7 +330,8 @@ function HowItWorksSections({ steps }) {
           key={s.id}
           id={s.id}
           data-section
-          className="scroll-mt-24 min-h-[100svh] flex flex-col justify-center pt-32 pb-16 [content-visibility:auto] [contain-intrinsic-size:1px_1000px] snap-start snap-always"
+          className="min-h-[100svh] flex flex-col justify-center pt-28 md:pt-32 pb-16 [content-visibility:auto] [contain-intrinsic-size:1px_1000px] snap-start snap-always"
+          style={{ scrollMarginTop: "var(--app-header-offset)" }}
           aria-label={`How it works - ${s.title}`}
         >
           <div className="h-full grid md:grid-cols-2 items-center gap-6 px-6 md:px-16">
@@ -308,7 +363,7 @@ function HowItWorksSections({ steps }) {
     </>
   );
 }
-  
+
 // 4) FAQ Section (Redesigned iOS Style)
 import { Search, Plus, Minus } from "lucide-react";
 
@@ -319,8 +374,8 @@ function FaqSection() {
   const [openIndex, setOpenIndex] = useState(null);
 
   // Group FAQs for iOS "Grouped List" feel
-  const filteredFaqs = faqs.filter(f => 
-    f.q.toLowerCase().includes(searchTerm.toLowerCase()) || 
+  const filteredFaqs = faqs.filter(f =>
+    f.q.toLowerCase().includes(searchTerm.toLowerCase()) ||
     f.a.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -328,7 +383,8 @@ function FaqSection() {
     <section
       id="faq"
       data-section
-      className="min-h-[100svh] flex flex-col justify-center pt-32 pb-24 bg-[#F2F2F7] dark:bg-black font-sans snap-start snap-always"
+      className="min-h-[100svh] flex flex-col justify-center pt-28 md:pt-32 pb-24 bg-[#F2F2F7] dark:bg-black font-sans snap-start snap-always"
+      style={{ scrollMarginTop: "var(--app-header-offset)" }}
       aria-label="FAQ"
     >
       <div className="w-full max-w-3xl mx-auto px-4 sm:px-6">
@@ -376,9 +432,8 @@ function FaqSection() {
                       </span>
                     </button>
                     <div
-                      className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                        isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-                      }`}
+                      className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                        }`}
                     >
                       <div className="p-5 pt-0 text-[16px] text-gray-600 dark:text-gray-300 leading-relaxed">
                         {item.a}

@@ -21,7 +21,7 @@ const Hero = ({ onGetStarted, onLearnMore }) => {
       if (heroRef.current) {
         const vh = window.innerHeight;
         heroRef.current.style.height = `${vh}px`;
-        
+
         // Debugging logs
         console.log(`[Hero] Height adjusted to: ${vh}px`);
         console.log(`[Hero] Window Dimensions: ${window.innerWidth}x${window.innerHeight}`);
@@ -52,7 +52,7 @@ const Hero = ({ onGetStarted, onLearnMore }) => {
   // Auto-play
   useEffect(() => {
     if (heroImages.length === 0) return;
-    
+
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % heroImages.length);
     }, 6000);
@@ -61,7 +61,7 @@ const Hero = ({ onGetStarted, onLearnMore }) => {
 
   // Preload next image logic handled by browser via the hidden img tags in the map, 
   // but we can ensure they are fetched by rendering them.
-  
+
   // Parallax Effect
   useEffect(() => {
     const handleScroll = () => {
@@ -91,11 +91,11 @@ const Hero = ({ onGetStarted, onLearnMore }) => {
   if (heroImages.length === 0) return null; // or a loading skeleton
 
   return (
-    <section 
+    <section
       id="hero"
       ref={heroRef}
       className="relative w-full overflow-hidden bg-black z-0 snap-start snap-always"
-      style={{ height: "100vh" }} // Default fallback
+      style={{ height: "100vh", scrollMarginTop: "calc(-1 * var(--app-header-offset))" }} // Default fallback
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       aria-label="Hero Slideshow"
@@ -109,7 +109,7 @@ const Hero = ({ onGetStarted, onLearnMore }) => {
             index === currentSlide ? "opacity-100" : "opacity-0"
           )}
           style={{
-            transform: `translateY(${scrollY * 0.3}px) scale(1.05)`, 
+            transform: `translateY(${scrollY * 0.3}px) scale(1.05)`,
             zIndex: 0
           }}
           aria-hidden={index !== currentSlide}
@@ -122,38 +122,38 @@ const Hero = ({ onGetStarted, onLearnMore }) => {
           />
           {/* Gradients for iOS feel & text readability */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60" />
-          <div className="absolute inset-0 bg-black/20" /> 
+          <div className="absolute inset-0 bg-black/20" />
         </div>
       ))}
 
       {/* Content Overlay */}
       <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center pt-20">
         <div className="space-y-6 max-w-4xl animate-slide-in-from-bottom-8">
-           <div className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-sm font-medium text-white backdrop-blur-md shadow-sm mb-2">
+          <div className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-sm font-medium text-white backdrop-blur-md shadow-sm mb-2">
             <span>✨ AI-Powered Travel Planning</span>
           </div>
-          
-          <h1 className="font-bold text-white leading-tight drop-shadow-lg text-5xl sm:text-6xl md:text-7xl tracking-tight">
-            Plan Smarter. <br/> Travel Better.
+
+          <h1 className="font-bold text-white leading-tight drop-shadow-lg text-4xl sm:text-6xl md:text-7xl tracking-tight">
+            Plan Smarter. <br /> Travel Better.
           </h1>
-          
+
           <p className="max-w-2xl mx-auto text-lg sm:text-xl text-white/90 leading-relaxed font-medium drop-shadow-md">
             AI-crafted itineraries, hotels and places tailored to your style and pace. Experience the future of travel.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 mt-8 w-full justify-center items-center">
-            <Button 
-                size="lg" 
-                onClick={onGetStarted}
-                className="h-14 px-8 text-lg font-semibold rounded-full bg-white text-black hover:bg-white/90 shadow-lg hover:scale-105 transition-transform duration-200 w-full sm:w-auto"
+            <Button
+              size="lg"
+              onClick={onGetStarted}
+              className="h-14 px-8 text-lg font-semibold rounded-full bg-white text-black hover:bg-white/90 shadow-lg hover:scale-105 transition-transform duration-200 w-full sm:w-auto"
             >
               Start Planning Free
             </Button>
-            <Button 
-                size="lg" 
-                variant="outline"
-                onClick={onLearnMore}
-                className="h-14 px-8 text-lg font-semibold rounded-full border-2 border-white/30 bg-white/10 text-white backdrop-blur-md hover:bg-white/20 hover:border-white/50 transition-all duration-200 w-full sm:w-auto"
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={onLearnMore}
+              className="h-14 px-8 text-lg font-semibold rounded-full border-2 border-white/30 bg-white/10 text-white backdrop-blur-md hover:bg-white/20 hover:border-white/50 transition-all duration-200 w-full sm:w-auto"
             >
               Learn How It Works
             </Button>
