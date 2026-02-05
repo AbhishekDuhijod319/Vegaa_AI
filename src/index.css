@@ -45,13 +45,16 @@
 
 :root {
   font-family: 'Inter', sans-serif;
-  
+
   /* Modern iOS-inspired values */
-  --radius: 1rem; /* More rounded corners */
+  --radius: 1rem;
+  /* More rounded corners */
 
   /* Light theme: Soft, airy, modern */
-  --background: oklch(0.99 0 0); /* Very slight off-white */
-  --foreground: oklch(0.15 0.02 260); /* Softer black */
+  --background: oklch(0.99 0 0);
+  /* Very slight off-white */
+  --foreground: oklch(0.15 0.02 260);
+  /* Softer black */
 
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.15 0.02 260);
@@ -59,9 +62,11 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.15 0.02 260);
 
-  --primary: oklch(0.45 0.15 260); /* Modern blue-ish primary */
+  --primary: oklch(0.45 0.15 260);
+  /* Modern blue-ish primary */
   --primary-foreground: oklch(0.98 0 0);
-  --primary-rgb: 0, 119, 237; /* RGB fallback for rgba helpers */
+  --primary-rgb: 0, 119, 237;
+  /* RGB fallback for rgba helpers */
 
   --secondary: oklch(0.96 0.01 260);
   --secondary-foreground: oklch(0.25 0.05 260);
@@ -129,16 +134,20 @@ html {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground antialiased;
-    overflow-x: hidden; /* prevent any page-level horizontal scrollbar */
+    overflow-x: hidden;
+    /* prevent any page-level horizontal scrollbar */
   }
 
   /* Global smooth scroll and page-level snap across routes */
-  html, body {
+  html,
+  body {
     height: 100%;
     scroll-behavior: smooth;
   }
+
   html {
     /* use mandatory so users always land on a section start */
     scroll-snap-type: y mandatory;
@@ -146,6 +155,7 @@ html {
     scroll-padding-top: var(--app-header-offset);
     scroll-padding-bottom: 24px;
   }
+
   /* Respect reduced motion */
   @media (prefers-reduced-motion: reduce) {
     html {
@@ -160,6 +170,7 @@ html {
 /* Theme transition: only active during toggle via .theme-switch.
    Respects reduced motion to avoid discomfort. */
 @media (prefers-reduced-motion: no-preference) {
+
   .theme-switch,
   .theme-switch * {
     transition-property: color, background-color, border-color, fill, stroke;
@@ -170,11 +181,15 @@ html {
 
 /* Hide scrollbars utility for horizontal carousels while keeping scrollability */
 .no-scrollbar {
-  -ms-overflow-style: none; /* IE/Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  /* IE/Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
+
 .no-scrollbar::-webkit-scrollbar {
-  display: none; /* Safari/Chrome */
+  display: none;
+  /* Safari/Chrome */
 }
 
 /* Horizontal 2-row grid that scrolls sideways without scrollbars */
@@ -191,14 +206,25 @@ html {
 [data-section] {
   scroll-snap-align: start;
   scroll-margin-top: var(--app-header-offset);
-  scroll-snap-stop: always; /* ensure precise snapping when near a section */
+  scroll-snap-stop: always;
+  /* ensure precise snapping when near a section */
 }
 
 /* Smooth transform for active sections */
 @media (prefers-reduced-motion: no-preference) {
-  [data-section] { transition: opacity 200ms ease, transform 300ms ease; }
-  [data-section].is-active { opacity: 1; transform: translateY(0); }
-  [data-section].is-inactive { opacity: 0.98; transform: translateY(4px); }
+  [data-section] {
+    transition: opacity 200ms ease, transform 300ms ease;
+  }
+
+  [data-section].is-active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  [data-section].is-inactive {
+    opacity: 0.98;
+    transform: translateY(4px);
+  }
 }
 
 /* High-contrast helpers for text over media and tinted surfaces */
@@ -207,13 +233,16 @@ html {
     color: #ffffff;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
   }
+
   .contrast-strong {
     color: oklch(0.20 0 0);
   }
+
   .surface-muted {
     background-color: hsl(var(--muted));
     color: hsl(var(--muted-foreground));
   }
+
   .surface-accent {
     background-color: hsl(var(--accent));
     color: hsl(var(--accent-foreground));
@@ -226,6 +255,7 @@ input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
 input[type="number"] {
   -moz-appearance: textfield;
 }
@@ -247,32 +277,84 @@ input[type="number"] {
 }
 
 .react-datepicker {
-  background-color: hsl(var(--background) / 0.9) !important; /* semi-opaque for blur */
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  font-family: 'Inter', sans-serif !important;
+  background-color: #ffffff !important;
   border: 1px solid hsl(var(--border)) !important;
-  border-radius: 8px !important;
-  color: hsl(var(--foreground)) !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  color: #111111 !important;
+  padding: 0.5rem !important;
+}
+
+.dark .react-datepicker {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+.react-datepicker__triangle {
+  display: none !important;
 }
 
 .react-datepicker__header {
-  background-color: hsl(var(--background) / 0.9) !important; /* semi-opaque for blur */
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background-color: transparent !important;
   border-bottom: 1px solid hsl(var(--border)) !important;
+  padding-top: 0.5rem !important;
+}
+
+.dark .react-datepicker__current-month,
+.dark .react-datepicker-time__header,
+.dark .react-datepicker-year-header {
+  color: #ffffff !important;
+}
+
+.react-datepicker__current-month,
+.react-datepicker-time__header,
+.react-datepicker-year-header {
+  color: hsl(var(--foreground)) !important;
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+  padding-bottom: 0.5rem !important;
+}
+
+.react-datepicker__day-name {
+  color: hsl(var(--muted-foreground)) !important;
+  font-weight: 500 !important;
+  width: 2rem !important;
+  margin: 0.2rem !important;
 }
 
 .react-datepicker__day {
   color: hsl(var(--foreground)) !important;
+  width: 2rem !important;
+  line-height: 2rem !important;
+  margin: 0.2rem !important;
+  border-radius: 0.5rem !important;
 }
 
 .react-datepicker__day:hover {
   background-color: hsl(var(--accent)) !important;
+  color: hsl(var(--accent-foreground)) !important;
 }
 
-.react-datepicker__day--selected {
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
   background-color: hsl(var(--primary)) !important;
   color: hsl(var(--primary-foreground)) !important;
+}
+
+.react-datepicker__day--disabled {
+  color: hsl(var(--muted-foreground)) !important;
+  opacity: 0.4;
+}
+
+/* Custom navigation arrows */
+.react-datepicker__navigation {
+  top: 12px !important;
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: hsl(var(--muted-foreground)) !important;
+  border-width: 2px 2px 0 0 !important;
 }
 
 /* Responsive improvements */
@@ -281,7 +363,7 @@ input[type="number"] {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .no-caret-glow {
     padding: 1rem;
   }

@@ -39,14 +39,15 @@ const dropdownSurface = () => ({
 });
 
 // Google Places Autocomplete styles - consistent with theme + blur
+// Google Places Autocomplete styles - consistent with theme + blur
 export const placesAutocompleteStyles = {
   control: (provided) => ({
     ...provided,
     ...blurredSurface,
     border: 'none',
     boxShadow: 'none',
-    minHeight: '44px',
-    borderRadius: '6px',
+    minHeight: '56px',
+    borderRadius: '1rem',
     '&:hover': { border: 'none' },
   }),
   valueContainer: (provided) => ({ ...provided, padding: '0 12px' }),
@@ -57,19 +58,22 @@ export const placesAutocompleteStyles = {
     ...provided,
     ...dropdownSurface(),
     border: '1px solid hsl(var(--border))',
-    borderRadius: '6px',
-    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+    borderRadius: '1rem',
+    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
     zIndex: 9999,
+    padding: '8px',
   }),
   option: (provided, state) => ({
     ...provided,
     backgroundColor: state.isSelected
       ? 'hsl(var(--accent))'
       : state.isFocused
-      ? 'hsl(var(--accent) / 0.1)'
-      : 'transparent',
+        ? 'hsl(var(--accent) / 0.1)'
+        : 'transparent',
     color: isDarkMode() ? '#ffffff' : '#111111',
     cursor: 'pointer',
+    borderRadius: '8px',
+    padding: '10px 12px',
     '&:hover': { backgroundColor: 'hsl(var(--accent) / 0.2)' },
   }),
   indicatorSeparator: () => ({ display: 'none' }),
@@ -87,11 +91,11 @@ export const currencySelectStyles = {
     ...blurredSurface,
     border: 'none',
     boxShadow: 'none',
-    minHeight: '44px',
-    borderRadius: '6px',
+    minHeight: '56px',
+    borderRadius: '1rem',
     '&:hover': { border: 'none' },
   }),
-  valueContainer: (provided) => ({ ...provided, padding: '0 8px' }),
+  valueContainer: (provided) => ({ ...provided, padding: '0 12px' }),
   input: (provided) => ({ ...provided, color: 'hsl(var(--foreground))', margin: '0' }),
   placeholder: (provided) => ({ ...provided, color: 'hsl(var(--muted-foreground))', fontSize: '14px' }),
   singleValue: (provided) => ({ ...provided, color: 'hsl(var(--foreground))', fontSize: '14px' }),
@@ -99,20 +103,32 @@ export const currencySelectStyles = {
     ...provided,
     ...dropdownSurface(),
     border: '1px solid hsl(var(--border))',
-    borderRadius: '6px',
-    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+    borderRadius: '1rem',
+    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
     zIndex: 9999,
     minWidth: '120px',
+    padding: '8px',
+    position: 'absolute',
+    maxHeight: '300px',
   }),
+  menuList: (provided) => ({
+    ...provided,
+    maxHeight: '280px',
+    overflowY: 'auto',
+    padding: '0',
+  }),
+  menuPortal: (provided) => ({ ...provided, zIndex: 9999 }),
   option: (provided, state) => ({
     ...provided,
     backgroundColor: state.isSelected
       ? 'hsl(var(--accent))'
       : state.isFocused
-      ? 'hsl(var(--accent) / 0.1)'
-      : 'transparent',
+        ? 'hsl(var(--accent) / 0.1)'
+        : 'transparent',
     color: isDarkMode() ? '#ffffff' : '#111111',
     cursor: 'pointer',
+    borderRadius: '8px',
+    padding: '10px 12px',
     fontSize: '14px',
     '&:hover': { backgroundColor: 'hsl(var(--accent) / 0.2)' },
   }),
@@ -132,8 +148,8 @@ export const transportSelectStyles = {
     ...blurredSurface,
     border: 'none',
     boxShadow: 'none',
-    minHeight: '44px',
-    borderRadius: '6px',
+    minHeight: '56px',
+    borderRadius: '1rem',
     '&:hover': { border: 'none' },
   }),
   valueContainer: (provided) => ({ ...provided, padding: '0 12px' }),
@@ -144,19 +160,31 @@ export const transportSelectStyles = {
     ...provided,
     ...dropdownSurface(),
     border: '1px solid hsl(var(--border))',
-    borderRadius: '6px',
-    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+    borderRadius: '1rem',
+    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
     zIndex: 9999,
+    padding: '8px',
+    position: 'absolute',
+    maxHeight: '300px',
   }),
+  menuList: (provided) => ({
+    ...provided,
+    maxHeight: '280px',
+    overflowY: 'auto',
+    padding: '0',
+  }),
+  menuPortal: (provided) => ({ ...provided, zIndex: 9999 }),
   option: (provided, state) => ({
     ...provided,
     backgroundColor: state.isSelected
       ? 'hsl(var(--accent))'
       : state.isFocused
-      ? 'hsl(var(--accent) / 0.1)'
-      : 'transparent',
+        ? 'hsl(var(--accent) / 0.1)'
+        : 'transparent',
     color: isDarkMode() ? '#ffffff' : '#111111',
     cursor: 'pointer',
+    borderRadius: '8px',
+    padding: '10px 12px',
     '&:hover': { backgroundColor: 'hsl(var(--accent) / 0.2)' },
   }),
   indicatorSeparator: () => ({ display: 'none' }),

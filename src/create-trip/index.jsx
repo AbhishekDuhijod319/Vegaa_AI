@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
 import { toast } from "sonner";
@@ -80,9 +80,9 @@ const CreateTrip = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [loading, setLoading] = useState(false);
   const [requestedAfterLogin, setRequestedAfterLogin] = useState(false);
-  // DatePicker open state controls for icon-triggered opening
-  const [startOpen, setStartOpen] = useState(false);
-  const [endOpen, setEndOpen] = useState(false);
+  // Refs for programmatic calendar control
+  const startRef = useRef(null);
+  const endRef = useRef(null);
   const navigate = useNavigate();
 
   const PLACES_KEY = import.meta.env.VITE_GOOGLE_PLACES_API_KEY;
@@ -213,342 +213,280 @@ const CreateTrip = () => {
   };
 
   return (
-    <div className="no-caret-glow p-5 md:px-16 lg:px-40 xl:px-56">
-          {/* Plan Your Journey card */}
-      <div className="mt-20">
-        <div className="flex items-center gap-4">
-          <div>
-            <h2 className="font-bold text-4xl mb-2">Plan Your Journey</h2>
-            <p className="text-muted-foreground mt-3">
-              Tell us about your trip, and we'll craft a personalized itinerary.
-            </p>
-          </div>
-        </div>
-      </div>
+    <section
+      className="h-screen w-full bg-gradient-to-b from-background via-secondary/20 to-background flex items-center justify-center overflow-hidden"
+      aria-label="Create Trip Form"
+    >
+      <div className="w-full max-w-6xl px-6 md:px-12 animate-in fade-in slide-in-from-bottom-4 duration-700 flex flex-col h-full max-h-[900px] justify-center">
 
-      <div className="mt-8 grid gap-7">
-        {/* Row 1: Location (left) + Destination (right) */}
-        <div className="grid md:grid-cols-2 gap-6">
-          <div>
-            <h2 className="text-sm mb-2 text-muted-foreground font-bold">
-              Enter Your Location
-            </h2>
-            <div className="group relative">
-              <div className="field transition-all duration-200 bg-background rounded-md border border-input ring-1 ring-ring/30 hover:ring-ring/60">
-                <GooglePlacesAutocomplete
-                  apiKey={import.meta.env.VITE_GOOGLE_PLACES_API_KEY}
-                  debounce={350}
-                  withSessionToken
-                  onLoadFailed={handlePlacesLoadFailed}
-                  selectProps={{
-                    value: startLocation,
-                    onChange: (v) => {
-                      setStartLocation(v);
-                      handleInputChange("startLocation", v);
-                    },
-                    placeholder: "Select Location",
-                    menuPortalTarget:
-                      typeof document !== "undefined" ? document.body : null,
-                    styles: placesAutocompleteStyles,
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-          <div>
-            <h2 className="text-sm mb-2 text-muted-foreground font-bold">
-              Enter Destination
-            </h2>
-            <div className="group relative">
-              <div className="field transition-all duration-200 bg-background rounded-md border border-input ring-1 ring-ring/30 hover:ring-ring/60">
-                <GooglePlacesAutocomplete
-                  apiKey={import.meta.env.VITE_GOOGLE_PLACES_API_KEY}
-                  debounce={350}
-                  withSessionToken
-                  onLoadFailed={handlePlacesLoadFailed}
-                  selectProps={{
-                    value: destination,
-                    onChange: (v) => {
-                      setDestination(v);
-                      handleInputChange("destination", v);
-                    },
-                    placeholder: "Select Destination",
-                    menuPortalTarget:
-                      typeof document !== "undefined" ? document.body : null,
-                    styles: placesAutocompleteStyles,
-                  }}
-                />
-              </div>
-            </div>
-          </div>
+        {/* Compact Header */}
+        <div className="mb-6 md:mb-8 text-center md:text-left">
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground leading-tight mb-2">
+            Plan Your Journey
+          </h2>
+          <p className="text-base md:text-lg text-muted-foreground max-w-2xl leading-relaxed md:mx-0 mx-auto">
+            Tell us about your trip, and we'll craft a personalized itinerary.
+          </p>
         </div>
 
-        {/* Row 2: Start Date (left) + End Date (right) */}
-        <div className="grid md:grid-cols-2 gap-6">
-          <div>
-            <h2 className="text-sm mb-2 text-muted-foreground font-bold">
-              Start Date
-            </h2>
-            <div className="relative group">
-              <div className="transition-all duration-200 bg-background rounded-md border border-input ring-1 ring-ring/30 hover:ring-ring/60">
-                <DatePicker
-                  selected={
-                    formData?.startDate ? new Date(formData.startDate) : null
-                  }
-                  onChange={(date) => {
-                    const y = date?.getFullYear();
-                    const m = String((date?.getMonth() ?? 0) + 1).padStart(
-                      2,
-                      "0"
-                    );
-                    const d = String(date?.getDate() ?? 1).padStart(2, "0");
-                    const formatted = date ? `${y}-${m}-${d}` : "";
-                    handleInputChange("startDate", formatted);
-                  }}
-                  placeholderText="dd/mm/yyyy"
-                  dateFormat="dd/MM/yyyy"
-                  className="w-full pr-12 pl-3 h-12 bg-background backdrop-blur-md border-transparent focus:outline-none focus:ring-0 text-foreground placeholder:text-muted-foreground rounded-md"
-                  popperPlacement="bottom-end"
-                  popperModifiers={[
-                    { name: "offset", options: { offset: [0, 8] } },
-                  ]}
-                  minDate={
-                    formData?.endDate
-                      ? new Date(
-                          new Date(formData.endDate).getTime() - 20 * 86400000
-                        )
-                      : undefined
-                  }
-                  maxDate={
-                    formData?.endDate ? new Date(formData.endDate) : undefined
-                  }
-                  open={startOpen}
-                  onClickOutside={() => setStartOpen(false)}
-                  onSelect={() => setStartOpen(false)}
-                />
-                <button
-                  type="button"
-                  aria-label="Open date picker"
-                  onClick={() => setStartOpen((o) => !o)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                >
-                  <AiOutlineCalendar className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-          </div>
-          <div>
-            <h2 className="text-sm mb-2 text-muted-foreground font-bold">
-              End Date
-            </h2>
-            <div className="relative group">
-              <div className="transition-all duration-200 bg-background rounded-md border border-input ring-1 ring-ring/30 hover:ring-ring/60">
-                <DatePicker
-                  selected={
-                    formData?.endDate ? new Date(formData.endDate) : null
-                  }
-                  onChange={(date) => {
-                    const y = date?.getFullYear();
-                    const m = String((date?.getMonth() ?? 0) + 1).padStart(
-                      2,
-                      "0"
-                    );
-                    const d = String(date?.getDate() ?? 1).padStart(2, "0");
-                    const formatted = date ? `${y}-${m}-${d}` : "";
-                    handleInputChange("endDate", formatted);
-                  }}
-                  placeholderText="dd/mm/yyyy"
-                  dateFormat="dd/MM/yyyy"
-                  className="w-full pr-12 pl-3 h-12 bg-background backdrop-blur-md border-transparent focus:outline-none focus:ring-0 text-foreground placeholder:text-muted-foreground rounded-md"
-                  popperPlacement="bottom-end"
-                  popperModifiers={[
-                    { name: "offset", options: { offset: [0, 8] } },
-                  ]}
-                  minDate={
-                    formData?.startDate
-                      ? new Date(formData.startDate)
-                      : undefined
-                  }
-                  maxDate={
-                    formData?.startDate
-                      ? new Date(
-                          new Date(formData.startDate).getTime() + 20 * 86400000
-                        )
-                      : undefined
-                  }
-                  open={endOpen}
-                  onClickOutside={() => setEndOpen(false)}
-                  onSelect={() => setEndOpen(false)}
-                />
-                <button
-                  type="button"
-                  aria-label="Open date picker"
-                  onClick={() => setEndOpen((o) => !o)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                >
-                  <AiOutlineCalendar className="h-5 w-5" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Main Form Content */}
+        <div className="space-y-6 md:space-y-8">
 
-        {/* Row 3: Left = Budget + Currency (side-by-side), Right = Travelers box */}
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="space-y-5">
-            <div className="grid grid-cols-3 gap-4">
-              <div className="col-span-2">
-                <h2 className="text-sm mb-2 text-muted-foreground font-bold">
-                  Budget Amount
-                </h2>
-                <div className="group">
-                  <div className="transition-all duration-200 bg-background rounded-md border border-input ring-1 ring-ring/30 hover:ring-ring/60">
-                    <Input
-                      className="pl-3 border-transparent bg-background focus-visible:ring-0 number-input"
-                      type="number"
-                      placeholder="Ex. 1200"
-                      onChange={(e) =>
-                        handleInputChange("amount", e.target.value)
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
-              <div>
-                <h2 className="text-sm mb-2 text-muted-foreground font-bold">
-                  Currency
-                </h2>
-                <div className="transition-all duration-200 bg-background rounded-md border border-input ring-1 ring-ring/30 hover:ring-ring/60">
-                  <ClickSelect
-                    instanceId="currency-select"
-                    inputId="currency-select"
-                    options={currencyOptions}
-                    value={
-                      currencyOptions.find(
-                        (o) => o.value === formData?.currency
-                      ) || null
-                    }
-                    onChange={(opt) =>
-                      handleInputChange("currency", opt?.value)
-                    }
-                    styles={currencySelectStyles}
+          {/* Row 1: Destinations */}
+          <div className="grid md:grid-cols-2 gap-x-8 gap-y-4">
+            <div className="space-y-2 relative z-50">
+              <label className="text-sm font-semibold text-foreground/90 ml-1">
+                Where are you starting from?
+              </label>
+              <div className="relative group">
+                <div className="transition-all duration-300 bg-white/60 dark:bg-black/40 backdrop-blur-xl rounded-xl shadow-sm hover:shadow-md ring-1 ring-black/5 dark:ring-white/10 hover:ring-primary/30">
+                  <GooglePlacesAutocomplete
+                    apiKey={import.meta.env.VITE_GOOGLE_PLACES_API_KEY}
+                    debounce={350}
+                    withSessionToken
+                    onLoadFailed={handlePlacesLoadFailed}
+                    selectProps={{
+                      value: startLocation,
+                      onChange: (v) => {
+                        setStartLocation(v);
+                        handleInputChange("startLocation", v);
+                      },
+                      placeholder: "Search starting point...",
+                      styles: placesAutocompleteStyles,
+                    }}
                   />
                 </div>
               </div>
             </div>
 
-            {/* Mode of Transport under budget+currency, same left-column width */}
-            <div>
-              <h2 className="text-sm mb-2 text-muted-foreground font-bold">
-                Mode Of Transport to Destination(optional)
-              </h2>
-              <div className="transition-all duration-200 bg-background rounded-md border border-input ring-1 ring-ring/30 hover:ring-ring/60">
+            <div className="space-y-2 relative z-50">
+              <label className="text-sm font-semibold text-foreground/90 ml-1">
+                Where do you want to go?
+              </label>
+              <div className="relative group">
+                <div className="transition-all duration-300 bg-white/60 dark:bg-black/40 backdrop-blur-xl rounded-xl shadow-sm hover:shadow-md ring-1 ring-black/5 dark:ring-white/10 hover:ring-primary/30">
+                  <GooglePlacesAutocomplete
+                    apiKey={import.meta.env.VITE_GOOGLE_PLACES_API_KEY}
+                    debounce={350}
+                    withSessionToken
+                    onLoadFailed={handlePlacesLoadFailed}
+                    selectProps={{
+                      value: destination,
+                      onChange: (v) => {
+                        setDestination(v);
+                        handleInputChange("destination", v);
+                      },
+                      placeholder: "Search destination...",
+                      styles: placesAutocompleteStyles,
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Row 2: Dates */}
+          <div className="grid md:grid-cols-2 gap-x-8 gap-y-4">
+            <div className="space-y-2 relative z-40">
+              <label className="text-sm font-semibold text-foreground/90 ml-1">
+                Start Date
+              </label>
+              <div className="relative group">
+                <div
+                  className="transition-all duration-300 bg-white/60 dark:bg-black/40 backdrop-blur-xl rounded-xl shadow-sm hover:shadow-md ring-1 ring-black/5 dark:ring-white/10 hover:ring-primary/30 flex items-center h-14 cursor-pointer"
+                  onClick={() => {
+                    startRef.current?.setOpen(true);
+                  }}
+                >
+                  <DatePicker
+                    ref={startRef}
+                    selected={formData?.startDate ? new Date(formData.startDate) : null}
+                    onChange={(date) => {
+                      const y = date?.getFullYear();
+                      const m = String((date?.getMonth() ?? 0) + 1).padStart(2, "0");
+                      const d = String(date?.getDate() ?? 1).padStart(2, "0");
+                      const formatted = date ? `${y}-${m}-${d}` : "";
+                      handleInputChange("startDate", formatted);
+                    }}
+                    placeholderText="Select date"
+                    dateFormat="dd/MM/yyyy"
+                    className="w-full h-full bg-transparent border-none text-foreground placeholder:text-muted-foreground px-4 text-base focus:ring-0 focus:outline-none rounded-xl cursor-pointer"
+                    minDate={formData?.endDate ? new Date(new Date(formData.endDate).getTime() - 20 * 86400000) : undefined}
+                    maxDate={formData?.endDate ? new Date(formData.endDate) : undefined}
+                    popperPlacement="bottom-start"
+                  />
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      startRef.current?.setOpen(true);
+                    }}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    <AiOutlineCalendar className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2 relative z-40">
+              <label className="text-sm font-semibold text-foreground/90 ml-1">
+                End Date
+              </label>
+              <div className="relative group">
+                <div
+                  className="transition-all duration-300 bg-white/60 dark:bg-black/40 backdrop-blur-xl rounded-xl shadow-sm hover:shadow-md ring-1 ring-black/5 dark:ring-white/10 hover:ring-primary/30 flex items-center h-14 cursor-pointer"
+                  onClick={() => {
+                    endRef.current?.setOpen(true);
+                  }}
+                >
+                  <DatePicker
+                    ref={endRef}
+                    selected={formData?.endDate ? new Date(formData.endDate) : null}
+                    onChange={(date) => {
+                      const y = date?.getFullYear();
+                      const m = String((date?.getMonth() ?? 0) + 1).padStart(2, "0");
+                      const d = String(date?.getDate() ?? 1).padStart(2, "0");
+                      const formatted = date ? `${y}-${m}-${d}` : "";
+                      handleInputChange("endDate", formatted);
+                    }}
+                    placeholderText="Select date"
+                    dateFormat="dd/MM/yyyy"
+                    className="w-full h-full bg-transparent border-none text-foreground placeholder:text-muted-foreground px-4 text-base focus:ring-0 focus:outline-none rounded-xl cursor-pointer"
+                    minDate={formData?.startDate ? new Date(formData.startDate) : undefined}
+                    maxDate={formData?.startDate ? new Date(new Date(formData.startDate).getTime() + 20 * 86400000) : undefined}
+                    popperPlacement="bottom-start"
+                  />
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      endRef.current?.setOpen(true);
+                    }}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    <AiOutlineCalendar className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Row 3: Budget, Currency, Transport, Travelers */}
+          <div className="grid md:grid-cols-12 gap-x-6 gap-y-4">
+
+            {/* Budget & Currency (5 cols) */}
+            <div className="md:col-span-5 grid grid-cols-2 gap-4 relative z-30">
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-foreground/90 ml-1">Budget</label>
+                <div className="transition-all duration-300 bg-white/60 dark:bg-black/40 backdrop-blur-xl rounded-xl shadow-sm hover:shadow-md ring-1 ring-black/5 dark:ring-white/10 hover:ring-primary/30 h-14 flex items-center px-2">
+                  <Input
+                    className="border-none bg-transparent shadow-none h-full text-lg placeholder:text-muted-foreground focus-visible:ring-0 number-input"
+                    type="number"
+                    placeholder="Ex. 1200"
+                    onChange={(e) => handleInputChange("amount", e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-foreground/90 ml-1">Currency</label>
+                <div className="transition-all duration-300 bg-white/60 dark:bg-black/40 backdrop-blur-xl rounded-xl shadow-sm hover:shadow-md ring-1 ring-black/5 dark:ring-white/10 hover:ring-primary/30">
+                  <ClickSelect
+                    instanceId="currency-select"
+                    inputId="currency-select"
+                    options={currencyOptions}
+                    value={currencyOptions.find((o) => o.value === formData?.currency) || null}
+                    onChange={(opt) => handleInputChange("currency", opt?.value)}
+                    styles={currencySelectStyles}
+                    placeholder="₹"
+                    menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Transport (3 cols) */}
+            <div className="md:col-span-3 space-y-2 relative z-30">
+              <label className="text-sm font-semibold text-foreground/90 ml-1">Transport</label>
+              <div className="transition-all duration-300 bg-white/60 dark:bg-black/40 backdrop-blur-xl rounded-xl shadow-sm hover:shadow-md ring-1 ring-black/5 dark:ring-white/10 hover:ring-primary/30">
                 <ClickSelect
                   instanceId="transport-select"
                   inputId="transport-select"
                   options={transportOptions}
-                  value={
-                    transportOptions.find(
-                      (o) => o.value === formData?.transportMode
-                    ) || null
-                  }
-                  onChange={(opt) =>
-                    handleInputChange("transportMode", opt?.value)
-                  }
+                  value={transportOptions.find((o) => o.value === formData?.transportMode) || null}
+                  onChange={(opt) => handleInputChange("transportMode", opt?.value)}
                   styles={transportSelectStyles}
+                  placeholder="Mode"
+                  menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
                 />
               </div>
             </div>
-          </div>
 
-          {/* Travelers box on the right - fixed width consistency */}
-          <div className="flex">
-            <div className="bg-card border border-border rounded-2xl p-6 w-full transition-all duration-200 ring-1 ring-ring/20 hover:ring-ring/60">
-              <h2 className="text-sm mb-2 text-muted-foreground text-center font-bold">
-                Number Of Travelers
-              </h2>
-              <div className="flex items-center justify-center gap-4 mt-4">
-                <button
+            {/* Travelers (4 cols) */}
+            <div className="md:col-span-4 space-y-2 relative z-20">
+              <label className="text-sm font-semibold text-foreground/90 ml-1">Travelers</label>
+              <div className="h-14 bg-white/60 dark:bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 shadow-sm flex items-center justify-between px-4 ring-1 ring-black/5 dark:ring-white/10 hover:ring-primary/30">
+                <Button
                   type="button"
-                  className="w-10 h-10 rounded-full bg-accent/10 border border-border flex items-center justify-center text-foreground hover:bg-accent/20 transition-colors"
-                  onClick={() => {
-                    const current = formData?.numTravelers || 1;
-                    if (current > 1)
-                      handleInputChange("numTravelers", current - 1);
-                  }}
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 rounded-full hover:bg-black/10 dark:hover:bg-white/10"
+                  onClick={() => { const c = formData?.numTravelers || 1; if (c > 1) handleInputChange("numTravelers", c - 1); }}
                 >
                   -
-                </button>
-                <Input
-                  className="w-16 text-center border-transparent bg-background focus-visible:ring-0 number-input font-bold"
-                  type="number"
-                  min={1}
-                  max={15}
-                  value={formData?.numTravelers ?? 1}
-                  onChange={(e) => {
-                    const val = Math.max(
-                      1,
-                      Math.min(15, Number(e.target.value) || 1)
-                    );
-                    handleInputChange("numTravelers", val);
-                  }}
-                />
-                <button
+                </Button>
+                <span className="font-semibold text-foreground">
+                  {formData?.numTravelers ?? 1} {formData?.numTravelers === 1 ? 'Person' : 'People'}
+                </span>
+                <Button
                   type="button"
-                  className="w-10 h-10 rounded-full bg-accent/10 border border-border flex items-center justify-center text-foreground hover:bg-accent/20 transition-colors"
-                  onClick={() => {
-                    const current = formData?.numTravelers || 1;
-                    if (current < 15)
-                      handleInputChange("numTravelers", current + 1);
-                  }}
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 rounded-full hover:bg-black/10 dark:hover:bg-white/10"
+                  onClick={() => { const c = formData?.numTravelers || 1; if (c < 15) handleInputChange("numTravelers", c + 1); }}
                 >
                   +
-                </button>
+                </Button>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Bottom-right big rounded action button remains primary */}
-        <div className="my-2 flex justify-end">
-          <Button
-            loading={loading}
-            disabled={loading}
-            onClick={handleGenerateTrip}
-            className="rounded-lg px-8 py-6"
-          >
-            Generate Trip
-          </Button>
+          <div className="pt-4 md:pt-6 flex justify-end">
+            <Button
+              loading={loading}
+              disabled={loading}
+              onClick={handleGenerateTrip}
+              className="w-full md:w-auto rounded-xl px-10 py-6 text-lg font-bold shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 bg-primary text-primary-foreground"
+            >
+              Generate Itinerary
+            </Button>
+          </div>
         </div>
 
         {/* Login Dialog */}
         <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-          <DialogContent className="sm:max-w-[425px] bg-card text-foreground border border-border">
+          <DialogContent className="sm:max-w-[425px] bg-card/95 backdrop-blur-xl border border-border rounded-2xl shadow-2xl">
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                {/* Replace icon spin with consistent brand spinner if desired */}
+              <DialogTitle className="flex items-center gap-2 text-2xl">
                 Sign In Required
               </DialogTitle>
-              <DialogDescription>
-                Please sign in with Google to generate your personalized trip
-                plan.
+              <DialogDescription className="text-base text-muted-foreground mt-2">
+                Join us to start generating your personalized adventure.
               </DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
+            <div className="py-6">
               <Button
                 onClick={login}
-                className="w-full flex items-center gap-3"
+                className="w-full h-12 rounded-xl text-base flex items-center justify-center gap-3 bg-white text-black hover:bg-gray-100 border border-gray-200 shadow-sm transition-all"
               >
-                <span className="inline-flex items-center gap-3">
-                  <FcGoogle className="h-5 w-5" />
-                  Sign In with Google
-                </span>
+                <FcGoogle className="h-6 w-6" />
+                <span>Continue with Google</span>
               </Button>
             </div>
           </DialogContent>
         </Dialog>
       </div>
-    </div>
+    </section>
   );
 };
 
