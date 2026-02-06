@@ -26,16 +26,26 @@ const AuthPage = lazy(() => import("./auth/index.jsx"));
 // Scroll manager: reset to top on route changes; preserve scroll during component updates
 const ScrollManager = () => {
   const location = useLocation();
+
   useLayoutEffect(() => {
     try {
       if ('scrollRestoration' in window.history) {
         window.history.scrollRestoration = "manual";
       }
     } catch { }
-    // On route change, scroll to top immediately (no smooth to avoid fighting with snap/offset)
-    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+
+    // Force scroll to top immediately and synchronously
+    window.scrollTo(0, 0);
+
+    // Also try after a tiny delay to catch any async content
+    const timeoutId = setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 0);
+
+    return () => clearTimeout(timeoutId);
   }, [location.pathname, location.search]);
-  return null;
+}, [location.pathname, location.search]);
+return null;
 };
 
 // Loading fallback component
