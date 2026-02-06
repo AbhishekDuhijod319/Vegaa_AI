@@ -44,8 +44,7 @@ const ScrollManager = () => {
 
     return () => clearTimeout(timeoutId);
   }, [location.pathname, location.search]);
-}, [location.pathname, location.search]);
-return null;
+  return null;
 };
 
 // Loading fallback component
