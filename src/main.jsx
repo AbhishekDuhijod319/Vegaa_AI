@@ -59,12 +59,22 @@ const Layout = ({ children, hideFooter }) => (
   </>
 );
 
+import DebugEnv from "./debug-env.jsx";
+
 const router = createBrowserRouter([
   {
     path: "/",
     element: (
       <Layout>
         <App />
+      </Layout>
+    ),
+  },
+  {
+    path: "/debug-env",
+    element: (
+      <Layout>
+        <DebugEnv />
       </Layout>
     ),
   },
