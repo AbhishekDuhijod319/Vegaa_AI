@@ -4,26 +4,26 @@ const apiKey = import.meta.env.VITE_GOOGLE_GEMINI_AI_API_KEY;
 const genAI = new GoogleGenerativeAI(apiKey);
 
 const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash-lite"
+  model: "gemini-2.5-pro"
 });
 
 const generationConfig = {
-    temperature: 0.7,
-    topP: 0.95,
-    topK: 64,
-    maxOutputTokens: 8192,
-    responseMimeType: "application/json"
+  temperature: 0.7,
+  topP: 0.95,
+  topK: 64,
+  maxOutputTokens: 8192,
+  responseMimeType: "application/json"
 };
 
 export const chatSession = model.startChat({
-    generationConfig,
-    history: []
+  generationConfig,
+  history: []
 });
 
 // Provide a fresh chat session per request to avoid cross-call context bleeding
 export const getFreshChatSession = () => model.startChat({
-    generationConfig,
-    history: []
+  generationConfig,
+  history: []
 });
 
 // AI prompt spec migrated from src/constants/options.jsx and enhanced with location-specific categories
