@@ -1,24 +1,27 @@
-import React, { useEffect, useLayoutEffect } from "react";
+import React, { useEffect, useLayoutEffect, Suspense, lazy } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import App from "./App.jsx";
 import {
   RouterProvider,
   createBrowserRouter,
   useLocation,
 } from "react-router-dom";
-import CreateTrip from "./create-trip/index.jsx";
+// Eagerly load components needed immediately
 import Header from "./components/custom/Header.jsx";
 import Footer from "./components/custom/Footer.jsx";
 import { Toaster } from "sonner";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import ViewTrip from "./view-trip/[tripId]/index.jsx";
-import MyTrips from "./my-trips/index.jsx";
-import EditTrip from "./edit-trip/[tripId]/index.jsx";
 import ErrorBoundary from "./components/misc/ErrorBoundary.jsx";
-import AboutPage from "./about/index.jsx";
-import Profile from "./profile/index.jsx";
-import AuthPage from "./auth/index.jsx";
+
+// Lazy load route components for code splitting
+const App = lazy(() => import("./App.jsx"));
+const CreateTrip = lazy(() => import("./create-trip/index.jsx"));
+const ViewTrip = lazy(() => import("./view-trip/[tripId]/index.jsx"));
+const MyTrips = lazy(() => import("./my-trips/index.jsx"));
+const EditTrip = lazy(() => import("./edit-trip/[tripId]/index.jsx"));
+const AboutPage = lazy(() => import("./about/index.jsx"));
+const Profile = lazy(() => import("./profile/index.jsx"));
+const AuthPage = lazy(() => import("./auth/index.jsx"));
 
 // Scroll manager: reset to top on route changes; preserve scroll during component updates
 const ScrollManager = () => {
@@ -28,18 +31,30 @@ const ScrollManager = () => {
       if ('scrollRestoration' in window.history) {
         window.history.scrollRestoration = "manual";
       }
-    } catch {}
+    } catch { }
     // On route change, scroll to top immediately (no smooth to avoid fighting with snap/offset)
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }, [location.pathname, location.search]);
   return null;
 };
 
+// Loading fallback component
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-screen bg-background">
+    <div className="flex flex-col items-center gap-4">
+      <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+      <p className="text-muted-foreground text-sm">Loading...</p>
+    </div>
+  </div>
+);
+
 const Layout = ({ children, hideFooter }) => (
   <>
     <Header />
     <ScrollManager />
-    {children}
+    <Suspense fallback={<PageLoader />}>
+      {children}
+    </Suspense>
     {!hideFooter && <Footer />}
   </>
 );
