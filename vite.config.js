@@ -14,43 +14,16 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          // React ecosystem - loaded on every page
-          if (id.includes('node_modules/react/') ||
-            id.includes('node_modules/react-dom/') ||
-            id.includes('node_modules/react-router') ||
-            id.includes('node_modules/scheduler/')) {
-            return 'vendor-react';
-          }
-
-          // Firebase - large library used across app
+          // Only split Firebase - it's large and has no React dependencies
           if (id.includes('node_modules/firebase/') ||
             id.includes('node_modules/@firebase/')) {
             return 'vendor-firebase';
           }
 
-          // UI and animation libraries
-          if (id.includes('node_modules/framer-motion/') ||
-            id.includes('node_modules/lucide-react/') ||
-            id.includes('node_modules/@radix-ui/')) {
-            return 'vendor-ui';
-          }
-
-          // Google and AI libraries
-          if (id.includes('node_modules/@google/generative-ai/') ||
-            id.includes('node_modules/@react-oauth/google/')) {
-            return 'vendor-google';
-          }
-
-          // Date libraries
-          if (id.includes('node_modules/date-fns/') ||
-            id.includes('node_modules/react-datepicker/') ||
-            id.includes('node_modules/react-day-picker/')) {
-            return 'vendor-date';
-          }
-
-          // Other node_modules dependencies
+          // Keep all other dependencies together in vendor chunk
+          // This ensures React and all React-dependent packages load together
           if (id.includes('node_modules/')) {
-            return 'vendor-misc';
+            return 'vendor';
           }
         },
         // Chunk naming for better caching
