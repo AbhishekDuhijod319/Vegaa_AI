@@ -2,6 +2,69 @@
 
 An AI-assisted travel planner built with React and Vite. It helps users plan trips with curated destinations, places to visit, hotels, restaurants, neighbourhoods, markets, and extras. The app integrates external services (Pexels, Google Places or Mapbox, OpenWeather) to enrich content, and uses responsive, high-quality images for a polished UI.
 
+## Project Overview
+
+### Project Idea
+Develop an intelligent, web-based travel planner that leverages AI to create **personalized itineraries**, dynamically adapting to **real-time weather conditions** and specific **budget constraints**.
+
+### Objective
+To build an efficient, user-friendly tool that optimizes travel planning and enhances the overall user experience by delivering instant, organized, and actionable travel schedules.
+
+### Problem Statement
+Traditional travel planning is time-consuming, fragmented, and lacks real-time updates. Users often struggle with budget management and rigid itineraries, leading to stress and suboptimal travel experiences.
+
+### Target Audience
+Individual travelers, students, backpackers, and budget-conscious users seeking efficient and cost-effective travel solutions.
+
+### Deliverables
+A responsive web application featuring:
+- **User Authentication**: Secure login and profile management.
+- **AI Itinerary Creation**: Custom trip generation based on user preferences.
+- **Real-time Weather**: Integration with OpenWeather for accurate forecasts.
+- **Budget-Aligned Recommendations**: Smart suggestions for hotels and activities that fit the user's financial plan.
+
+### Limitations
+- **Platform**: Initial focus is strictly on the web platform.
+- **Scope**: Advanced autonomous booking agents and real-time group collaboration features are deferred to future development phases.
+
+## Technologies Used
+
+### Front-End
+- **React.js**: Component-based UI architecture.
+- **Tailwind CSS**: Utility-first styling for responsive design.
+- **React Router DOM**: Client-side routing.
+- **Vite**: Fast build tool and development server.
+- **Framer Motion**: Smooth animations and transitions.
+
+### Back-End
+- **Firebase**: Backend-as-a-Service (BaaS) for authentication and hosting.
+- **Firebase Firestore**: NoSQL cloud database for storing trip data and user profiles.
+
+### APIs
+- **Google Gemini 2.5 Pro**: Advanced AI model for generating personalized travel itineraries.
+- **Google Places API**: Location data, autocomplete, and place details.
+- **OpenWeatherMap API**: Real-time weather conditions and forecasts.
+- **Pexels API**: High-quality, curated imagery for destinations.
+
+### Libraries
+- **Axios**: Promise-based HTTP client for API requests.
+- **Lucide React**: Consistent and lightweight icon set.
+- **Sonner**: Toast notifications for user feedback.
+
+## Requirements
+
+### Functional Requirements
+- **User Authentication**: Secure Google sign-in integration.
+- **Itinerary Management**: Create, view, and save detailed trip plans.
+- **Weather Display**: Current conditions and forecasts for destinations.
+- **Interactive Maps**: Integration with Google Maps for location visualization.
+
+### Non-Functional Requirements
+- **Responsive Design**: Fully optimized for mobile, tablet, and desktop devices.
+- **Performance**: Optimized image loading (SmartImage) and efficient API caching.
+- **User Experience**: Intuitive interface with smooth transitions and error handling.
+- **Reliability**: Robust error management for API failures (90%+ uptime target).
+
 ## Features
 - Popular destinations carousel with smooth snapping and pagination
 - Trip “How it works” walkthrough with large responsive visuals
