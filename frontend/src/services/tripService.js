@@ -228,7 +228,7 @@ export const generateTrip = async (formData, onSuccess, onError) => {
     tripData = normalizeTripData(tripData);
 
     // Generate document ID
-    const docId = Date.now().toString();
+    const docId = crypto.randomUUID();
 
     // Get cover photo for destination via Pexels
     let coverPhotoUrl = '';

@@ -1,6 +1,10 @@
 import axios from "axios";
 
-const RAPID_KEY = import.meta.env.VITE_RAPIDAPI_KEY || "c9cb82745bmsh58e4d626cd57df0p1ec35djsn6c8b525ebe3b";
+const RAPID_KEY = import.meta.env.VITE_RAPIDAPI_KEY || "";
+
+if (!RAPID_KEY) {
+  console.warn("RapidAPI key not configured. Set VITE_RAPIDAPI_KEY in .env.local");
+}
 
 // Generic RapidAPI GET
 export async function rapidGet(host, path, params = {}, extraHeaders = {}) {

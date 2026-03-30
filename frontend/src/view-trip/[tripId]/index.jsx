@@ -19,7 +19,7 @@ function Viewtrip() {
   const { tripId } = useParams();
   const [trip, setTrip] = useState(null);
   const [loading, setLoading] = useState(true);
-console.log(tripId);
+
 
   useEffect(() => {
   const fetchTrip = async () => {
@@ -50,7 +50,7 @@ console.log(tripId);
   /**
    * Used to get Trip Information form Firebase
    */
-console.log(trip);
+
   if (loading) {
     return (
       <div className="p-10 md:px-20 lg:px-44 xl:px-56">
