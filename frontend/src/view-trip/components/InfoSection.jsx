@@ -14,8 +14,7 @@ import {
   Car,
   MapPin,
 } from "lucide-react";
-import { getPlaceDetails } from "@/sevice/GlobalAPI";
-import { bookingApi } from "@/sevice/RapidAPI";
+import { placesApi } from "@/api/places";
 
 function InfoSection({ trip }) {
   // Labels
@@ -112,66 +111,8 @@ function InfoSection({ trip }) {
     error: null,
   });
   useEffect(() => {
-    let ignore = false;
-    const run = async () => {
-      const from = (parsedBudget?.currency || selectedCurrency).toUpperCase();
-      const to = selectedCurrency.toUpperCase();
-      const amt = Number(parsedBudget?.amount);
-      if (!amt || !from || !to || from === to) {
-        setConvInfo({
-          amount: null,
-          rate: null,
-          from: null,
-          to: null,
-          error: null,
-        });
-        return;
-      }
-      try {
-        // Try RapidAPI Booking.com exchange rates endpoint
-        const data = await bookingApi.exchangeRates({
-          from_currency: from,
-          to_currency: to,
-        });
-        // Heuristic extraction: attempt common shapes
-        let rate = null;
-        if (data?.exchange_rate) rate = Number(data.exchange_rate);
-        else if (data?.data?.exchange_rate)
-          rate = Number(data.data.exchange_rate);
-        else if (data?.rates?.[to]) rate = Number(data.rates[to]);
-        if (!rate || !isFinite(rate))
-          throw new Error("No exchange rate in response");
-        const converted = amt * rate;
-        if (!ignore)
-          setConvInfo({ amount: converted, rate, from, to, error: null });
-      } catch (e) {
-        // Graceful fallback: try a lightweight public rates source shape via same wrapper (best effort)
-        try {
-          const alt = await bookingApi.exchangeRates({
-            base: from,
-            symbols: to,
-          });
-          let rate = alt?.rates?.[to] ? Number(alt.rates[to]) : null;
-          if (!rate || !isFinite(rate)) throw new Error("Alt rate missing");
-          const converted = Number(parsedBudget?.amount) * rate;
-          if (!ignore)
-            setConvInfo({ amount: converted, rate, from, to, error: null });
-        } catch (e2) {
-          if (!ignore)
-            setConvInfo({
-              amount: null,
-              rate: null,
-              from,
-              to,
-              error: e2?.message || "rate unavailable",
-            });
-        }
-      }
-    };
-    run();
-    return () => {
-      ignore = true;
-    };
+    // Currency conversion removed — RapidAPI dependency eliminated.
+    // If re-enabled, use a backend proxy endpoint instead.
   }, [parsedBudget, selectedCurrency]);
 
   const fmtCurrency = (val, cur) => {
@@ -224,10 +165,10 @@ function InfoSection({ trip }) {
       try {
         const [oRes, dRes] = await Promise.all([
           originLabel
-            ? getPlaceDetails({ textQuery: originLabel })
+            ? placesApi.search(originLabel)
             : Promise.resolve(null),
           destLabel
-            ? getPlaceDetails({ textQuery: destLabel })
+            ? placesApi.search(destLabel)
             : Promise.resolve(null),
         ]);
         const op = oRes?.data?.places?.[0]?.location;
@@ -429,7 +370,7 @@ function InfoSection({ trip }) {
             </p>
           )}
           <div className="mt-4 flex items-center gap-2">
-            <Link to={`/edit-trip/${trip?.id}`} className="hidden sm:block">
+            <Link to={`/edit-trip/${trip?._id || trip?.id}`} className="hidden sm:block">
               <Button
                 className="bg-black text-white hover:bg-black/90"
                 title="Edit trip"

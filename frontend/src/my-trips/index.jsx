@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { collection, deleteDoc, doc, getDocs, query, where } from 'firebase/firestore'
-import { db } from '../sevice/firebaseConfig'
+import { tripApi } from '@/api/trips'
+import { weatherApi } from '@/api/weather'
+import { useAuth } from '@/contexts/AuthContext'
 import { Link, useNavigate } from 'react-router-dom'
 import SmartImage from '@/components/ui/SmartImage'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Pencil, Trash2, Loader2, CloudSun, CloudRain, Sun, Cloud, CloudFog, Snowflake } from 'lucide-react'
-import { getWeatherByCity } from '@/sevice/GlobalAPI'
 import { toast } from 'sonner'
 
 // Utility: days between two ISO dates
@@ -88,6 +88,7 @@ function VirtualItem({ estimatedHeight = 340, children }) {
 
 function MyTrips() {
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(true);
   const [confirmId, setConfirmId] = useState(null)
@@ -96,17 +97,8 @@ function MyTrips() {
   useEffect(() => {
     const run = async () => {
       try {
-        const stored = localStorage.getItem('user');
-        if (!stored) {
-          navigate('/');
-          return;
-        }
-        const user = JSON.parse(stored);
-
-        const qTrips = query(collection(db, 'AITrips'), where('userEmail', '==', user.email));
-        const snapshot = await getDocs(qTrips);
-        const items = snapshot.docs.map((d) => d.data());
-        setTrips(items.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || '')));
+        const data = await tripApi.list();
+        setTrips(data.trips || []);
       } catch (e) {
         console.error('Failed to load trips', e);
       } finally {
@@ -114,15 +106,15 @@ function MyTrips() {
       }
     };
     run();
-  }, [navigate]);
+  }, []);
 
   const onDelete = useCallback(async () => {
     if (!confirmId) return
     try {
       setDeletingId(confirmId)
       const id = confirmId
-      await deleteDoc(doc(db, 'AITrips', id))
-      setTrips((prev) => prev.filter((t) => t.id !== id))
+      await tripApi.delete(id)
+      setTrips((prev) => prev.filter((t) => (t._id || t.id) !== id))
       toast.success('Trip deleted')
     } catch (e) {
       console.error('Delete failed', e)
@@ -162,7 +154,7 @@ function MyTrips() {
             const datesFmt = formatDateRange(selection?.startDate, selection?.endDate) || null
 
             return (
-              <VirtualItem key={t.id}>
+              <VirtualItem key={t._id || t.id}>
                 <article className='relative rounded-2xl border bg-card hover:shadow-md transition-shadow overflow-hidden'>
                   {/* Actions */}
                   <div className='absolute top-2 right-2 z-10 flex gap-2'>
@@ -171,7 +163,7 @@ function MyTrips() {
                       size='icon'
                       aria-label='Edit trip'
                       className='size-11 min-w-11'
-                      onClick={(e) => { e.preventDefault(); navigate(`/edit-trip/${t.id}`) }}
+                      onClick={(e) => { e.preventDefault(); navigate(`/edit-trip/${t._id || t.id}`) }}
                       title='Edit trip'
                     >
                       <Pencil />
@@ -181,7 +173,7 @@ function MyTrips() {
                       size='icon'
                       aria-label='Delete trip'
                       className='size-11 min-w-11'
-                      onClick={(e) => { e.preventDefault(); setConfirmId(t.id) }}
+                      onClick={(e) => { e.preventDefault(); setConfirmId(t._id || t.id) }}
                       title='Delete trip'
                     >
                       {deletingId === t.id ? <Loader2 className='animate-spin' /> : <Trash2 />}
@@ -200,7 +192,7 @@ function MyTrips() {
                   </div>
 
                   {/* Body */}
-                  <Link to={`/view-trip/${t.id}`} className='block p-4'>
+                  <Link to={`/view-trip/${t._id || t.id}`} className='block p-4'>
                     <h3 className='font-semibold text-[18px] sm:text-[20px] leading-tight'>{city}</h3>
 
                     <div className='mt-2 grid grid-cols-2 gap-2 text-sm text-muted-foreground'>
@@ -258,18 +250,17 @@ function TripWeather({ city }) {
         return setState({ loading: false, temp: null, main: '', desc: '' })
       }
       try {
-        const w = await getWeatherByCity(normalized)
-        if (!cancelled) {
-          if (w && w.main && Array.isArray(w.weather)) {
-            setState({
-              loading: false,
-              temp: Number.isFinite(w?.main?.temp) ? Math.round(w.main.temp) : null,
-              main: w.weather[0]?.main || '',
-              desc: w.weather[0]?.description || ''
-            })
-          } else {
-            setState({ loading: false, temp: null, main: '', desc: '' })
-          }
+        const data = await weatherApi.getWeather(normalized)
+        if (!cancelled && data.weather) {
+          const w = data.weather
+          setState({
+            loading: false,
+            temp: Number.isFinite(w.temp) ? Math.round(w.temp) : null,
+            main: w.description || '',
+            desc: w.description || ''
+          })
+        } else if (!cancelled) {
+          setState({ loading: false, temp: null, main: '', desc: '' })
         }
       } catch {
         if (!cancelled) setState({ loading: false, temp: null, main: '', desc: '' })

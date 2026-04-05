@@ -6,8 +6,8 @@ import {
   MapPin, Calendar, Globe, LogOut,
   Plane, Heart, Loader2
 } from "lucide-react";
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '../sevice/firebaseConfig';
+import { useAuth } from '@/contexts/AuthContext';
+import { tripApi } from '@/api/trips';
 import SmartImage from "@/components/ui/SmartImage";
 
 // Stat Card Component
@@ -45,7 +45,7 @@ const TripCard = ({ trip, delay }) => {
       transition={{ duration: 0.5, delay }}
       className="group relative rounded-2xl overflow-hidden bg-card border border-border hover:shadow-lg transition-all duration-300 h-full"
     >
-      <Link to={`/view-trip/${trip.id}`} className="block h-full">
+      <Link to={`/view-trip/${trip._id || trip.id}`} className="block h-full">
         <div className="aspect-[16/9] relative overflow-hidden">
           <SmartImage
             query={city}
@@ -70,37 +70,17 @@ const TripCard = ({ trip, delay }) => {
 
 export default function Profile() {
   const navigate = useNavigate();
-  const [user] = useState(() => {
-    try {
-      const stored = localStorage.getItem("user");
-      return stored ? JSON.parse(stored) : null;
-    } catch {
-      return null;
-    }
-  });
+  const { user, logout } = useAuth();
 
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Auth check
-  useEffect(() => {
-    if (!user) {
-      navigate("/");
-    }
-  }, [user, navigate]);
-
   // Fetch real trips
   useEffect(() => {
     const fetchTrips = async () => {
-      if (!user) return;
       try {
-        const q = query(collection(db, 'AITrips'), where('userEmail', '==', user.email));
-        const snapshot = await getDocs(q);
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        // Sort by newer first (assuming createdAt is ISO string or close to it)
-        // If createdAt is missing, it goes to bottom
-        data.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
-        setTrips(data);
+        const data = await tripApi.list();
+        setTrips(data.trips || []);
       } catch (err) {
         console.error("Error fetching trips:", err);
       } finally {
@@ -108,13 +88,10 @@ export default function Profile() {
       }
     };
     fetchTrips();
-  }, [user]);
+  }, []);
 
-  const onLogout = () => {
-    localStorage.removeItem("user");
-    window.dispatchEvent(
-      new StorageEvent("storage", { key: "user", newValue: null })
-    );
+  const onLogout = async () => {
+    await logout();
     navigate("/");
   };
 
@@ -230,7 +207,7 @@ export default function Profile() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Show only top 3 */}
               {trips.slice(0, 3).map((trip, idx) => (
-                <TripCard key={trip.id} trip={trip} delay={idx * 0.1} />
+                <TripCard key={trip._id || trip.id} trip={trip} delay={idx * 0.1} />
               ))}
             </div>
           ) : (

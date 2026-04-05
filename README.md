@@ -1,123 +1,19 @@
-# Vegaa AI — Frontend
+# Vegaa AI — AI-Powered Travel Planner
 
-AI-powered travel planning application built with React, Vite, and Tailwind CSS.
-
-## Tech Stack
-
-| Technology | Purpose |
-|-----------|---------|
-| **React 18** | UI framework |
-| **Vite 7** | Build tool & dev server |
-| **Tailwind CSS** | Styling |
-| **React Router v6** | Client-side routing |
-| **Framer Motion** | Animations |
-| **Radix UI** | Accessible UI primitives |
-| **Lucide React** | Icons |
-| **Sonner** | Toast notifications |
-
-## Quick Start
-
-```bash
-# 1. Install dependencies
-npm install
-
-# 2. Create environment file
-cp .env.local.example .env.local
-# Set VITE_API_URL and VITE_GOOGLE_AUTH_CLIENT_ID
-
-# 3. Start development server
-npm run dev
-
-# 4. Open http://localhost:5173
-```
-
-> **Note:** The frontend requires the [Vegaa AI Server](../Vegaa_AI_Server) running separately for API calls.
-
-## Environment Variables
-
-| Variable | Required | Description |
-|----------|:--------:|-------------|
-| `VITE_API_URL` | ✅ | Backend API base URL (e.g., `http://localhost:5000/api`) |
-| `VITE_GOOGLE_AUTH_CLIENT_ID` | ✅ | Google OAuth Client ID for sign-in |
-
-That's it — **zero API keys** in the frontend. All external APIs are proxied through the backend.
-
-## Project Structure
-
-```
-Vegaa_AI/
-├── public/               ← Static assets (logo.svg)
-├── src/
-│   ├── api/              ← Backend communication (axios + JWT interceptor)
-│   ├── auth/             ← Login/signup page
-│   ├── components/
-│   │   ├── custom/       ← App-specific components (Header, Footer, Hero, About)
-│   │   ├── ui/           ← Reusable UI (Button, Input, Dialog, SmartImage)
-│   │   └── misc/         ← ErrorBoundary
-│   ├── constants/        ← UI styles, currency/transport options
-│   ├── contexts/         ← AuthContext (React context)
-│   ├── create-trip/      ← Trip creation form
-│   ├── edit-trip/        ← Trip editing form
-│   ├── hooks/            ← Custom React hooks
-│   ├── lib/              ← Utilities (cn(), pexels cache)
-│   ├── my-trips/         ← Trip list page
-│   ├── profile/          ← User profile page
-│   ├── services/         ← Business logic services
-│   ├── view-trip/        ← Trip detail view with 11 section components
-│   ├── App.jsx           ← Home page (hero, destinations, FAQ)
-│   ├── main.jsx          ← Router, providers, entry point
-│   └── index.css         ← Global styles + CSS variables
-├── index.html
-├── package.json
-├── vite.config.js
-├── tailwind.config.js
-└── vercel.json           ← SPA rewrite rule for Vercel
-```
-
-## Pages
-
-| Route | Component | Auth | Description |
-|-------|-----------|:----:|-------------|
-| `/` | `App.jsx` | ❌ | Landing page with hero, destinations, FAQ |
-| `/about` | `AboutPage` | ❌ | About us, mentors, methodology |
-| `/auth` | `AuthPage` | ❌ | Login / Register |
-| `/create-trip` | `CreateTrip` | 🔒 | AI-powered trip creation form |
-| `/view-trip/:id` | `ViewTrip` | ❌ | Trip detail view (shareable) |
-| `/edit-trip/:id` | `EditTrip` | 🔒 | Edit existing trip |
-| `/my-trips` | `MyTrips` | 🔒 | User's trip list |
-| `/profile` | `Profile` | 🔒 | User profile & stats |
-
-## Design System
-
-- **Typography:** Montserrat + Inter + Great Vibes (script)
-- **Colors:** CSS custom properties with Radix UI color system
-- **Effects:** Glassmorphism, spring physics, backdrop blur
-- **Layout:** Responsive bento grids, iOS-inspired styling
-- **Animations:** Framer Motion entrance animations, hover micro-interactions
-
-## Deployment (Vercel)
-
-1. Connect your GitHub repo on [Vercel](https://vercel.com)
-2. Framework: **Vite**
-3. Build Command: `npm run build`
-4. Output Directory: `dist`
-5. Add environment variables
-6. Deploy!
-
-The `vercel.json` already includes SPA rewrite rules for client-side routing.
+An intelligent travel planning application that uses Google Gemini AI to generate personalized trip itineraries, with a React frontend and Express.js backend.
 
 ## Architecture
 
 ```
 ┌─────────────────────────┐
-│     React Frontend      │ ← Vercel
-│   (this project)        │
+│     React Frontend      │ → Vercel
+│   (frontend/)           │
 └──────────┬──────────────┘
-           │ fetch() + JWT Bearer token
+           │ API calls + JWT Bearer token
            ▼
 ┌─────────────────────────┐
-│   Express Backend       │ ← Render
-│   (Vegaa_AI_Server)     │
+│   Express Backend       │ → Render
+│   (backend/)            │
 │   ├── Auth (JWT)        │
 │   ├── Trip CRUD         │
 │   ├── Gemini AI proxy   │
@@ -128,6 +24,105 @@ The `vercel.json` already includes SPA rewrite rules for client-side routing.
            │
            ▼
 ┌─────────────────────────┐
-│   MongoDB Atlas (M0)    │ ← Cloud (free)
+│   MongoDB Atlas (M0)    │ → Cloud (free)
 └─────────────────────────┘
 ```
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | React 18, Vite 7, Tailwind CSS, Framer Motion |
+| **Backend** | Express.js, Mongoose, JWT, Joi |
+| **Database** | MongoDB Atlas (M0 free tier) |
+| **AI** | Google Gemini 2.5 Pro |
+| **Images** | Pexels API (server-side cached) |
+| **Auth** | JWT (access + refresh tokens) + Google OAuth |
+
+## Quick Start
+
+### Backend
+```bash
+cd backend
+npm install
+cp .env.example .env    # Fill in MongoDB URI, JWT secrets, API keys
+npm run dev             # Starts on http://localhost:5000
+```
+
+### Frontend
+```bash
+cd frontend
+npm install
+# Set VITE_API_URL=http://localhost:5000/api in .env.local
+npm run dev             # Starts on http://localhost:5173
+```
+
+## Project Structure
+
+```
+Vegaa_AI/
+├── frontend/                    ← React Application
+│   ├── src/
+│   │   ├── api/                 ← Backend communication (axios + JWT)
+│   │   ├── auth/                ← Login / Signup page
+│   │   ├── components/          ← UI components (Header, Footer, etc.)
+│   │   ├── contexts/            ← AuthContext (React context)
+│   │   ├── create-trip/         ← Trip creation form
+│   │   ├── edit-trip/           ← Trip editing
+│   │   ├── view-trip/           ← Trip detail view
+│   │   ├── my-trips/            ← User trip list
+│   │   ├── profile/             ← User profile
+│   │   ├── about/               ← About page
+│   │   ├── constants/           ← UI styles, options
+│   │   ├── services/            ← Trip service (data orchestration)
+│   │   ├── lib/                 ← Hooks, utilities
+│   │   ├── App.jsx              ← Home page
+│   │   └── main.jsx             ← Router + providers
+│   ├── package.json
+│   └── vite.config.js
+│
+├── backend/                     ← Express API Server
+│   ├── src/
+│   │   ├── config/              ← DB, env, CORS config
+│   │   ├── models/              ← Mongoose schemas
+│   │   ├── repositories/        ← Data access layer
+│   │   ├── middleware/           ← Auth, rate limit, validation
+│   │   ├── routes/              ← API route definitions
+│   │   ├── controllers/         ← Request handlers
+│   │   ├── services/            ← Business logic
+│   │   ├── utils/               ← Cache, logger, helpers
+│   │   └── app.js               ← Express app setup
+│   ├── server.js                ← Entry point
+│   ├── package.json
+│   └── .env.example
+│
+└── README.md                    ← This file
+```
+
+## Security Features
+
+- ✅ All API keys server-side only (zero keys in frontend bundle)
+- ✅ JWT authentication with access + refresh token rotation
+- ✅ httpOnly cookies for refresh tokens (XSS-proof)
+- ✅ Bcrypt password hashing (12 rounds)
+- ✅ Per-user rate limiting on all endpoints
+- ✅ Joi input validation
+- ✅ Helmet security headers + strict CORS
+- ✅ Trip ownership enforcement (server-side)
+- ✅ Server-side API caching (Images: 24h, Places: 1h, Weather: 15min)
+
+## API Endpoints
+
+See [backend/README.md](backend/README.md) for full API documentation.
+
+## Deployment
+
+| Component | Platform | Guide |
+|-----------|----------|-------|
+| Frontend | [Vercel](https://vercel.com) | Set `VITE_API_URL` to deployed backend URL |
+| Backend | [Render](https://render.com) | Set all env vars from `.env.example` |
+| Database | [MongoDB Atlas](https://cloud.mongodb.com) | M0 free tier, whitelist IPs |
+
+## License
+
+MIT

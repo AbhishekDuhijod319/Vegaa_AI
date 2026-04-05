@@ -1,9 +1,9 @@
-// imports (add icon import)
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 import Brand from "./header/Brand";
 import Nav from "./header/Nav";
 import UserMenu from "./header/UserMenu";
@@ -16,57 +16,16 @@ import { Menu } from "lucide-react";
  */
 const Header = () => {
   const navigate = useNavigate();
-
-  // Keep a local copy of the user for reactive UI
-  const [currentUser, setCurrentUser] = useState(() => {
-    try {
-      const stored = localStorage.getItem("user");
-      return stored ? JSON.parse(stored) : null;
-    } catch (e) {
-      return null;
-    }
-  });
-
-  useEffect(() => {
-    // Sync when other parts of the app update localStorage
-    const onStorage = (e) => {
-      if (e.key === "user") {
-        try {
-          setCurrentUser(e.newValue ? JSON.parse(e.newValue) : null);
-        } catch {
-          setCurrentUser(null);
-        }
-      }
-    };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, []);
+  const { user: currentUser, isAuthenticated, googleLogin: authGoogleLogin, logout } = useAuth();
 
   // Start Google OAuth login
   const login = useGoogleLogin({
     onSuccess: async (tokenInfo) => {
       try {
-        const profile = await fetch(
-          "https://www.googleapis.com/oauth2/v3/userinfo",
-          {
-            headers: { Authorization: `Bearer ${tokenInfo.access_token}` },
-          }
-        ).then((r) => r.json());
-
-        const sanitized = {
-          name: profile.name,
-          email: profile.email,
-          picture: profile.picture,
-          sub: profile.sub,
-        };
-
-        localStorage.setItem("user", JSON.stringify(sanitized));
-        setCurrentUser(sanitized);
-
-        // Redirect to create-trip after successful sign-in
+        await authGoogleLogin(tokenInfo.access_token);
         navigate("/create-trip");
       } catch (err) {
-        console.error("Failed to fetch Google profile", err);
+        console.error("Google login failed", err);
       }
     },
     onError: (error) => {
@@ -75,11 +34,8 @@ const Header = () => {
     flow: "implicit",
   });
 
-  // Removed unused userInitial that caused useMemo error
-
-  const onLogout = () => {
-    localStorage.removeItem("user");
-    setCurrentUser(null);
+  const onLogout = async () => {
+    await logout();
     navigate("/");
   };
   

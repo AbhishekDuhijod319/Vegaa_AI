@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { getStableFirstImageForQuery } from "@/lib/pexels";
+import { imageApi } from "@/api/images";
 
 // Simple in-memory cache to avoid re-fetching/resolving the same image
 const imageCache = new Map(); // key -> { src, srcSet, sizes }
@@ -76,19 +76,23 @@ const SmartImage = ({
         }
       }
 
-      // 2) Fallback to Pexels (only if enabled)
+      // 2) Fallback to backend image proxy (only if enabled)
       if (pexelsFallback) {
         try {
-          const set = await getStableFirstImageForQuery(query);
-          await tryLoad(set.src);
-          if (!cancelled) {
-            const next = { ...set, sizes: set.sizes || sizes };
-            imageCache.set(key, next);
-            setImgSet(next);
-            setLoading(false);
-            onReadyRef.current && onReadyRef.current(next.src);
+          const data = await imageApi.search(query, 1);
+          const photo = data.photos?.[0];
+          if (photo) {
+            const imgSrc = photo.src?.large || photo.src?.medium || photo.src?.original;
+            await tryLoad(imgSrc);
+            if (!cancelled) {
+              const next = { src: imgSrc, srcSet: "", sizes };
+              imageCache.set(key, next);
+              setImgSet(next);
+              setLoading(false);
+              onReadyRef.current && onReadyRef.current(next.src);
+            }
+            return;
           }
-          return;
         } catch (e) {
           // Silently fail; we'll render the fallback UI
         }

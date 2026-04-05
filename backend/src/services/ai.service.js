@@ -11,7 +11,7 @@ const initGemini = () => {
     return;
   }
   genAI = new GoogleGenerativeAI(config.apis.gemini);
-  model = genAI.getGenerativeModel({ model: 'gemini-2.5-pro' });
+  model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 };
 
 // Initialize on first import

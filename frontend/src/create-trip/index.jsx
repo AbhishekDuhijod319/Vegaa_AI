@@ -19,10 +19,7 @@ import { FcGoogle } from "react-icons/fc";
 import { AiOutlineLoading3Quarters, AiOutlineCalendar } from "react-icons/ai";
 import { FaRoute } from "react-icons/fa";
 
-import {
-  fetchGoogleUserProfile,
-  isAuthenticated,
-} from "@/services/authService";
+import { useAuth } from '@/contexts/AuthContext';
 import { generateTrip, saveAiTrip } from "@/services/tripService";
 import {
   placesAutocompleteStyles,
@@ -84,6 +81,7 @@ const CreateTrip = () => {
   const startRef = useRef(null);
   const endRef = useRef(null);
   const navigate = useNavigate();
+  const { user, isAuthenticated, googleLogin: authGoogleLogin } = useAuth();
 
   const PLACES_KEY = import.meta.env.VITE_GOOGLE_PLACES_API_KEY;
   useEffect(() => {
@@ -118,16 +116,14 @@ const CreateTrip = () => {
   const login = useGoogleLogin({
     onSuccess: async (tokenInfo) => {
       try {
-        await fetchGoogleUserProfile(tokenInfo, () => {
-          setOpenDialog(false);
-        });
+        await authGoogleLogin(tokenInfo.access_token);
+        setOpenDialog(false);
         if (requestedAfterLogin) {
           setRequestedAfterLogin(false);
-          // Auto-continue after login if user initiated a generate
           handleGenerateTrip();
         }
       } catch {
-        // fetchGoogleUserProfile handles toasts
+        toast.error("Login failed.");
       }
     },
     onError: (error) => {
@@ -169,7 +165,7 @@ const CreateTrip = () => {
   };
 
   const handleGenerateTrip = async () => {
-    if (!isAuthenticated()) {
+    if (!isAuthenticated) {
       setRequestedAfterLogin(true);
       setOpenDialog(true);
       return;
@@ -187,8 +183,7 @@ const CreateTrip = () => {
       formData,
       async ({ tripData, docId, enrichedFormData, coverPhotoUrl }) => {
         try {
-          const user = JSON.parse(localStorage.getItem("user"));
-          await saveAiTrip(
+          const result = await saveAiTrip(
             tripData,
             docId,
             user,
@@ -196,7 +191,7 @@ const CreateTrip = () => {
             coverPhotoUrl
           );
           toast.success("Trip plan generated successfully!");
-          navigate("/view-trip/" + docId);
+          navigate("/view-trip/" + (result?._id || docId));
         } catch (error) {
           logger.error("Error saving trip:", error);
           toast.error("Failed to save trip. Please try again.");

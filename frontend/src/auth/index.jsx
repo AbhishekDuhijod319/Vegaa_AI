@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useGoogleLogin } from '@react-oauth/google';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { auth } from '@/sevice/firebaseConfig';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FcGoogle } from 'react-icons/fc';
@@ -11,6 +10,8 @@ import { toast } from 'sonner';
 
 const AuthPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { login: authLogin, register: authRegister, googleLogin: authGoogleLogin, isAuthenticated } = useAuth();
   const [isLogin, setIsLogin] = useState(false); // Default to Signup as per visual
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -70,48 +71,19 @@ const AuthPage = () => {
 
     setLoading(true);
     try {
-      if (isLogin) {
-        // Login Logic
-        const userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password);
-        const user = userCredential.user;
-        
-        // Save to localStorage to maintain compatibility with existing app
-        const userData = {
-          name: user.displayName || user.email.split('@')[0],
-          email: user.email,
-          picture: user.photoURL || `https://ui-avatars.com/api/?name=${user.email}&background=random`,
-          uid: user.uid
-        };
-        localStorage.setItem('user', JSON.stringify(userData));
-        window.dispatchEvent(new Event("storage")); // Trigger update in Header
-        toast.success("Welcome back!");
-        navigate('/create-trip');
-      } else {
-        // Signup Logic
-        const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-        const user = userCredential.user;
-        
-        await updateProfile(user, {
-          displayName: formData.name
-        });
+      const redirectTo = searchParams.get('redirect') || '/create-trip';
 
-        const userData = {
-          name: formData.name,
-          email: user.email,
-          picture: `https://ui-avatars.com/api/?name=${formData.name}&background=random`,
-          uid: user.uid
-        };
-        localStorage.setItem('user', JSON.stringify(userData));
-        window.dispatchEvent(new Event("storage"));
+      if (isLogin) {
+        await authLogin({ email: formData.email, password: formData.password });
+        toast.success("Welcome back!");
+        navigate(decodeURIComponent(redirectTo));
+      } else {
+        await authRegister({ name: formData.name, email: formData.email, password: formData.password });
         toast.success("Account created successfully!");
-        navigate('/create-trip');
+        navigate(decodeURIComponent(redirectTo));
       }
     } catch (error) {
-      console.error(error);
-      let msg = "Authentication failed";
-      if (error.code === 'auth/email-already-in-use') msg = "Email already in use";
-      if (error.code === 'auth/invalid-credential') msg = "Invalid credentials";
-      if (error.code === 'auth/weak-password') msg = "Password is too weak";
+      const msg = error.response?.data?.error || 'Authentication failed';
       toast.error(msg);
     } finally {
       setLoading(false);
@@ -123,27 +95,12 @@ const AuthPage = () => {
     onSuccess: async (tokenInfo) => {
       setLoading(true);
       try {
-        const profile = await fetch(
-          "https://www.googleapis.com/oauth2/v3/userinfo",
-          {
-            headers: { Authorization: `Bearer ${tokenInfo.access_token}` },
-          }
-        ).then((r) => r.json());
-
-        const userData = {
-          name: profile.name,
-          email: profile.email,
-          picture: profile.picture,
-          sub: profile.sub,
-        };
-
-        localStorage.setItem("user", JSON.stringify(userData));
-        window.dispatchEvent(new Event("storage"));
+        await authGoogleLogin(tokenInfo.access_token);
         toast.success("Signed in with Google");
-        navigate("/create-trip");
+        const redirectTo = searchParams.get('redirect') || '/create-trip';
+        navigate(decodeURIComponent(redirectTo));
       } catch (err) {
-        console.error(err);
-        toast.error("Google sign in failed");
+        toast.error(err.response?.data?.error || "Google sign in failed");
       } finally {
         setLoading(false);
       }

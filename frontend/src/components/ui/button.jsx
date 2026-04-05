@@ -40,6 +40,7 @@ const Button = React.forwardRef(function Button(
     variant,
     size,
     asChild = false,
+    loading,
     ...props
   },
   ref

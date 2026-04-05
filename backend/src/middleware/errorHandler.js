@@ -5,7 +5,13 @@ const logger = require('../utils/logger');
  * Must be registered LAST in Express middleware chain.
  */
 const errorHandler = (err, req, res, _next) => {
-  logger.error(`${req.method} ${req.path} →`, err.message);
+  // Use debug-level for expected auth failures (401) to reduce noise
+  const status = err.status || 500;
+  if (status < 500) {
+    logger.debug(`${req.method} ${req.path} → ${err.message}`);
+  } else {
+    logger.error(`${req.method} ${req.path} →`, err.message);
+  }
 
   // Mongoose validation error
   if (err.name === 'ValidationError') {

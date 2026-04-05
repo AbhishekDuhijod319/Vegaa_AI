@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState, useRef, useCallback } from "react"
 import SmartImage from "@/components/ui/SmartImage";
 import { MapPin, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { searchPlaceRich } from "@/sevice/GlobalAPI";
+import { placesApi } from "@/api/places";
 
 function googleMapsUrl(name, location) {
   const q = [name || "", location || ""].filter(Boolean).join(" ");
@@ -87,7 +87,7 @@ function PlacesToVisit({ trip }) {
         const items = [];
         for (const q of queries) {
           try {
-            const resp = await searchPlaceRich(q);
+            const resp = await placesApi.search(q);
             const places = resp?.data?.places || [];
             for (const p of places) {
               const name = p?.displayName?.text || "";
@@ -137,7 +137,7 @@ function PlacesToVisit({ trip }) {
               const q = [a?.title || "", a?.location || ""].filter(Boolean).join(" ");
               if (!q) return;
               try {
-                const resp = await searchPlaceRich(q);
+                const resp = await placesApi.search(q);
                 const place = resp?.data?.places?.[0];
                 if (place) {
                   results[q] = {

@@ -1,7 +1,6 @@
-import { doc, getDoc } from "firebase/firestore";
+import { tripApi } from '@/api/trips';
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { db } from "../../sevice/firebaseConfig";
 import { toast } from "sonner";
 import InfoSection from "../components/InfoSection";
 import SectionNav from "../components/SectionNav";
@@ -20,32 +19,27 @@ function Viewtrip() {
   const [trip, setTrip] = useState(null);
   const [loading, setLoading] = useState(true);
 
-
   useEffect(() => {
-  const fetchTrip = async () => {
-    try {
-      setLoading(true);
-      const docRef = doc(db, "AITrips", tripId);
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        console.log("Document:", docSnap.data());
-        setTrip(docSnap.data());
-      } else {
-        console.log("No Such Document");
-        toast("No Trip Found");
-        setTrip(null);
+    const fetchTrip = async () => {
+      try {
+        setLoading(true);
+        const data = await tripApi.getById(tripId);
+        if (data.trip) {
+          setTrip(data.trip);
+        } else {
+          toast("No Trip Found");
+          setTrip(null);
+        }
+      } catch (error) {
+        console.error("Error fetching trip:", error);
+        toast("Error fetching trip");
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Error fetching trip:", error);
-      toast("Error fetching trip");
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  fetchTrip();
-}, [tripId]);
+    fetchTrip();
+  }, [tripId]);
 
   /**
    * Used to get Trip Information form Firebase

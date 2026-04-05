@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState, useRef, useCallback } from "react"
 import SmartImage from "@/components/ui/SmartImage";
 import { Globe, MapPin, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { searchPlaceRich } from "@/sevice/GlobalAPI";
+import { placesApi } from "@/api/places";
 
 function googleMapsUrl(name, location) {
   const q = [name || "", location || ""].filter(Boolean).join(" ");
@@ -43,7 +43,7 @@ function Hotels({ trip }) {
             const q = [h?.name || "", h?.location || ""].filter(Boolean).join(" ");
             if (!q) return;
             try {
-              const resp = await searchPlaceRich(q);
+              const resp = await placesApi.search(q);
               const place = resp?.data?.places?.[0];
               if (place) {
                 results[q] = {

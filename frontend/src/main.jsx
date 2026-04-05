@@ -12,6 +12,8 @@ import Footer from "./components/custom/Footer.jsx";
 import { Toaster } from "sonner";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import ErrorBoundary from "./components/misc/ErrorBoundary.jsx";
+import { AuthProvider } from "./contexts/AuthContext.jsx";
+import ProtectedRoute from "./components/layout/ProtectedRoute.jsx";
 
 // Lazy load route components for code splitting
 const App = lazy(() => import("./App.jsx"));
@@ -92,7 +94,7 @@ const router = createBrowserRouter([
     path: "/create-trip",
     element: (
       <Layout hideFooter>
-        <CreateTrip />
+        <ProtectedRoute><CreateTrip /></ProtectedRoute>
       </Layout>
     ),
   },
@@ -108,7 +110,7 @@ const router = createBrowserRouter([
     path: "/my-trips",
     element: (
       <Layout>
-        <MyTrips />
+        <ProtectedRoute><MyTrips /></ProtectedRoute>
       </Layout>
     ),
   },
@@ -116,7 +118,7 @@ const router = createBrowserRouter([
     path: "/profile",
     element: (
       <Layout>
-        <Profile />
+        <ProtectedRoute><Profile /></ProtectedRoute>
       </Layout>
     ),
   },
@@ -124,7 +126,7 @@ const router = createBrowserRouter([
     path: "/edit-trip/:tripId",
     element: (
       <Layout hideFooter>
-        <EditTrip />
+        <ProtectedRoute><EditTrip /></ProtectedRoute>
       </Layout>
     ),
   },
@@ -134,15 +136,26 @@ const router = createBrowserRouter([
       <AuthPage />
     ),
   },
-]);
+], {
+  future: {
+    v7_relativeSplatPath: true,
+    v7_startTransition: true,
+    v7_fetcherPersist: true,
+    v7_normalizeFormMethod: true,
+    v7_partialHydration: true,
+    v7_skipActionErrorRevalidation: true,
+  },
+});
 
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_AUTH_CLIENT_ID}>
-      <ErrorBoundary>
-        <RouterProvider router={router} />
-        <Toaster richColors position="top-center" />
-      </ErrorBoundary>
+      <AuthProvider>
+        <ErrorBoundary>
+          <RouterProvider router={router} />
+          <Toaster richColors position="top-center" />
+        </ErrorBoundary>
+      </AuthProvider>
     </GoogleOAuthProvider>
   </React.StrictMode>
 );

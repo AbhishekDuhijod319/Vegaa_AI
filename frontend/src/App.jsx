@@ -14,15 +14,12 @@ import { Button } from "./components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
-import {
-  getMonthlyFirstImageForQuery,
-  getStableFirstImageForQuery,
-} from "@/lib/pexels";
+import { imageApi } from "@/api/images";
 
 // Simple app-level context to share common state and actions across sections
 const AppContext = React.createContext({
   hero: { bgUrl: "", isDarkTextSafe: null },
-  images: { stableDestImages: {}, stableStepImages: {} },
+  images: {},
   actions: {
     scrollToId: (_id) => { },
     onGetStarted: () => { },
@@ -34,7 +31,6 @@ const AppContext = React.createContext({
 
 // 2) Popular Destinations
 function DestinationsSection({ destinations }) {
-  const { images } = useContext(AppContext);
   const trackRef = useRef(null);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -321,8 +317,6 @@ function DestinationsSection({ destinations }) {
 
 // 3) How It Works
 function HowItWorksSections({ steps }) {
-  const { images } = useContext(AppContext);
-  const { stableStepImages } = images;
   return (
     <>
       {steps.map((s) => (
@@ -619,102 +613,40 @@ export default function App() {
     [newQuestion]
   );
 
-  // Hero background via Pexels monthly rotation + luminance-based text contrast
+  // Hero background via backend image proxy + luminance-based text contrast
   const [heroBgUrl, setHeroBgUrl] = useState("");
   const { isDark: heroIsDark } = useImageLuminance(heroBgUrl);
   useEffect(() => {
     let cancelled = false;
-    const loadMonthly = async () => {
+    const loadHero = async () => {
       try {
-        const set = await getMonthlyFirstImageForQuery(
-          "travel destination landscape"
-        );
-        if (!cancelled) setHeroBgUrl(set.src);
+        const data = await imageApi.search("travel destination landscape", 1);
+        const photo = data.photos?.[0];
+        if (!cancelled && photo) {
+          setHeroBgUrl(photo.src?.large2x || photo.src?.large || photo.src?.original);
+        }
       } catch {
         if (!cancelled) setHeroBgUrl("/hero/hero-3.jpg");
       }
     };
-    loadMonthly();
-    let lastMonth = new Date().getMonth();
-    const interval = setInterval(() => {
-      const m = new Date().getMonth();
-      if (m !== lastMonth) {
-        lastMonth = m;
-        loadMonthly();
-      }
-    }, 1000 * 60 * 60 * 12);
-    return () => {
-      cancelled = true;
-      clearInterval(interval);
-    };
+    loadHero();
+    return () => { cancelled = true; };
   }, []);
 
-  // Stable Pexels images for consistent home cards
-  const [stableDestImages, setStableDestImages] = useState({});
-  useEffect(() => {
-    let ignore = false;
-    const load = async () => {
-      try {
-        const entries = await Promise.all(
-          destinations.map(async (d) => {
-            try {
-              const set = await getStableFirstImageForQuery(d.title || d.city);
-              return [d.id, set.src];
-            } catch {
-              return [d.id, undefined];
-            }
-          })
-        );
-        if (!ignore) setStableDestImages(Object.fromEntries(entries));
-      } catch (err) {
-        console.error("Failed to load destination images", err);
-      }
-    };
-    load();
-    return () => {
-      ignore = true;
-    };
-  }, [destinations]);
-
-  const [stableStepImages, setStableStepImages] = useState({});
-  useEffect(() => {
-    let ignore = false;
-    const load = async () => {
-      try {
-        const entries = await Promise.all(
-          steps.map(async (s) => {
-            try {
-              const set = await getStableFirstImageForQuery(s.query || s.title);
-              return [s.id, set.src];
-            } catch {
-              return [s.id, undefined];
-            }
-          })
-        );
-        if (!ignore) setStableStepImages(Object.fromEntries(entries));
-      } catch (err) {
-        console.error("Failed to load step images", err);
-      }
-    };
-    load();
-    return () => {
-      ignore = true;
-    };
-  }, [steps]);
+  // NOTE: SmartImage handles its own per-query caching via imageCache.
+  // No need to pre-fetch destination/step images here — SmartImage does it.
 
   // Provide app-level state via context
   const contextValue = useMemo(
     () => ({
       hero: { bgUrl: heroBgUrl, isDarkTextSafe: heroIsDark },
-      images: { stableDestImages, stableStepImages },
+      images: {},
       actions: { scrollToId, onGetStarted, onLearnMore },
       faq: { faqs, newQuestion, setNewQuestion, onSubmitQuestion },
     }),
     [
       heroBgUrl,
       heroIsDark,
-      stableDestImages,
-      stableStepImages,
       scrollToId,
       onGetStarted,
       onLearnMore,

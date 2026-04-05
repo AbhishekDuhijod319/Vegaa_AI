@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { db } from "@/sevice/firebaseConfig";
+import { tripApi } from '@/api/trips';
+import { imageApi } from '@/api/images';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 import Select from "react-select";
-import { getStableFirstImageForQuery } from "@/lib/pexels";
 import { AiOutlineCalendar } from "react-icons/ai";
 import { FaRoute } from "react-icons/fa";
 import {
@@ -94,8 +93,8 @@ const EditTrip = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        const snap = await getDoc(doc(db, "AITrips", tripId));
-        if (snap.exists()) setTrip(snap.data());
+        const data = await tripApi.getById(tripId);
+        if (data.trip) setTrip(data.trip);
         else navigate("/");
       } catch (e) {
         console.error(e);
@@ -152,24 +151,24 @@ const EditTrip = () => {
       try {
         const label = sel.destination?.label || sel.location?.label;
         if (label) {
-          const set = await getStableFirstImageForQuery(label);
-          nextCover = set?.src || nextCover;
+          const imgResult = await imageApi.search(label, 1);
+          if (imgResult.photos?.length > 0) {
+            nextCover = imgResult.photos[0].src?.large || nextCover;
+          }
         }
       } catch (error) {
         console.error("Failed to update cover photo:", error);
       }
 
       const updated = {
-        ...trip,
         userSelection: {
           ...sel,
           noOfDays: newDays,
         },
         coverPhotoUrl: nextCover || trip.coverPhotoUrl || "",
-        updatedAt: new Date().toISOString(),
       };
 
-      await setDoc(doc(db, "AITrips", tripId), updated, { merge: true });
+      await tripApi.update(tripId, updated);
       toast.success("Trip updated");
 
       try {

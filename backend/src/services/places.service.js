@@ -67,6 +67,45 @@ const placesService = {
       };
     });
   },
+
+  /**
+   * Text search for places (replaces legacy searchPlaceRich).
+   * Returns places with rating, address, location coordinates, etc.
+   */
+  async search(query) {
+    if (!config.apis.googlePlaces) {
+      logger.warn('Google Places API key not configured.');
+      return { places: [] };
+    }
+
+    const cacheKey = `places:search:${query.toLowerCase().trim()}`;
+
+    return getOrFetch(placesCache, cacheKey, async () => {
+      const resp = await axios.get(
+        'https://maps.googleapis.com/maps/api/place/textsearch/json',
+        {
+          params: {
+            query,
+            key: config.apis.googlePlaces,
+          },
+        }
+      );
+
+      const places = (resp.data.results || []).map((p) => ({
+        displayName: { text: p.name },
+        formattedAddress: p.formatted_address,
+        location: {
+          latitude: p.geometry?.location?.lat,
+          longitude: p.geometry?.location?.lng,
+        },
+        rating: p.rating,
+        userRatingCount: p.user_ratings_total,
+        websiteUri: null, // Text search doesn't return website
+      }));
+
+      return { places };
+    });
+  },
 };
 
 module.exports = placesService;

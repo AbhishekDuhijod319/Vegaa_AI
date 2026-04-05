@@ -6,5 +6,6 @@ const { asyncHandler } = require('../utils/helpers');
 
 router.get('/suggestions', apiLimiter, asyncHandler(placesController.suggestions));
 router.get('/details', apiLimiter, asyncHandler(placesController.details));
+router.get('/search', apiLimiter, asyncHandler(placesController.search));
 
 module.exports = router;

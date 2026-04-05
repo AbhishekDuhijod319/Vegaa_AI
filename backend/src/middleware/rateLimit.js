@@ -24,11 +24,18 @@ const aiLimiter = createLimiter(
   'AI generation limit reached. Please try again later.'
 );
 
-// General API: 100 per hour
+// General API: 300 per hour (generous for normal browsing)
 const apiLimiter = createLimiter(
   60 * 60 * 1000,
-  100,
+  300,
   'Rate limit exceeded. Please slow down.'
 );
 
-module.exports = { authLimiter, aiLimiter, apiLimiter };
+// Image search: 500 per hour (pages load many images at once)
+const imageLimiter = createLimiter(
+  60 * 60 * 1000,
+  500,
+  'Image search rate limit exceeded. Please slow down.'
+);
+
+module.exports = { authLimiter, aiLimiter, apiLimiter, imageLimiter };

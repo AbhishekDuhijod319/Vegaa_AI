@@ -83,6 +83,7 @@ Vegaa_AI_Server/
 | GET | `/api/images/search?q=paris` | 24h | Pexels image search |
 | GET | `/api/places/suggestions?q=tokyo` | 1h | Google Places autocomplete |
 | GET | `/api/places/details?place_id=...` | 1h | Google Places details |
+| GET | `/api/places/search?q=hotels+paris` | 1h | Google Places text search |
 | GET | `/api/weather?city=london` | 15min | OpenWeather current weather |
 
 ### Health
@@ -105,7 +106,6 @@ Vegaa_AI_Server/
 | `PEXELS_API_KEY` | ❌ | Pexels image search API key |
 | `GOOGLE_PLACES_API_KEY` | ❌ | Google Places API key |
 | `OPENWEATHER_API_KEY` | ❌ | OpenWeather API key |
-| `RAPIDAPI_KEY` | ❌ | RapidAPI key (Booking.com) |
 | `PORT` | ❌ | Server port (default: `5000`) |
 | `NODE_ENV` | ❌ | `development` / `production` |
 | `CLIENT_URL` | ❌ | Frontend URL for CORS (default: `http://localhost:5173`) |
