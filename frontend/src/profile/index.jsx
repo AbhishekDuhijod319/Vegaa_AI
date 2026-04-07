@@ -1,14 +1,16 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   MapPin, Calendar, Globe, LogOut,
-  Plane, Heart, Loader2
+  Plane, Heart, Loader2, Camera
 } from "lucide-react";
 import { useAuth } from '@/contexts/AuthContext';
 import { tripApi } from '@/api/trips';
+import { imageApi } from '@/api/images';
 import SmartImage from "@/components/ui/SmartImage";
 import { useReveal } from "@/lib/useReveal";
+import { toast } from "sonner";
 
 // Stat Card Component
 const StatCard = ({ icon: Icon, label, value, delay }) => (
@@ -65,11 +67,13 @@ const TripCard = ({ trip, delay }) => {
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
 
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
+  const fileInputRef = useRef(null);
   const containerRef = useReveal();
 
   // Fetch real trips
@@ -90,6 +94,45 @@ export default function Profile() {
   const onLogout = async () => {
     await logout();
     navigate("/");
+  };
+
+  // ─── Avatar Upload Handler ─────────────────────────
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Please select a valid image (JPEG, PNG, WebP, or GIF).');
+      return;
+    }
+
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be under 5MB.');
+      return;
+    }
+
+    setUploadingAvatar(true);
+    try {
+      const result = await imageApi.uploadAvatar(file);
+      // Update user state in AuthContext
+      updateUser({ picture: result.picture });
+      toast.success('Profile picture updated!');
+    } catch (err) {
+      console.error('Avatar upload failed:', err);
+      const msg = err.response?.data?.error || 'Failed to upload avatar. Please try again.';
+      toast.error(msg);
+    } finally {
+      setUploadingAvatar(false);
+      // Reset file input so same file can be re-selected
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
   };
 
   // Derived Stats
@@ -119,15 +162,44 @@ export default function Profile() {
       <section className="relative pt-32 pb-16 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="anim-fade-in-up flex flex-col md:flex-row items-center md:items-start gap-8">
-            {/* Avatar */}
-            <div className="relative">
+            {/* Avatar with Upload */}
+            <div className="relative group">
               <div className="w-32 h-32 rounded-3xl overflow-hidden border-4 border-white dark:border-black shadow-2xl">
-                <img
-                  src={user?.picture || "https://ui-avatars.com/api/?name=User"}
-                  alt={user?.name || "User"}
-                  className="w-full h-full object-cover"
-                />
+                {uploadingAvatar ? (
+                  <div className="w-full h-full flex items-center justify-center bg-muted">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                  </div>
+                ) : (
+                  <img
+                    src={user?.picture || "https://ui-avatars.com/api/?name=User"}
+                    alt={user?.name || "User"}
+                    className="w-full h-full object-cover"
+                  />
+                )}
               </div>
+
+              {/* Upload overlay */}
+              <button
+                onClick={handleAvatarClick}
+                disabled={uploadingAvatar}
+                className="absolute inset-0 rounded-3xl bg-black/0 group-hover:bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer"
+                aria-label="Change profile picture"
+              >
+                <div className="flex flex-col items-center gap-1 text-white">
+                  <Camera size={20} />
+                  <span className="text-xs font-medium">Change</span>
+                </div>
+              </button>
+
+              {/* Hidden file input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                onChange={handleAvatarChange}
+                className="hidden"
+                aria-hidden="true"
+              />
             </div>
 
             {/* User Info */}

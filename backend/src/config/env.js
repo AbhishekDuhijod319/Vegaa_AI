@@ -32,6 +32,11 @@ module.exports = {
     openWeather: process.env.OPENWEATHER_API_KEY || '',
     rapidApi: process.env.RAPIDAPI_KEY || '',
   },
+  cloudinary: {
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME || '',
+    apiKey: process.env.CLOUDINARY_API_KEY || '',
+    apiSecret: process.env.CLOUDINARY_API_SECRET || '',
+  },
   server: {
     port: parseInt(process.env.PORT, 10) || 5000,
     nodeEnv: process.env.NODE_ENV || 'development',

@@ -30,6 +30,14 @@ const userRepository = {
       { new: true }
     );
   },
+
+  async updatePicture(userId, pictureUrl) {
+    return User.findByIdAndUpdate(
+      userId,
+      { $set: { picture: pictureUrl } },
+      { new: true }
+    );
+  },
 };
 
 module.exports = userRepository;

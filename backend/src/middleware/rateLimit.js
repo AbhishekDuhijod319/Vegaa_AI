@@ -38,4 +38,11 @@ const imageLimiter = createLimiter(
   'Image search rate limit exceeded. Please slow down.'
 );
 
-module.exports = { authLimiter, aiLimiter, apiLimiter, imageLimiter };
+// File uploads: 20 per hour (avatar changes, etc.)
+const uploadLimiter = createLimiter(
+  60 * 60 * 1000,
+  20,
+  'Upload limit exceeded. Please try again later.'
+);
+
+module.exports = { authLimiter, aiLimiter, apiLimiter, imageLimiter, uploadLimiter };

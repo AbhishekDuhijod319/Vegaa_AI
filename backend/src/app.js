@@ -14,6 +14,7 @@ const aiRoutes = require('./routes/ai.routes');
 const imageRoutes = require('./routes/image.routes');
 const placesRoutes = require('./routes/places.routes');
 const weatherRoutes = require('./routes/weather.routes');
+const userRoutes = require('./routes/user.routes');
 
 const app = express();
 
@@ -48,6 +49,7 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/images', imageRoutes);
 app.use('/api/places', placesRoutes);
 app.use('/api/weather', weatherRoutes);
+app.use('/api/users', userRoutes);
 
 // ─── 404 Handler ────────────────────────────────────
 app.use((req, res) => {
