@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
   MapPin, Calendar, Globe, LogOut,
@@ -9,14 +8,13 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { tripApi } from '@/api/trips';
 import SmartImage from "@/components/ui/SmartImage";
+import { useReveal } from "@/lib/useReveal";
 
 // Stat Card Component
 const StatCard = ({ icon: Icon, label, value, delay }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.5, delay }}
-    className="relative p-6 rounded-2xl bg-white/50 dark:bg-black/50 border border-black/5 dark:border-white/10 backdrop-blur-xl overflow-hidden group hover:bg-white/80 dark:hover:bg-black/80 transition-all duration-300"
+  <div
+    className="reveal relative p-6 rounded-2xl liquid-glass overflow-hidden group hover:bg-white/20 transition-all duration-300"
+    data-reveal-delay={delay * 1000}
   >
     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
       <Icon size={80} />
@@ -28,22 +26,19 @@ const StatCard = ({ icon: Icon, label, value, delay }) => (
       </div>
       <div className="text-3xl font-bold text-foreground mb-1">{value}</div>
     </div>
-  </motion.div>
+  </div>
 );
 
 // Recent Trip Card
 const TripCard = ({ trip, delay }) => {
   const selection = trip?.userSelection || {};
   const city = selection?.destination?.label || selection?.location?.label || selection?.destination || "Unknown Destination";
-  // Attempt to format date roughly
   const dateStr = selection?.startDate ? new Date(selection.startDate).toLocaleDateString(undefined, { month: 'short', year: 'numeric' }) : 'Planned Trip';
 
   return (
-    <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.5, delay }}
-      className="group relative rounded-2xl overflow-hidden bg-card border border-border hover:shadow-lg transition-all duration-300 h-full"
+    <div
+      className="reveal group relative rounded-2xl overflow-hidden bg-card border border-border hover:shadow-lg transition-all duration-300 h-full"
+      data-reveal-delay={delay * 1000}
     >
       <Link to={`/view-trip/${trip._id || trip.id}`} className="block h-full">
         <div className="aspect-[16/9] relative overflow-hidden">
@@ -64,7 +59,7 @@ const TripCard = ({ trip, delay }) => {
           </div>
         </div>
       </Link>
-    </motion.div>
+    </div>
   );
 };
 
@@ -74,6 +69,8 @@ export default function Profile() {
 
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const containerRef = useReveal();
 
   // Fetch real trips
   useEffect(() => {
@@ -98,14 +95,11 @@ export default function Profile() {
   // Derived Stats
   const processedStats = useMemo(() => {
     const total = trips.length;
-    // Count unique "label" from destination object
     const uniqueLocs = new Set(trips.map(t => {
       const sel = t.userSelection;
       return sel?.destination?.label || sel?.location?.label || sel?.destination || null;
     }).filter(Boolean));
 
-    // Most recent trip date
-    // (Already sorted, so trips[0])
     const lastTripDate = trips.length > 0 && trips[0].createdAt
       ? new Date(trips[0].createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
       : "None";
@@ -120,16 +114,11 @@ export default function Profile() {
   if (!user) return null;
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-background via-secondary/5 to-background pb-24">
+    <main className="min-h-screen bg-gradient-to-b from-background via-secondary/5 to-background pb-24" ref={containerRef}>
       {/* Hero Section */}
       <section className="relative pt-32 pb-16 px-6">
         <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="flex flex-col md:flex-row items-center md:items-start gap-8"
-          >
+          <div className="anim-fade-in-up flex flex-col md:flex-row items-center md:items-start gap-8">
             {/* Avatar */}
             <div className="relative">
               <div className="w-32 h-32 rounded-3xl overflow-hidden border-4 border-white dark:border-black shadow-2xl">
@@ -167,7 +156,7 @@ export default function Profile() {
                 <LogOut size={18} />
               </Button>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 

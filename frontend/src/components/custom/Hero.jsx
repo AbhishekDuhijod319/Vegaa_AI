@@ -1,180 +1,278 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { getDynamicHeroImages } from "@/lib/imageService";
+import { getDynamicHeroImages, getFallbackGradients } from "@/lib/imageService";
 
+/**
+ * Hero — fullscreen slideshow with scroll-driven scale-down effect.
+ * Features:
+ *  • Preloads images before showing (no blank black flashes)
+ *  • Falls back to cinematic gradients if images fail to load
+ *  • Text always has a matte overlay guarantee for readability
+ *  • Scale-down creates a cinematic zoom-out into the next section
+ */
 const Hero = ({ onGetStarted, onLearnMore }) => {
-  const [heroImages, setHeroImages] = useState([]);
+  const [slides, setSlides] = useState([]); // [{type, value}]
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [scrollY, setScrollY] = useState(0);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [imagesReady, setImagesReady] = useState(false);
   const heroRef = useRef(null);
+  const sectionRef = useRef(null);
 
-  // Initialize dynamic images
+  // ── Load & preload images ──────────────────────────────────
   useEffect(() => {
-    const images = getDynamicHeroImages();
-    setHeroImages(images);
-  }, []);
+    let cancelled = false;
+    const gradients = getFallbackGradients(4);
 
-  // Force recalculate hero dimensions on load/resize to prevent layout shifts
-  useEffect(() => {
-    const adjustHeroHeight = () => {
-      if (heroRef.current) {
-        const vh = window.innerHeight;
-        heroRef.current.style.height = `${vh}px`;
+    const loadSlides = async () => {
+      const urls = getDynamicHeroImages(4);
 
-        // Debugging logs
-        console.log(`[Hero] Height adjusted to: ${vh}px`);
-        console.log(`[Hero] Window Dimensions: ${window.innerWidth}x${window.innerHeight}`);
+      // Preload all images concurrently with a 5s timeout each
+      const results = await Promise.allSettled(
+        urls.map(
+          (url) =>
+            new Promise((resolve, reject) => {
+              const img = new Image();
+              const timer = setTimeout(() => {
+                img.onload = img.onerror = null;
+                reject(new Error("timeout"));
+              }, 5000);
+              img.onload = () => {
+                clearTimeout(timer);
+                resolve(url);
+              };
+              img.onerror = () => {
+                clearTimeout(timer);
+                reject(new Error("load failed"));
+              };
+              img.src = url;
+            })
+        )
+      );
+
+      if (cancelled) return;
+
+      // Build slide list: use loaded images, fill gaps with gradients
+      const loadedSlides = [];
+      results.forEach((result, i) => {
+        if (result.status === "fulfilled") {
+          loadedSlides.push({ type: "image", value: result.value });
+        } else {
+          loadedSlides.push({ type: "gradient", value: gradients[i % gradients.length] });
+        }
+      });
+
+      // If ALL images failed, use all gradients
+      if (loadedSlides.every((s) => s.type === "gradient")) {
+        setSlides(gradients.map((g) => ({ type: "gradient", value: g })));
+      } else {
+        setSlides(loadedSlides);
       }
+      setImagesReady(true);
     };
 
-    // Run immediately
-    adjustHeroHeight();
+    // Show gradients immediately, then upgrade to images
+    setSlides(gradients.map((g) => ({ type: "gradient", value: g })));
+    loadSlides();
 
-    // Run on load to handle asset loading
-    const handleLoad = () => {
-      console.log("[Hero] Window load event fired");
-      adjustHeroHeight();
-      // Double check after a short delay for any reflows
-      setTimeout(adjustHeroHeight, 100);
-    };
-
-    window.addEventListener("load", handleLoad);
-    window.addEventListener("resize", adjustHeroHeight);
-
-    // Cleanup
-    return () => {
-      window.removeEventListener("load", handleLoad);
-      window.removeEventListener("resize", adjustHeroHeight);
-    };
+    return () => { cancelled = true; };
   }, []);
 
-  // Auto-play
+  // ── Auto-play slideshow ────────────────────────────────────
   useEffect(() => {
-    if (heroImages.length === 0) return;
-
+    if (slides.length === 0) return;
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 6000);
     return () => clearInterval(timer);
-  }, [heroImages]);
+  }, [slides.length]);
 
-  // Preload next image logic handled by browser via the hidden img tags in the map, 
-  // but we can ensure they are fetched by rendering them.
-
-  // Parallax Effect
+  // ── Scroll-driven scale effect ─────────────────────────────
   useEffect(() => {
     const handleScroll = () => {
-      requestAnimationFrame(() => setScrollY(window.scrollY));
+      requestAnimationFrame(() => {
+        const vh = window.innerHeight;
+        const progress = Math.min(1, Math.max(0, window.scrollY / (vh * 0.85)));
+        setScrollProgress(progress);
+      });
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Touch handlers for Swipe
+  // ── Computed transforms ────────────────────────────────────
+  const transforms = useMemo(() => {
+    const p = scrollProgress;
+    return {
+      scale: 1 - p * 0.18,
+      radius: p * 32,
+      contentOpacity: Math.max(0, 1 - p * 2.5),
+      parallaxY: p * window.innerHeight * 0.15,
+    };
+  }, [scrollProgress]);
+
+  // ── Touch swipe ────────────────────────────────────────────
   const touchStartX = useRef(0);
   const handleTouchStart = (e) => (touchStartX.current = e.touches[0].clientX);
   const handleTouchEnd = (e) => {
-    const touchEndX = e.changedTouches[0].clientX;
-    const diff = touchStartX.current - touchEndX;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
     if (Math.abs(diff) > 50) {
-      if (diff > 0) {
-        // Swipe Left -> Next
-        setCurrentSlide((prev) => (prev + 1) % heroImages.length);
-      } else {
-        // Swipe Right -> Prev
-        setCurrentSlide((prev) => (prev - 1 + heroImages.length) % heroImages.length);
-      }
+      setCurrentSlide((prev) =>
+        diff > 0
+          ? (prev + 1) % slides.length
+          : (prev - 1 + slides.length) % slides.length
+      );
     }
   };
 
-  if (heroImages.length === 0) return null; // or a loading skeleton
+  if (slides.length === 0) return null;
 
   return (
     <section
+      ref={sectionRef}
       id="hero"
-      ref={heroRef}
-      className="relative w-full overflow-hidden bg-black z-0 snap-start snap-always"
-      style={{ height: "100vh", scrollMarginTop: "calc(-1 * var(--app-header-offset))" }} // Default fallback
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
+      className="relative w-full z-0"
+      style={{ height: "100vh", scrollMarginTop: "calc(-1 * var(--app-header-offset))" }}
       aria-label="Hero Slideshow"
     >
-      {/* Background Slideshow */}
-      {heroImages.map((src, index) => (
-        <div
-          key={src}
-          className={cn(
-            "absolute inset-0 transition-opacity duration-1000 ease-in-out will-change-transform",
-            index === currentSlide ? "opacity-100" : "opacity-0"
-          )}
-          style={{
-            transform: `translateY(${scrollY * 0.3}px) scale(1.05)`,
-            zIndex: 0
-          }}
-          aria-hidden={index !== currentSlide}
-        >
-          <img
-            src={src}
-            alt=""
-            className="h-full w-full object-cover"
-            loading={index === 0 ? "eager" : "lazy"}
-          />
-          {/* Gradients for iOS feel & text readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60" />
-          <div className="absolute inset-0 bg-black/20" />
-        </div>
-      ))}
-
-      {/* Content Overlay */}
-      <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center pt-20">
-        <div className="space-y-6 max-w-4xl animate-slide-in-from-bottom-8">
-          <div className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-sm font-medium text-white backdrop-blur-md shadow-sm mb-2">
-            <span>✨ AI-Powered Travel Planning</span>
-          </div>
-
-          <h1 className="font-bold text-white leading-tight drop-shadow-lg text-4xl sm:text-6xl md:text-7xl tracking-tight">
-            Plan Smarter. <br /> Travel Better.
-          </h1>
-
-          <p className="max-w-2xl mx-auto text-lg sm:text-xl text-white/90 leading-relaxed font-medium drop-shadow-md">
-            AI-crafted itineraries, hotels and places tailored to your style and pace. Experience the future of travel.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 mt-8 w-full justify-center items-center">
-            <Button
-              size="lg"
-              onClick={onGetStarted}
-              className="h-14 px-8 text-lg font-semibold rounded-full bg-white text-black hover:bg-white/90 shadow-lg hover:scale-105 transition-transform duration-200 w-full sm:w-auto"
-            >
-              Start Planning Free
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={onLearnMore}
-              className="h-14 px-8 text-lg font-semibold rounded-full border-2 border-white/30 bg-white/10 text-white backdrop-blur-md hover:bg-white/20 hover:border-white/50 transition-all duration-200 w-full sm:w-auto"
-            >
-              Learn How It Works
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Pagination Indicators */}
-      <div className="absolute bottom-10 left-1/2 flex -translate-x-1/2 gap-3 z-20">
-        {heroImages.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => setCurrentSlide(index)}
+      {/* Scaling container */}
+      <div
+        ref={heroRef}
+        className="sticky top-0 w-full overflow-hidden will-change-transform"
+        style={{
+          height: "100vh",
+          transform: `scale(${transforms.scale})`,
+          borderRadius: `${transforms.radius}px`,
+          transformOrigin: "center top",
+          backgroundColor: "#0a0a0a",
+        }}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* Background Slides — images OR gradients */}
+        {slides.map((slide, index) => (
+          <div
+            key={`slide-${index}`}
             className={cn(
-              "h-2 rounded-full transition-all duration-300 shadow-sm backdrop-blur-sm",
-              index === currentSlide ? "w-8 bg-white" : "w-2 bg-white/40 hover:bg-white/60"
+              "absolute inset-0 transition-opacity duration-1000 ease-in-out",
+              index === currentSlide ? "opacity-100" : "opacity-0"
             )}
-            aria-label={`Go to slide ${index + 1}`}
-            aria-current={index === currentSlide}
-          />
+            style={
+              slide.type === "image"
+                ? {
+                    transform: `translateY(${transforms.parallaxY}px) scale(1.08)`,
+                    willChange: "transform",
+                  }
+                : {
+                    background: slide.value,
+                  }
+            }
+            aria-hidden={index !== currentSlide}
+          >
+            {slide.type === "image" && (
+              <img
+                src={slide.value}
+                alt=""
+                className="h-full w-full object-cover"
+                loading={index === 0 ? "eager" : "lazy"}
+                onError={(e) => {
+                  // If an image breaks after initial load, replace with gradient
+                  e.target.style.display = "none";
+                  e.target.parentElement.style.background =
+                    "linear-gradient(135deg, #0f0c29, #302b63, #24243e)";
+                }}
+              />
+            )}
+          </div>
         ))}
+
+        {/* ── Text readability overlay ──
+             Multi-layered gradient ensures white text is ALWAYS readable
+             regardless of the underlying image brightness ──────────── */}
+        <div className="absolute inset-0 z-[1] pointer-events-none">
+          {/* Top gradient for navbar area */}
+          <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/60 to-transparent" />
+          {/* Bottom gradient for hero text */}
+          <div className="absolute inset-x-0 bottom-0 h-[65%] bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+          {/* Overall matte for text safety */}
+          <div className="absolute inset-0 bg-black/25" />
+        </div>
+
+        {/* Content Overlay — fades out on scroll */}
+        <div
+          className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center pt-20"
+          style={{
+            opacity: transforms.contentOpacity,
+            transform: `translateY(${scrollProgress * -30}px)`,
+            pointerEvents: transforms.contentOpacity < 0.3 ? "none" : "auto",
+          }}
+        >
+          <div className="space-y-6 max-w-4xl anim-slide-in">
+            <div className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-sm font-medium text-white liquid-glass-subtle shadow-sm mb-2">
+              <span>✨ AI-Powered Travel Planning</span>
+            </div>
+
+            <h1
+              className="font-bold leading-tight text-4xl sm:text-6xl md:text-7xl tracking-tight"
+              style={{
+                color: "#ffffff",
+                textShadow: "0 2px 8px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.3)",
+              }}
+            >
+              Plan Smarter. <br /> Travel Better.
+            </h1>
+
+            <p
+              className="max-w-2xl mx-auto text-lg sm:text-xl leading-relaxed font-medium"
+              style={{
+                color: "rgba(255,255,255,0.92)",
+                textShadow: "0 1px 4px rgba(0,0,0,0.4)",
+              }}
+            >
+              AI-crafted itineraries, hotels and places tailored to your style
+              and pace. Experience the future of travel.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 mt-8 w-full justify-center items-center">
+              <Button
+                size="lg"
+                onClick={onGetStarted}
+                className="h-14 px-8 text-lg font-semibold rounded-full bg-white text-black hover:bg-white/90 shadow-lg hover:scale-105 transition-transform duration-200 w-full sm:w-auto"
+              >
+                Start Planning Free
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={onLearnMore}
+                className="h-14 px-8 text-lg font-semibold rounded-full border-2 border-white/30 bg-white/10 text-white liquid-glass-subtle hover:bg-white/20 hover:border-white/50 transition-all duration-200 w-full sm:w-auto"
+              >
+                Learn How It Works
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Pagination dots */}
+        <div
+          className="absolute bottom-10 left-1/2 flex -translate-x-1/2 gap-3 z-20"
+          style={{ opacity: transforms.contentOpacity }}
+        >
+          {slides.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentSlide(index)}
+              className={cn(
+                "h-2 rounded-full transition-all duration-300 shadow-sm",
+                index === currentSlide
+                  ? "w-8 bg-white"
+                  : "w-2 bg-white/40 hover:bg-white/60"
+              )}
+              aria-label={`Go to slide ${index + 1}`}
+              aria-current={index === currentSlide}
+            />
+          ))}
+        </div>
       </div>
     </section>
   );

@@ -1,9 +1,9 @@
-import React, { useRef, useEffect } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import React, { useRef } from 'react';
 import { ArrowRight, Globe, Heart, Shield, Sparkles, Map, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import SmartImage from '@/components/ui/SmartImage';
+import { useReveal } from '@/lib/useReveal';
 
 // --- Hero Section ---
 const Hero = () => {
@@ -18,60 +18,43 @@ const Hero = () => {
           width={1920}
           height={1080}
         />
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+        <div className="absolute inset-0 bg-black/40" />
       </div>
 
       {/* Hero Content */}
       <div className="relative z-10 text-center px-6 max-w-5xl mx-auto space-y-8">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        >
-          <span className="inline-block py-1 px-3 rounded-full border border-white/30 bg-white/10 text-white/90 text-sm font-medium tracking-wide mb-6 backdrop-blur-md">
+        <div className="anim-fade-in-up">
+          <span className="inline-block py-1 px-3 rounded-full border border-white/30 bg-white/10 text-white/90 text-sm font-medium tracking-wide mb-6 liquid-glass-subtle">
             EST. 2025
           </span>
           <h1 className="text-6xl md:text-8xl lg:text-9xl font-serif font-medium text-white tracking-tight leading-none mix-blend-overlay">
             Reimagining <br /> <span className="italic font-light">Travel</span>
           </h1>
-        </motion.div>
+        </div>
 
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-          className="text-lg md:text-2xl text-white/80 max-w-2xl mx-auto font-light leading-relaxed"
-        >
+        <p className="anim-fade-in-up anim-delay-2 text-lg md:text-2xl text-white/80 max-w-2xl mx-auto font-light leading-relaxed">
           We believe the journey should be as beautiful as the destination.
           Vegaa AI fuses human curiosity with machine precision to craft the perfect itinerary.
-        </motion.p>
+        </p>
       </div>
 
       {/* Scroll Indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1, duration: 1 }}
-        className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/50"
-      >
+      <div className="anim-fade-in anim-delay-5 absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/50">
         <span className="text-xs tracking-[0.2em] uppercase">Scroll</span>
-        <div className="w-[1px] h-12 bg-gradient-to-b from-white/50 to-transparent" />
-      </motion.div>
+        <div className="w-[1px] h-12 bg-gradient-to-b from-white/50 to-transparent" style={{ animation: 'gentlePulse 2s ease-in-out infinite' }} />
+      </div>
     </section>
   );
 };
 
 // --- Values Components (Bento Grid) ---
 const ValueCard = ({ icon: Icon, title, desc, className, delay }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.5, delay }}
+  <div
     className={cn(
-      "group relative p-8 rounded-3xl bg-white/50 dark:bg-black/50 border border-black/5 dark:border-white/10 backdrop-blur-xl overflow-hidden hover:bg-white/80 dark:hover:bg-black/80 transition-all duration-500",
+      "reveal group relative p-8 rounded-3xl liquid-glass overflow-hidden hover:bg-white/20 transition-all duration-500",
       className
     )}
+    data-reveal-delay={delay * 1000}
   >
     <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity duration-500 transform group-hover:scale-110 group-hover:-rotate-12">
       <Icon size={120} />
@@ -85,14 +68,16 @@ const ValueCard = ({ icon: Icon, title, desc, className, delay }) => (
         <p className="text-muted-foreground leading-relaxed">{desc}</p>
       </div>
     </div>
-  </motion.div>
+  </div>
 );
 
 const Values = () => {
+  const containerRef = useReveal();
+
   return (
-    <section className="py-24 md:py-32 px-6 bg-secondary/5">
+    <section className="py-24 md:py-32 px-6 bg-secondary/5" ref={containerRef}>
       <div className="max-w-7xl mx-auto">
-        <div className="mb-20 max-w-3xl">
+        <div className="mb-20 max-w-3xl reveal">
           <h2 className="text-4xl md:text-6xl font-serif font-medium mb-6 text-foreground">Our Core Values</h2>
           <p className="text-xl text-muted-foreground font-light">
             We're building more than just an app; we're building a new philosophy of exploration.
@@ -135,12 +120,14 @@ const Values = () => {
   );
 };
 
-// --- Story Section (Sticky/Parallax) ---
+// --- Story Section ---
 const Story = () => {
+  const containerRef = useReveal();
+
   return (
-    <section className="py-24 md:py-32 px-6">
+    <section className="py-24 md:py-32 px-6" ref={containerRef}>
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
-        <div className="relative aspect-[4/5] rounded-[2rem] overflow-hidden order-2 md:order-1">
+        <div className="relative aspect-[4/5] rounded-[2rem] overflow-hidden order-2 md:order-1 reveal">
           <SmartImage
             query="team collaboration startup office modern"
             alt="Our Team Planning"
@@ -156,15 +143,15 @@ const Story = () => {
         </div>
 
         <div className="order-1 md:order-2 space-y-8">
-          <h2 className="text-4xl md:text-6xl font-serif font-medium text-foreground">Not just another <br /> travel app.</h2>
+          <h2 className="reveal text-4xl md:text-6xl font-serif font-medium text-foreground">Not just another <br />travel app.</h2>
           <div className="space-y-6 text-lg text-muted-foreground font-light leading-relaxed">
-            <p>
+            <p className="reveal" data-reveal-delay="100">
               Vegaa AI started with a simple frustration: travel planning was broken. It was either too generic (dozens of "Top 10" lists) or too manual (spreadsheets and endless tabs).
             </p>
-            <p>
+            <p className="reveal" data-reveal-delay="200">
               We asked ourselves: <span className="text-foreground font-medium">What if an itinerary could write itself?</span>
             </p>
-            <p>
+            <p className="reveal" data-reveal-delay="300">
               Today, we're a team of engineers, designers, and wanderers dedicated to solving the "blank page" problem of travel. We're building the co-pilot we always wished we had.
             </p>
           </div>
@@ -178,8 +165,8 @@ const Story = () => {
 const TeamMember = ({ name, role, image }) => (
   <div className="group relative aspect-[3/4] overflow-hidden rounded-xl bg-muted">
     <SmartImage
-      query={`portrait ${role} professional`} // Using generic query fallback if image not provided
-      src={image} // If user provides specific images later
+      query={`portrait ${role} professional`}
+      src={image}
       alt={name}
       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 filter grayscale group-hover:grayscale-0"
       width={400}
@@ -193,21 +180,23 @@ const TeamMember = ({ name, role, image }) => (
 );
 
 const Team = () => {
+  const containerRef = useReveal();
+
   return (
-    <section className="py-24 px-6 bg-black text-white">
+    <section className="py-24 px-6 bg-black text-white" ref={containerRef}>
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
-          <h2 className="text-4xl md:text-6xl font-serif font-medium">The Minds <br /> Behind Vegaa</h2>
+        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8 reveal">
+          <h2 className="text-4xl md:text-6xl font-serif font-medium">The Minds <br />Behind Vegaa</h2>
           <p className="text-white/60 max-w-sm text-lg font-light">
             A diverse group of thinkers and doers from across the globe.
           </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <TeamMember name="Alex Chen" role="Founder & CEO" />
-          <TeamMember name="Sarah Miller" role="Head of Design" />
-          <TeamMember name="David Okonjo" role="Lead Engineer" />
-          <TeamMember name="Maria Gonzales" role="AI Research" />
+          <div className="reveal" data-reveal-delay="0"><TeamMember name="Alex Chen" role="Founder & CEO" /></div>
+          <div className="reveal" data-reveal-delay="100"><TeamMember name="Sarah Miller" role="Head of Design" /></div>
+          <div className="reveal" data-reveal-delay="200"><TeamMember name="David Okonjo" role="Lead Engineer" /></div>
+          <div className="reveal" data-reveal-delay="300"><TeamMember name="Maria Gonzales" role="AI Research" /></div>
         </div>
       </div>
     </section>
@@ -215,19 +204,25 @@ const Team = () => {
 };
 
 // --- Footer CTA ---
-const FooterCTA = () => (
-  <section className="py-32 px-6 flex flex-col items-center justify-center text-center space-y-8 bg-background">
-    <h2 className="text-4xl md:text-7xl font-serif font-medium text-foreground tracking-tight">
-      Ready to go?
-    </h2>
-    <p className="text-xl text-muted-foreground font-light max-w-xl">
-      Your next great adventure is just a click away. Let AI handle the details.
-    </p>
-    <Button size="lg" className="rounded-full px-10 h-14 text-lg">
-      Start Planning Now <ArrowRight className="ml-2 w-5 h-5" />
-    </Button>
-  </section>
-);
+const FooterCTA = () => {
+  const containerRef = useReveal();
+
+  return (
+    <section className="py-32 px-6 flex flex-col items-center justify-center text-center space-y-8 bg-background" ref={containerRef}>
+      <h2 className="reveal text-4xl md:text-7xl font-serif font-medium text-foreground tracking-tight">
+        Ready to go?
+      </h2>
+      <p className="reveal text-xl text-muted-foreground font-light max-w-xl" data-reveal-delay="100">
+        Your next great adventure is just a click away. Let AI handle the details.
+      </p>
+      <div className="reveal" data-reveal-delay="200">
+        <Button size="lg" className="rounded-full px-10 h-14 text-lg">
+          Start Planning Now <ArrowRight className="ml-2 w-5 h-5" />
+        </Button>
+      </div>
+    </section>
+  );
+};
 
 const About = () => {
   return (

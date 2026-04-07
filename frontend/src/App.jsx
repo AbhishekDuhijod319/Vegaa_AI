@@ -199,7 +199,7 @@ function DestinationsSection({ destinations }) {
     <section
       id="destinations"
       data-section
-      className="h-[100svh] flex flex-col justify-start pt-20 md:pt-24 pb-2 bg-gradient-to-b from-background via-secondary/20 to-background overflow-hidden snap-start snap-always"
+      className="h-[100svh] flex flex-col justify-start pt-20 md:pt-24 pb-2 bg-gradient-to-b from-background via-secondary/20 to-background overflow-hidden"
       aria-label="Popular Destinations"
       style={{ scrollMarginTop: "var(--app-header-offset)" }}
     >
@@ -226,14 +226,14 @@ function DestinationsSection({ destinations }) {
             <button
               aria-label="Previous destination"
               onClick={() => scrollBy(-300)}
-              className="h-12 w-12 rounded-full bg-white/80 dark:bg-white/10 backdrop-blur-xl border border-white/20 shadow-ios-subtle flex items-center justify-center hover:scale-105 transition-all active:scale-95 text-foreground"
+              className="h-12 w-12 rounded-full liquid-glass-subtle flex items-center justify-center hover:scale-105 transition-all active:scale-95 text-foreground"
             >
               <ChevronLeft className="h-6 w-6" />
             </button>
             <button
               aria-label="Next destination"
               onClick={() => scrollBy(300)}
-              className="h-12 w-12 rounded-full bg-white/80 dark:bg-white/10 backdrop-blur-xl border border-white/20 shadow-ios-subtle flex items-center justify-center hover:scale-105 transition-all active:scale-95 text-foreground"
+              className="h-12 w-12 rounded-full liquid-glass-subtle flex items-center justify-center hover:scale-105 transition-all active:scale-95 text-foreground"
             >
               <ChevronRight className="h-6 w-6" />
             </button>
@@ -265,10 +265,8 @@ function DestinationsSection({ destinations }) {
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}
               >
-                <div className="absolute inset-0 bg-muted animate-pulse" />
-
                 <SmartImage
-                  query={d.title || d.city || "travel destination"}
+                  query={`${d.city} ${d.title || 'travel destination'}`}
                   alt={d.city}
                   className="absolute inset-0 w-full h-full object-cover select-none"
                   draggable="false"
@@ -278,23 +276,31 @@ function DestinationsSection({ destinations }) {
                   sizes="(min-width:1280px) 25vw, (min-width:1024px) 33vw, (min-width:640px) 50vw, 85vw"
                 />
 
-                {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90 pointer-events-none" />
+                {/* Strong gradient overlay — ensures text readability */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/5 pointer-events-none" />
 
-                {/* Content */}
-                <div className="absolute inset-0 p-6 flex flex-col justify-end text-white pointer-events-none">
+                {/* Content with guaranteed contrast */}
+                <div className="absolute inset-0 p-6 flex flex-col justify-end pointer-events-none">
                   <div className="mb-3">
-                    <span className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold bg-white/20 backdrop-blur-md border border-white/10">
+                    <span
+                      className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold liquid-glass-subtle"
+                      style={{ color: '#fff', textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}
+                    >
                       {d.city}
                     </span>
                   </div>
-                  <h3 className="text-2xl md:text-3xl font-bold leading-tight mb-2 drop-shadow-lg">
+                  <h3
+                    className="text-2xl md:text-3xl font-bold leading-tight mb-2"
+                    style={{ color: '#fff', textShadow: '0 2px 6px rgba(0,0,0,0.6)' }}
+                  >
                     {d.title}
                   </h3>
-                  <p className="text-white/80 text-sm line-clamp-2 mb-4">
+                  <p
+                    className="text-sm line-clamp-2 mb-4"
+                    style={{ color: 'rgba(255,255,255,0.85)', textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}
+                  >
                     Discover the best spots, hidden gems, and local favorites in {d.city}.
                   </p>
-                  {/* Explore Guide Button REMOVED */}
                 </div>
               </article>
             </div>
@@ -315,46 +321,102 @@ function DestinationsSection({ destinations }) {
   );
 }
 
-// 3) How It Works
+// 3) How It Works — Alternating image/text layout
 function HowItWorksSections({ steps }) {
   return (
-    <>
-      {steps.map((s) => (
-        <section
-          key={s.id}
-          id={s.id}
-          data-section
-          className="min-h-[100svh] flex flex-col justify-center pt-28 md:pt-32 pb-16 [content-visibility:auto] [contain-intrinsic-size:1px_1000px] snap-start snap-always"
-          style={{ scrollMarginTop: "var(--app-header-offset)" }}
-          aria-label={`How it works - ${s.title}`}
-        >
-          <div className="h-full grid md:grid-cols-2 items-center gap-6 px-6 md:px-16">
-            <div className="max-w-xl">
-              <h3 className="text-2xl md:text-3xl font-semibold mb-3">
-                {s.title}
-              </h3>
-              <p className="text-muted-foreground">{s.desc}</p>
-            </div>
-            <div className="w-full">
-              <div className="relative rounded-2xl overflow-hidden border bg-card shadow-sm">
-                <div className="w-full h-[50vh] md:h-[60vh]">
-                  <SmartImage
-                    query={s.query || s.title}
-                    alt={s.title}
-                    className="w-full h-full object-cover"
-                    pexelsFallback={true}
-                    sizes="(min-width: 768px) 50vw, 100vw"
-                    width={1200}
-                    height={800}
-                    fetchpriority="low"
-                  />
+    <section
+      className="py-20 md:py-32 bg-gradient-to-b from-background via-secondary/10 to-background"
+      aria-label="How it works"
+    >
+      <div className="max-w-7xl mx-auto px-6 md:px-12">
+        {/* Section Header */}
+        <div className="text-center mb-16 md:mb-24">
+          <span className="inline-block text-primary font-semibold tracking-wide uppercase text-xs md:text-sm bg-primary/10 px-4 py-1.5 rounded-full mb-4">
+            How It Works
+          </span>
+          <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground">
+            Three simple steps to your
+            <br className="hidden md:block" />
+            <span className="text-primary"> perfect trip</span>
+          </h2>
+        </div>
+
+        {/* Alternating Steps */}
+        <div className="space-y-24 md:space-y-32">
+          {steps.map((s, idx) => {
+            // Alternate: even = image left, odd = image right
+            const isReversed = idx % 2 !== 0;
+
+            return (
+              <div
+                key={s.id}
+                id={s.id}
+                data-section
+                className={`grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 items-center ${
+                  isReversed ? "md:[direction:rtl]" : ""
+                }`}
+                style={{ scrollMarginTop: "var(--app-header-offset)" }}
+              >
+                {/* Image Side */}
+                <div className={`w-full ${isReversed ? "md:[direction:ltr]" : ""}`}>
+                  <div className="relative group">
+                    {/* Step number badge */}
+                    <div className="absolute -top-4 -left-4 md:-top-6 md:-left-6 z-10 w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg md:text-2xl shadow-lg">
+                      {String(idx + 1).padStart(2, "0")}
+                    </div>
+
+                    <div className="relative rounded-3xl overflow-hidden shadow-2xl ring-1 ring-black/5">
+                      <div className="w-full aspect-[4/3] md:aspect-[3/2]">
+                        <SmartImage
+                          query={s.query || s.title}
+                          alt={s.title}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          pexelsFallback={true}
+                          sizes="(min-width: 768px) 50vw, 100vw"
+                          width={1200}
+                          height={800}
+                          fetchpriority="low"
+                        />
+                      </div>
+                      {/* Subtle gradient overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Text Side */}
+                <div className={`w-full ${isReversed ? "md:[direction:ltr]" : ""}`}>
+                  <div className="max-w-lg space-y-6">
+                    <div className="flex items-center gap-3">
+                      <div className="h-px flex-1 bg-border max-w-[60px]" />
+                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+                        Step {idx + 1}
+                      </span>
+                    </div>
+
+                    <h3 className="text-2xl md:text-4xl font-bold tracking-tight text-foreground leading-tight">
+                      {s.title}
+                    </h3>
+
+                    <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
+                      {s.desc}
+                    </p>
+
+                    {/* Visual connector dot */}
+                    {idx < steps.length - 1 && (
+                      <div className="hidden md:flex items-center gap-2 pt-4">
+                        <div className="w-2 h-2 rounded-full bg-primary/40" />
+                        <div className="h-px w-12 bg-gradient-to-r from-primary/40 to-transparent" />
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </section>
-      ))}
-    </>
+            );
+          })}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -377,7 +439,7 @@ function FaqSection() {
     <section
       id="faq"
       data-section
-      className="min-h-[100svh] flex flex-col justify-center pt-28 md:pt-32 pb-24 bg-[#F2F2F7] dark:bg-black font-sans snap-start snap-always"
+      className="min-h-[100svh] flex flex-col justify-center pt-28 md:pt-32 pb-24 bg-[#F2F2F7] dark:bg-black font-sans"
       style={{ scrollMarginTop: "var(--app-header-offset)" }}
       aria-label="FAQ"
     >

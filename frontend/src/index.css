@@ -48,13 +48,10 @@
 
   /* Modern iOS-inspired values */
   --radius: 1rem;
-  /* More rounded corners */
 
   /* Light theme: Soft, airy, modern */
   --background: oklch(0.99 0 0);
-  /* Very slight off-white */
   --foreground: oklch(0.15 0.02 260);
-  /* Softer black */
 
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.15 0.02 260);
@@ -63,10 +60,8 @@
   --popover-foreground: oklch(0.15 0.02 260);
 
   --primary: oklch(0.45 0.15 260);
-  /* Modern blue-ish primary */
   --primary-foreground: oklch(0.98 0 0);
   --primary-rgb: 0, 119, 237;
-  /* RGB fallback for rgba helpers */
 
   --secondary: oklch(0.96 0.01 260);
   --secondary-foreground: oklch(0.25 0.05 260);
@@ -97,102 +92,73 @@
   --sidebar-border: var(--border);
   --sidebar-ring: var(--ring);
 
-  /* Responsive header offset for snapping alignment */
+  /* Header offset for anchor/scroll alignment */
   --app-header-offset: clamp(72px, 8vh, 96px);
 }
+
+/* ─── Base ──────────────────────────────────────────────────────────── */
 
 html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Offset anchors and programmatic scrolls to account for the fixed header */
+  scroll-padding-top: var(--app-header-offset);
+  scroll-padding-bottom: 24px;
 }
 
-/* Custom scrollbar for Webkit */
-::-webkit-scrollbar {
-  width: 10px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
+/* Custom scrollbar (Webkit) */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
   background: oklch(0.85 0 0);
   border-radius: 20px;
   border: 3px solid transparent;
   background-clip: content-box;
 }
+::-webkit-scrollbar-thumb:hover { background-color: oklch(0.75 0 0); }
 
-::-webkit-scrollbar-thumb:hover {
-  background-color: oklch(0.75 0 0);
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
-
-
-
 @layer base {
-  * {
-    @apply border-border;
-  }
+  * { @apply border-border; }
 
   body {
     @apply bg-background text-foreground antialiased;
     overflow-x: hidden;
-    /* prevent any page-level horizontal scrollbar */
   }
 
-  /* Global smooth scroll and page-level snap across routes */
-  html,
-  body {
+  html, body {
     height: 100%;
     scroll-behavior: smooth;
   }
-
-  html {
-    /* use mandatory so users always land on a section start */
-    scroll-snap-type: y mandatory;
-    /* offset snapping and anchor jumps to account for fixed header height */
-    scroll-padding-top: var(--app-header-offset);
-    scroll-padding-bottom: 24px;
-  }
-
-  /* Respect reduced motion */
-  @media (prefers-reduced-motion: reduce) {
-    html {
-      scroll-behavior: auto;
-      scroll-snap-type: none;
-      scroll-padding-top: 0;
-      scroll-padding-bottom: 0;
-    }
-  }
 }
 
-/* Theme transition: only active during toggle via .theme-switch.
-   Respects reduced motion to avoid discomfort. */
+/* ─── Theme transition (only during toggle) ────────────────────────── */
 @media (prefers-reduced-motion: no-preference) {
-
-  .theme-switch,
-  .theme-switch * {
+  .theme-switch, .theme-switch * {
     transition-property: color, background-color, border-color, fill, stroke;
     transition-duration: 150ms;
     transition-timing-function: ease-in-out;
   }
 }
 
-/* Hide scrollbars utility for horizontal carousels while keeping scrollability */
+/* ─── Scrollbar-hide utility ───────────────────────────────────────── */
 .no-scrollbar {
   -ms-overflow-style: none;
-  /* IE/Edge */
   scrollbar-width: none;
-  /* Firefox */
 }
+.no-scrollbar::-webkit-scrollbar { display: none; }
 
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-  /* Safari/Chrome */
-}
-
-/* Horizontal 2-row grid that scrolls sideways without scrollbars */
+/* ─── Horizontal 2-row card grid ───────────────────────────────────── */
 .horizontal-card-grid {
   display: grid;
   grid-auto-flow: column;
@@ -201,81 +167,38 @@ html {
   gap: 1rem;
 }
 
-/* Page-level snap scrolling for sections (applies to elements marked as data-section) */
-/* Ensure sections don’t hide beneath the fixed header */
+/* ─── Section anchor offset (keeps header from covering anchored content) */
 [data-section] {
-  scroll-snap-align: start;
   scroll-margin-top: var(--app-header-offset);
-  scroll-snap-stop: always;
-  /* ensure precise snapping when near a section */
 }
 
-/* Smooth transform for active sections */
-@media (prefers-reduced-motion: no-preference) {
-  [data-section] {
-    transition: opacity 200ms ease, transform 300ms ease;
-  }
-
-  [data-section].is-active {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  [data-section].is-inactive {
-    opacity: 0.98;
-    transform: translateY(4px);
-  }
-}
-
-/* High-contrast helpers for text over media and tinted surfaces */
+/* ─── High-contrast text helpers ───────────────────────────────────── */
 @layer components {
   .text-on-media {
     color: #ffffff;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
   }
-
-  .contrast-strong {
-    color: oklch(0.20 0 0);
-  }
-
+  .contrast-strong { color: oklch(0.20 0 0); }
   .surface-muted {
     background-color: hsl(var(--muted));
     color: hsl(var(--muted-foreground));
   }
-
   .surface-accent {
     background-color: hsl(var(--accent));
     color: hsl(var(--accent-foreground));
   }
 }
 
-/* Remove number input spinners for a cleaner budget input */
+/* ─── Number input spinners removal ────────────────────────────────── */
 input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-input[type="number"] {
-  -moz-appearance: textfield;
-}
-
-/* Remove number input spinners */
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type="number"] { -moz-appearance: textfield; }
 .number-input::-webkit-outer-spin-button,
-.number-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
+.number-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.number-input[type=number] { -moz-appearance: textfield; }
 
-.number-input[type=number] {
-  -moz-appearance: textfield;
-}
-
-/* Datepicker responsive positioning */
-.react-datepicker-popper {
-  z-index: 9999 !important;
-}
-
+/* ─── Datepicker ───────────────────────────────────────────────────── */
+.react-datepicker-popper { z-index: 9999 !important; }
 .react-datepicker {
   font-family: 'Inter', sans-serif !important;
   background-color: #ffffff !important;
@@ -285,28 +208,16 @@ input[type="number"] {
   color: #111111 !important;
   padding: 0.5rem !important;
 }
-
-.dark .react-datepicker {
-  background-color: #000000 !important;
-  color: #ffffff !important;
-}
-
-.react-datepicker__triangle {
-  display: none !important;
-}
-
+.dark .react-datepicker { background-color: #000000 !important; color: #ffffff !important; }
+.react-datepicker__triangle { display: none !important; }
 .react-datepicker__header {
   background-color: transparent !important;
   border-bottom: 1px solid hsl(var(--border)) !important;
   padding-top: 0.5rem !important;
 }
-
 .dark .react-datepicker__current-month,
 .dark .react-datepicker-time__header,
-.dark .react-datepicker-year-header {
-  color: #ffffff !important;
-}
-
+.dark .react-datepicker-year-header { color: #ffffff !important; }
 .react-datepicker__current-month,
 .react-datepicker-time__header,
 .react-datepicker-year-header {
@@ -315,47 +226,176 @@ input[type="number"] {
   font-size: 0.95rem !important;
   padding-bottom: 0.5rem !important;
 }
-
-.react-datepicker__day-name {
-  color: hsl(var(--muted-foreground)) !important;
-  font-weight: 500 !important;
-  width: 2rem !important;
-  margin: 0.2rem !important;
-}
-
-.react-datepicker__day {
-  color: hsl(var(--foreground)) !important;
-  width: 2rem !important;
-  line-height: 2rem !important;
-  margin: 0.2rem !important;
-  border-radius: 0.5rem !important;
-}
-
-.react-datepicker__day:hover {
-  background-color: hsl(var(--accent)) !important;
-  color: hsl(var(--accent-foreground)) !important;
-}
-
+.react-datepicker__day-name { color: hsl(var(--muted-foreground)) !important; font-weight: 500 !important; width: 2rem !important; margin: 0.2rem !important; }
+.react-datepicker__day { color: hsl(var(--foreground)) !important; width: 2rem !important; line-height: 2rem !important; margin: 0.2rem !important; border-radius: 0.5rem !important; }
+.react-datepicker__day:hover { background-color: hsl(var(--accent)) !important; color: hsl(var(--accent-foreground)) !important; }
 .react-datepicker__day--selected,
-.react-datepicker__day--keyboard-selected {
-  background-color: hsl(var(--primary)) !important;
-  color: hsl(var(--primary-foreground)) !important;
+.react-datepicker__day--keyboard-selected { background-color: hsl(var(--primary)) !important; color: hsl(var(--primary-foreground)) !important; }
+.react-datepicker__day--disabled { color: hsl(var(--muted-foreground)) !important; opacity: 0.4; }
+.react-datepicker__navigation { top: 12px !important; }
+.react-datepicker__navigation-icon::before { border-color: hsl(var(--muted-foreground)) !important; border-width: 2px 2px 0 0 !important; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   iOS LIQUID GLASS SYSTEM
+   Based on SVG filter #frosted defined in LiquidGlass.jsx
+   ═══════════════════════════════════════════════════════════════════ */
+
+.liquid-glass {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  box-shadow:
+    0 0 0 1.5px rgba(255, 255, 255, 0.5),
+    0 8px 32px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(20px) saturate(1.8) brightness(1.05);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8) brightness(1.05);
+  transition: box-shadow 0.3s ease, background 0.3s ease, transform 0.3s ease;
+}
+.liquid-glass:hover {
+  box-shadow:
+    0 0 0 1.5px rgba(255, 255, 255, 0.65),
+    0 12px 40px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.18);
 }
 
-.react-datepicker__day--disabled {
-  color: hsl(var(--muted-foreground)) !important;
-  opacity: 0.4;
+/* Subtle variant — for small chips, pills, tags */
+.liquid-glass-subtle {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.35),
+    0 4px 16px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(12px) saturate(1.4);
+  -webkit-backdrop-filter: blur(12px) saturate(1.4);
+  transition: box-shadow 0.3s ease, background 0.3s ease;
 }
 
-/* Custom navigation arrows */
-.react-datepicker__navigation {
-  top: 12px !important;
+/* Strong variant — for prominent panels */
+.liquid-glass-strong {
+  background: rgba(255, 255, 255, 0.18);
+  border: 2px solid transparent;
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.6),
+    0 16px 32px rgba(0, 0, 0, 0.12),
+    inset 0 2px 0 rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(24px) saturate(2) brightness(1.08);
+  -webkit-backdrop-filter: blur(24px) saturate(2) brightness(1.08);
+  transition: box-shadow 0.4s ease, background 0.3s ease;
+}
+.liquid-glass-strong:hover {
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.75),
+    0 20px 40px rgba(0, 0, 0, 0.16),
+    inset 0 2px 0 rgba(255, 255, 255, 0.5);
 }
 
-.react-datepicker__navigation-icon::before {
-  border-color: hsl(var(--muted-foreground)) !important;
-  border-width: 2px 2px 0 0 !important;
+/* Dark variant — for dark-background contexts */
+.liquid-glass-dark {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.15),
+    0 8px 32px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px) saturate(1.6) brightness(0.9);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6) brightness(0.9);
+  transition: box-shadow 0.3s ease, background 0.3s ease;
 }
+.liquid-glass-dark:hover {
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.25),
+    0 12px 40px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   CENTRALIZED KEYFRAME ANIMATIONS
+   ═══════════════════════════════════════════════════════════════════ */
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slideInFromBottom {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes slideInFromLeft {
+  from { opacity: 0; transform: translateX(-24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes gentlePulse {
+  0%, 100% { opacity: 0.5; }
+  50%      { opacity: 1; }
+}
+@keyframes bounceSubtle {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+/* Utility classes for direct use */
+.anim-fade-in-up     { animation: fadeInUp 0.6s ease-out both; }
+.anim-fade-in        { animation: fadeIn 0.5s ease-out both; }
+.anim-slide-in       { animation: slideInFromBottom 0.7s ease-out both; }
+.anim-scale-in       { animation: scaleIn 0.5s ease-out both; }
+.anim-slide-in-left  { animation: slideInFromLeft 0.6s ease-out both; }
+
+/* Stagger helpers — apply alongside an anim-* class */
+.anim-delay-1 { animation-delay: 100ms; }
+.anim-delay-2 { animation-delay: 200ms; }
+.anim-delay-3 { animation-delay: 300ms; }
+.anim-delay-4 { animation-delay: 400ms; }
+.anim-delay-5 { animation-delay: 500ms; }
+.anim-delay-6 { animation-delay: 600ms; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   SCROLL-TRIGGERED REVEAL SYSTEM
+   Works with useReveal.js IntersectionObserver hook
+   ═══════════════════════════════════════════════════════════════════ */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Variant: scale reveal */
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+.reveal-scale.revealed {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Variant: slide from left */
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-24px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.reveal-left.revealed {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
 
 /* Responsive improvements */
 @media (max-width: 768px) {
@@ -363,14 +403,9 @@ input[type="number"] {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-
-  .no-caret-glow {
-    padding: 1rem;
-  }
+  .no-caret-glow { padding: 1rem; }
 }
 
 @media (max-width: 640px) {
-  .grid.md\:grid-cols-2 {
-    grid-template-columns: 1fr;
-  }
+  .grid.md\:grid-cols-2 { grid-template-columns: 1fr; }
 }

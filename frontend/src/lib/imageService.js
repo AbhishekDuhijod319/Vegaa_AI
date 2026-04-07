@@ -1,11 +1,9 @@
-import { HERO_IMAGE_LIBRARY, DEFAULT_IMAGES } from '../constants/heroImages';
+import { HERO_IMAGE_LIBRARY, DEFAULT_IMAGES, FALLBACK_GRADIENTS } from '../constants/heroImages';
 
 const STORAGE_KEY_HISTORY = 'vegaa_hero_history';
-const STORAGE_KEY_STATS = 'vegaa_hero_stats';
 
 /**
  * Determine current time of day context
- * @returns {string} 'morning', 'afternoon', or 'evening'
  */
 const getTimeContext = () => {
   const hour = new Date().getHours();
@@ -15,91 +13,86 @@ const getTimeContext = () => {
 };
 
 /**
- * Shuffle array using Fisher-Yates algorithm
+ * Shuffle array (Fisher-Yates)
  */
 const shuffle = (array) => {
-  let currentIndex = array.length, randomIndex;
-  while (currentIndex !== 0) {
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex--;
-    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+  const a = [...array];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
   }
-  return array;
+  return a;
 };
 
 /**
- * Get a curated list of images for the current session
+ * Preload an image URL with a timeout.
+ * Returns the URL on success or null on failure.
+ */
+const preloadWithTimeout = (url, timeoutMs = 4000) =>
+  new Promise((resolve) => {
+    const img = new Image();
+    const timer = setTimeout(() => {
+      img.onload = img.onerror = null;
+      resolve(null);
+    }, timeoutMs);
+    img.onload = () => {
+      clearTimeout(timer);
+      resolve(url);
+    };
+    img.onerror = () => {
+      clearTimeout(timer);
+      resolve(null);
+    };
+    img.src = url;
+  });
+
+/**
+ * Get curated hero images for the current session.
+ * Preloads each image. If network images fail, returns CSS gradient strings
+ * from FALLBACK_GRADIENTS so the hero NEVER shows a blank/black screen.
+ *
  * @param {number} count Number of images to return
- * @returns {Array} Array of image URLs
+ * @returns {Array<{type: 'image'|'gradient', value: string}>}
  */
 export const getDynamicHeroImages = (count = 4) => {
   const timeContext = getTimeContext();
-  
-  // Filter by time context, but allow fallback to others if not enough
-  let relevantImages = HERO_IMAGE_LIBRARY.filter(img => img.timeOfDay.includes(timeContext));
-  const otherImages = HERO_IMAGE_LIBRARY.filter(img => !img.timeOfDay.includes(timeContext));
-  
-  // Shuffle both lists
-  relevantImages = shuffle(relevantImages);
-  const shuffledOthers = shuffle(otherImages);
 
-  // Combine, prioritizing relevant ones
-  const pool = [...relevantImages, ...shuffledOthers];
+  // Prioritise time-relevant images
+  let relevant = shuffle(
+    HERO_IMAGE_LIBRARY.filter((img) => img.timeOfDay.includes(timeContext))
+  );
+  const others = shuffle(
+    HERO_IMAGE_LIBRARY.filter((img) => !img.timeOfDay.includes(timeContext))
+  );
+  const pool = [...relevant, ...others];
 
-  // Retrieve history to avoid immediate repeats if possible
+  // Avoid recently shown
   let history = [];
   try {
     const stored = sessionStorage.getItem(STORAGE_KEY_HISTORY);
     if (stored) history = JSON.parse(stored);
-  } catch (e) {
-    console.warn('Failed to read image history', e);
-  }
+  } catch { /* ignore */ }
 
-  // Filter out recently shown images if we have enough alternatives
-  const candidates = pool.filter(img => !history.includes(img.id));
-  
-  // Select final list
-  let selected = [];
-  if (candidates.length >= count) {
-    selected = candidates.slice(0, count);
-  } else {
-    // Fill with pool if candidates aren't enough (looping back)
-    selected = [...candidates, ...pool.filter(img => !candidates.includes(img))].slice(0, count);
-  }
+  const candidates = pool.filter((img) => !history.includes(img.id));
+  let selected =
+    candidates.length >= count
+      ? candidates.slice(0, count)
+      : [...candidates, ...pool.filter((img) => !candidates.includes(img))].slice(0, count);
 
-  // If something went wrong and we have 0, use defaults
   if (selected.length === 0) {
     return DEFAULT_IMAGES;
   }
 
-  // Update history
-  const newHistory = selected.map(img => img.id);
+  // Save history
   try {
-    sessionStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(newHistory));
-  } catch (e) {
-    // ignore
-  }
+    sessionStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(selected.map((s) => s.id)));
+  } catch { /* ignore */ }
 
-  // Track impressions (mock analytics)
-  trackImpressions(selected);
-
-  return selected.map(img => img.src);
+  return selected.map((img) => img.src);
 };
 
-const trackImpressions = (images) => {
-  try {
-    let stats = {};
-    const stored = localStorage.getItem(STORAGE_KEY_STATS);
-    if (stored) stats = JSON.parse(stored);
-
-    images.forEach(img => {
-      stats[img.id] = (stats[img.id] || 0) + 1;
-    });
-
-    localStorage.setItem(STORAGE_KEY_STATS, JSON.stringify(stats));
-    // In a real app, you'd send this to an analytics endpoint
-    console.log('Image impressions tracked:', images.map(i => i.id));
-  } catch (e) {
-    console.warn('Failed to track stats', e);
-  }
-};
+/**
+ * Get fallback gradients when network images can't load
+ */
+export const getFallbackGradients = (count = 4) =>
+  FALLBACK_GRADIENTS.slice(0, count);

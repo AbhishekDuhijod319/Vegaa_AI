@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 const Footer = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  const isHome = location.pathname === '/'
   const year = new Date().getFullYear()
 
   const socialLinks = [
@@ -38,45 +37,42 @@ const Footer = () => {
   }
 
   return (
-    <footer
-      className={`bg-[#050505] text-white pt-20 md:pt-24 pb-4 overflow-hidden relative font-sans mt-auto ${isHome ? 'snap-start snap-always max-h-[100svh] h-[100svh] flex flex-col justify-between' : ''}`}
-      style={isHome ? { scrollMarginTop: "var(--app-header-offset)" } : {}}
-    >
-      <div className={`max-w-[1400px] mx-auto px-6 md:px-12 relative z-10 w-full ${isHome ? 'flex-1 flex flex-col justify-center min-h-0' : ''}`}>
+    <footer className="bg-[#0a0a0a] text-white pt-20 md:pt-24 pb-6 overflow-hidden relative font-sans mt-auto">
+      <div className="max-w-[1400px] mx-auto px-6 md:px-12 relative z-10 w-full">
 
         {/* Top Section: Description & Links */}
-        <div className="flex flex-col lg:flex-row justify-between gap-8 lg:gap-16 mb-8 md:mb-12 flex-shrink-0">
+        <div className="flex flex-col lg:flex-row justify-between gap-10 lg:gap-16 mb-12 md:mb-16">
 
           {/* Left: Description */}
-          <div className="max-w-md space-y-4">
-            <div className="flex items-center gap-2">
-              <img src="/logo.svg" alt="Vegaa AI" className="h-6 w-6 md:h-8 md:w-8" />
-              <span className="text-lg md:text-xl font-bold tracking-tight">Vegaa AI</span>
+          <div className="max-w-md space-y-5">
+            <div className="flex items-center gap-2.5">
+              <img src="/logo.svg" alt="Vegaa AI" className="h-7 w-7 md:h-9 md:w-9" />
+              <span className="text-xl md:text-2xl font-bold tracking-tight">Vegaa AI</span>
             </div>
-            <p className="text-sm md:text-base text-gray-400 leading-relaxed font-light line-clamp-3">
+            <p className="text-[15px] md:text-base text-gray-400 leading-relaxed font-light">
               Vegaa AI is the most complete AI suite for modern travelers, trusted by explorers worldwide to craft personalized, unforgettable journeys.
             </p>
           </div>
 
           {/* Right: Link Columns */}
-          <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-12">
+          <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-12">
             {Object.entries(footerLinks).map(([category, links]) => (
-              <div key={category} className="space-y-6">
-                <h4 className="text-sm md:text-base font-semibold text-white tracking-wide">{category}</h4>
+              <div key={category} className="space-y-5">
+                <h4 className="text-sm font-semibold text-white/80 tracking-widest uppercase">{category}</h4>
                 <ul className="space-y-3">
                   {links.map((link) => (
                     <li key={link.label}>
                       {link.path.startsWith("#") ? (
                         <a
                           href={link.path}
-                          className="text-gray-400 hover:text-white transition-colors text-[15px] font-medium"
+                          className="text-gray-500 hover:text-white transition-colors text-[15px] font-medium"
                         >
                           {link.label}
                         </a>
                       ) : (
                         <Link
                           to={link.path}
-                          className="text-gray-400 hover:text-white transition-colors text-[15px] font-medium"
+                          className="text-gray-500 hover:text-white transition-colors text-[15px] font-medium"
                         >
                           {link.label}
                         </Link>
@@ -89,8 +85,8 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Middle Section: Newsletter & Socials */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8 md:mb-12 border-t border-white/5 pt-6 md:pt-8 flex-shrink-0">
+        {/* Newsletter & Socials */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-12 md:mb-16 border-t border-white/[0.06] pt-8 md:pt-10">
           <div className="space-y-1 text-center md:text-left">
             <h3 className="text-lg md:text-xl font-semibold text-white">Get the latest updates</h3>
             <p className="text-gray-500 text-xs md:text-sm">Join our newsletter for travel tips and AI features.</p>
@@ -98,15 +94,15 @@ const Footer = () => {
 
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
             {/* Input Group */}
-            <div className="group flex items-center bg-[#151515] rounded-full p-1.5 pl-5 border border-white/10 focus-within:border-white/20 transition-all w-full sm:w-[380px]">
+            <div className="group flex items-center bg-white/[0.04] rounded-full p-1.5 pl-5 border border-white/[0.08] focus-within:border-white/20 transition-all w-full sm:w-[380px]">
               <input
                 type="email"
                 placeholder="Email address"
-                className="bg-transparent border-none focus:ring-0 text-sm w-full text-white placeholder:text-gray-500 outline-none"
+                className="bg-transparent border-none focus:ring-0 text-sm w-full text-white placeholder:text-gray-600 outline-none"
               />
               <Button
                 size="sm"
-                className="rounded-full bg-white text-black hover:bg-gray-200 transition-colors px-4 h-9 font-medium flex items-center gap-2"
+                className="rounded-full bg-white text-black hover:bg-gray-200 transition-colors px-5 h-9 font-medium flex items-center gap-2"
               >
                 Subscribe <ArrowRight size={14} />
               </Button>
@@ -119,7 +115,7 @@ const Footer = () => {
                   key={social.label}
                   href={social.href}
                   aria-label={social.label}
-                  className="bg-white/10 hover:bg-white text-white hover:text-black p-2.5 rounded-full transition-all duration-300"
+                  className="bg-white/[0.06] hover:bg-white text-gray-500 hover:text-black p-2.5 rounded-full transition-all duration-300"
                 >
                   <social.icon size={18} strokeWidth={1.5} />
                 </a>
@@ -128,25 +124,9 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Bottom Section: Branding & Copyright */}
-        <div className="relative pt-12 pb-6">
-          {/* Large Background Text */}
-          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 w-full overflow-hidden flex justify-center opacity-[0.03] pointer-events-none select-none">
-            <span className="text-[20vw] font-bold leading-none whitespace-nowrap tracking-tighter">
-              VEGAA
-            </span>
-          </div>
-
-          {/* Central Logo/Graphic (Optional, matching the diamond in reference) */}
-          <div className="flex justify-center mb-16 relative z-10">
-            <div className="relative group">
-              <div className="absolute -inset-4 bg-primary/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-              <img src="/logo.svg" alt="Vegaa AI Logo" className="h-24 w-24 relative z-10 drop-shadow-2xl grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-500" />
-            </div>
-          </div>
-
-          {/* Footer Bottom Bar */}
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-500 font-medium border-t border-white/5 pt-4 md:pt-6 pb-2">
+        {/* Bottom Bar */}
+        <div className="border-t border-white/[0.06] pt-6 pb-2">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-600 font-medium">
             <p>© {year} Vegaa AI. All rights reserved.</p>
             <div className="flex flex-wrap justify-center gap-8">
               <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>

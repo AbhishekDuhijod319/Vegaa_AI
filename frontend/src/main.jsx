@@ -9,6 +9,7 @@ import {
 // Eagerly load components needed immediately
 import Header from "./components/custom/Header.jsx";
 import Footer from "./components/custom/Footer.jsx";
+import { LiquidGlassFilter } from "./components/ui/LiquidGlass.jsx";
 import { Toaster } from "sonner";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import ErrorBoundary from "./components/misc/ErrorBoundary.jsx";
@@ -25,7 +26,11 @@ const AboutPage = lazy(() => import("./about/index.jsx"));
 const Profile = lazy(() => import("./profile/index.jsx"));
 const AuthPage = lazy(() => import("./auth/index.jsx"));
 
-// Scroll manager: reset to top on route changes; preserve scroll during component updates
+/**
+ * ScrollManager — robust scroll-to-top on route changes.
+ * Temporarily disables smooth scrolling so the page doesn't "animate" to top
+ * (which caused the landing-offset bug when combined with scroll-snap).
+ */
 const ScrollManager = () => {
   const location = useLocation();
 
@@ -36,15 +41,21 @@ const ScrollManager = () => {
       }
     } catch { }
 
-    // Force scroll to top immediately and synchronously
+    // Temporarily disable smooth scrolling for instant jump
+    const html = document.documentElement;
+    const prevBehavior = html.style.scrollBehavior;
+    html.style.scrollBehavior = 'auto';
+
+    // Force synchronous scroll to top
     window.scrollTo(0, 0);
 
-    // Also try after a tiny delay to catch any async content
-    const timeoutId = setTimeout(() => {
-      window.scrollTo(0, 0);
-    }, 0);
+    // Re-enable smooth scrolling after paint
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        html.style.scrollBehavior = prevBehavior || '';
+      });
+    });
 
-    return () => clearTimeout(timeoutId);
   }, [location.pathname, location.search]);
   return null;
 };
@@ -70,7 +81,18 @@ const Layout = ({ children, hideFooter }) => (
   </>
 );
 
-
+/**
+ * MinimalLayout — used for full-screen overlays (auth, etc.)
+ * that don't need Header/Footer but still need scroll management.
+ */
+const MinimalLayout = ({ children }) => (
+  <>
+    <ScrollManager />
+    <Suspense fallback={<PageLoader />}>
+      {children}
+    </Suspense>
+  </>
+);
 
 const router = createBrowserRouter([
   {
@@ -133,7 +155,9 @@ const router = createBrowserRouter([
   {
     path: "/auth",
     element: (
-      <AuthPage />
+      <MinimalLayout>
+        <AuthPage />
+      </MinimalLayout>
     ),
   },
 ], {
@@ -152,6 +176,8 @@ createRoot(document.getElementById("root")).render(
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_AUTH_CLIENT_ID}>
       <AuthProvider>
         <ErrorBoundary>
+          {/* Global SVG filter for liquid glass — rendered once */}
+          <LiquidGlassFilter />
           <RouterProvider router={router} />
           <Toaster richColors position="top-center" />
         </ErrorBoundary>
