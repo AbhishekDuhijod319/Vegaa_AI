@@ -54,10 +54,10 @@ export default function SectionNav({ sections = [] }) {
 
   return (
     <aside
-      className="hidden lg:block sticky top-24 self-start w-56 pr-3"
+      className="hidden lg:block sticky self-start w-56 pr-3" style={{ top: 'calc(var(--app-header-offset, 80px) + 1rem)' }}
       aria-label="Section navigation"
     >
-      <nav className="px-1 py-1 rounded-md mt-28">
+      <nav className="px-1 py-1 rounded-md">
         <ul className="space-y-1">
           {sections.map((s) => {
             const isActive = active === s.id;
@@ -74,7 +74,7 @@ export default function SectionNav({ sections = [] }) {
                   aria-current={isActive ? "true" : undefined}
                 >
                   <span
-                    className={`inline-block h-2 w-2 rounded-full}`}
+                    className={`inline-block h-2 w-2 rounded-full`}
                     aria-hidden="true"
                   />
                   <span className="inline-block align-middle">{s.label}</span>

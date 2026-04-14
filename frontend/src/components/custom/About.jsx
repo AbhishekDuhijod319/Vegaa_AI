@@ -27,7 +27,7 @@ const Hero = () => {
           <span className="inline-block py-1 px-3 rounded-full border border-white/30 bg-white/10 text-white/90 text-sm font-medium tracking-wide mb-6 liquid-glass-subtle">
             EST. 2025
           </span>
-          <h1 className="text-6xl md:text-8xl lg:text-9xl font-serif font-medium text-white tracking-tight leading-none mix-blend-overlay">
+          <h1 className="text-6xl md:text-8xl lg:text-9xl font-semibold text-white tracking-tight leading-none mix-blend-overlay">
             Reimagining <br /> <span className="italic font-light">Travel</span>
           </h1>
         </div>
@@ -64,7 +64,7 @@ const ValueCard = ({ icon: Icon, title, desc, className, delay }) => (
         <Icon size={24} />
       </div>
       <div>
-        <h3 className="text-2xl font-serif font-medium mb-3">{title}</h3>
+        <h3 className="text-2xl font-semibold mb-3">{title}</h3>
         <p className="text-muted-foreground leading-relaxed">{desc}</p>
       </div>
     </div>
@@ -78,7 +78,7 @@ const Values = () => {
     <section className="py-24 md:py-32 px-6 bg-secondary/5" ref={containerRef}>
       <div className="max-w-7xl mx-auto">
         <div className="mb-20 max-w-3xl reveal">
-          <h2 className="text-4xl md:text-6xl font-serif font-medium mb-6 text-foreground">Our Core Values</h2>
+          <h2 className="text-4xl md:text-6xl font-semibold mb-6 text-foreground">Our Core Values</h2>
           <p className="text-xl text-muted-foreground font-light">
             We're building more than just an app; we're building a new philosophy of exploration.
           </p>
@@ -137,13 +137,13 @@ const Story = () => {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-8">
             <div className="text-white">
-              <p className="font-serif italic text-2xl">"Travel is the only thing you buy that makes you richer."</p>
+              <p className="italic text-2xl">"Travel is the only thing you buy that makes you richer."</p>
             </div>
           </div>
         </div>
 
         <div className="order-1 md:order-2 space-y-8">
-          <h2 className="reveal text-4xl md:text-6xl font-serif font-medium text-foreground">Not just another <br />travel app.</h2>
+          <h2 className="reveal text-4xl md:text-6xl font-semibold text-foreground">Not just another <br />travel app.</h2>
           <div className="space-y-6 text-lg text-muted-foreground font-light leading-relaxed">
             <p className="reveal" data-reveal-delay="100">
               Vegaa AI started with a simple frustration: travel planning was broken. It was either too generic (dozens of "Top 10" lists) or too manual (spreadsheets and endless tabs).
@@ -186,7 +186,7 @@ const Team = () => {
     <section className="py-24 px-6 bg-black text-white" ref={containerRef}>
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8 reveal">
-          <h2 className="text-4xl md:text-6xl font-serif font-medium">The Minds <br />Behind Vegaa</h2>
+          <h2 className="text-4xl md:text-6xl font-semibold">The Minds <br />Behind Vegaa</h2>
           <p className="text-white/60 max-w-sm text-lg font-light">
             A diverse group of thinkers and doers from across the globe.
           </p>
@@ -209,7 +209,7 @@ const FooterCTA = () => {
 
   return (
     <section className="py-32 px-6 flex flex-col items-center justify-center text-center space-y-8 bg-background" ref={containerRef}>
-      <h2 className="reveal text-4xl md:text-7xl font-serif font-medium text-foreground tracking-tight">
+      <h2 className="reveal text-4xl md:text-7xl font-semibold text-foreground tracking-tight">
         Ready to go?
       </h2>
       <p className="reveal text-xl text-muted-foreground font-light max-w-xl" data-reveal-delay="100">

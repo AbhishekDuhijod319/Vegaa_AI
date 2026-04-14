@@ -75,6 +75,24 @@ export function AuthProvider({ children }) {
     setUser((prev) => (prev ? { ...prev, ...updates } : null));
   }, []);
 
+  const scheduleDeletion = useCallback(async () => {
+    const data = await authApi.scheduleDeletion();
+    // Update user state with deletion date
+    setUser((prev) => prev ? { ...prev, deletionScheduledAt: data.deletionScheduledAt } : null);
+    return data;
+  }, []);
+
+  const cancelDeletion = useCallback(async () => {
+    await authApi.cancelDeletion();
+    setUser((prev) => prev ? { ...prev, deletionScheduledAt: null } : null);
+  }, []);
+
+  const updateProfile = useCallback(async ({ name, email }) => {
+    const data = await authApi.updateProfile({ name, email });
+    setUser(data.user);
+    return data;
+  }, []);
+
   const value = {
     user,
     isAuthenticated,
@@ -84,6 +102,9 @@ export function AuthProvider({ children }) {
     googleLogin,
     logout,
     updateUser,
+    updateProfile,
+    scheduleDeletion,
+    cancelDeletion,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

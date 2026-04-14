@@ -129,7 +129,7 @@ const Header = () => {
               variant="ghost"
               size="icon"
               aria-label={menuOpen ? "Close menu" : "Open menu"}
-              className="rounded-full text-foreground/80 hover:bg-black/5 hover:text-foreground transition-colors"
+              className="rounded-full text-foreground/80 hover:bg-accent hover:text-foreground transition-colors"
               onClick={() => setMenuOpen((v) => !v)}
             >
               {menuOpen ? <X className="w-6 h-6" aria-hidden /> : <Menu className="w-6 h-6" aria-hidden />}
@@ -141,14 +141,14 @@ const Header = () => {
                 <nav className="grid gap-2" aria-label="Mobile navigation">
                   <Button
                     variant="ghost"
-                    className="justify-start text-lg font-medium text-foreground/90 rounded-2xl h-14 pl-6 hover:bg-black/5 transition-colors"
+                    className="justify-start text-lg font-medium text-foreground/90 rounded-2xl h-14 pl-6 hover:bg-accent transition-colors"
                     onClick={() => goTo("hero")}
                   >
                     Home
                   </Button>
                   <Button
                     variant="ghost"
-                    className="justify-start text-lg font-medium text-foreground/90 rounded-2xl h-14 pl-6 hover:bg-black/5 transition-colors"
+                    className="justify-start text-lg font-medium text-foreground/90 rounded-2xl h-14 pl-6 hover:bg-accent transition-colors"
                     onClick={() => navigate('/about')}
                   >
                     About Us
@@ -157,7 +157,7 @@ const Header = () => {
                     <>
                       <Button
                         variant="ghost"
-                        className="justify-start text-lg font-medium text-foreground/90 rounded-2xl h-14 pl-6 hover:bg-black/5 transition-colors"
+                        className="justify-start text-lg font-medium text-foreground/90 rounded-2xl h-14 pl-6 hover:bg-accent transition-colors"
                         onClick={() => {
                           navigate("/my-trips");
                           setMenuOpen(false);
@@ -167,7 +167,7 @@ const Header = () => {
                       </Button>
                       <Button
                         variant="ghost"
-                        className="justify-start text-lg font-medium text-foreground/90 rounded-2xl h-14 pl-6 hover:bg-black/5 transition-colors"
+                        className="justify-start text-lg font-medium text-foreground/90 rounded-2xl h-14 pl-6 hover:bg-accent transition-colors"
                         onClick={() => {
                           navigate("/profile");
                           setMenuOpen(false);

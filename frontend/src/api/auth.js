@@ -30,4 +30,19 @@ export const authApi = {
     const { data } = await apiClient.get('/auth/me');
     return data; // { user }
   },
+
+  async updateProfile({ name, email }) {
+    const { data } = await apiClient.put('/users/profile', { name, email });
+    return data; // { message, user }
+  },
+
+  async scheduleDeletion() {
+    const { data } = await apiClient.post('/users/schedule-deletion');
+    return data; // { message, deletionScheduledAt }
+  },
+
+  async cancelDeletion() {
+    const { data } = await apiClient.post('/users/cancel-deletion');
+    return data; // { message }
+  },
 };

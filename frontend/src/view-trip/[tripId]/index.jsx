@@ -1,6 +1,6 @@
 import { tripApi } from '@/api/trips';
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import InfoSection from "../components/InfoSection";
 import SectionNav from "../components/SectionNav";
@@ -16,6 +16,7 @@ import SuggestedDayTrips from "../components/SuggestedDayTrips";
 
 function Viewtrip() {
   const { tripId } = useParams();
+  const [searchParams] = useSearchParams();
   const [trip, setTrip] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -23,7 +24,9 @@ function Viewtrip() {
     const fetchTrip = async () => {
       try {
         setLoading(true);
-        const data = await tripApi.getById(tripId);
+        // Pass share token if present in URL
+        const shareToken = searchParams.get('share') || searchParams.get('token');
+        const data = await tripApi.getByIdWithShare(tripId, shareToken);
         if (data.trip) {
           setTrip(data.trip);
         } else {
@@ -32,22 +35,22 @@ function Viewtrip() {
         }
       } catch (error) {
         console.error("Error fetching trip:", error);
-        toast("Error fetching trip");
+        if (error.response?.status === 403) {
+          toast.error("You don't have access to this trip. Ask the owner for a share link.");
+        } else {
+          toast("Error fetching trip");
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchTrip();
-  }, [tripId]);
-
-  /**
-   * Used to get Trip Information form Firebase
-   */
+  }, [tripId, searchParams]);
 
   if (loading) {
     return (
-      <div className="p-10 md:px-20 lg:px-44 xl:px-56">
+      <div className="p-10 md:px-20 lg:px-44 xl:px-56" style={{ paddingTop: 'calc(var(--app-header-offset, 80px) + 2rem)' }}>
         <p className="text-muted-foreground">Loading trip...</p>
       </div>
     );
@@ -55,7 +58,7 @@ function Viewtrip() {
 
   if (!trip) {
     return (
-      <div className="p-10 md:px-20 lg:px-44 xl:px-56">
+      <div className="p-10 md:px-20 lg:px-44 xl:px-56" style={{ paddingTop: 'calc(var(--app-header-offset, 80px) + 2rem)' }}>
         <p className="text-muted-foreground">No trip found.</p>
       </div>
     );
@@ -73,9 +76,13 @@ function Viewtrip() {
     { id: "gettingAround", label: "Getting Around" },
   ];
 
+  // Shared section styles — removed min-h-[100svh] and redundant mt-24
+  const sectionClass = "scroll-mt-[calc(var(--app-header-offset,80px)+1rem)]";
+  const innerClass = "px-2 md:px-6 lg:px-8 xl:px-10 py-8 md:py-12 text-[15px] sm:text-[16px] md:text-[17px] lg:text-[18px]";
+
   return (
     <div>
-      {/* Landing section (full-screen) */}
+      {/* Landing section */}
       {trip && <InfoSection trip={trip} />}
 
       {/* Content with left-side section navigation */}
@@ -85,64 +92,64 @@ function Viewtrip() {
 
           <div>
             {/* 1) Recommended Hotels */}
-            <section id="hotels" data-section className="scroll-mt-24 min-h-[100svh]">
-              <div className="px-2 md:px-6 lg:px-8 xl:px-10 py-8 sm:py-9 md:py-10 lg:py-12 mt-24 text-[15px] sm:text-[16px] md:text-[17px] lg:text-[18px]">
+            <section id="hotels" data-section className={sectionClass}>
+              <div className={innerClass}>
                 {trip && <Hotels trip={trip} />}
               </div>
             </section>
 
             {/* 2) Recommended Restaurants */}
-            <section id="restaurants" data-section className="scroll-mt-24 min-h-[100svh]">
-              <div className="px-2 md:px-6 lg:px-8 xl:px-10 py-8 sm:py-9 md:py-10 lg:py-12 mt-24 text-[15px] sm:text-[16px] md:text-[17px] lg:text-[18px]">
+            <section id="restaurants" data-section className={sectionClass}>
+              <div className={innerClass}>
                 {trip && <Restaurants trip={trip} />}
               </div>
             </section>
 
             {/* 3) Places To Visit */}
-            <section id="places" data-section className="scroll-mt-24 min-h-[100svh]">
-              <div className="px-2 md:px-6 lg:px-8 xl:px-10 py-8 sm:py-9 md:py-10 lg:py-12 mt-24 text-[15px] sm:text-[16px] md:text-[17px] lg:text-[18px]">
+            <section id="places" data-section className={sectionClass}>
+              <div className={innerClass}>
                 {trip && <PlacesToVisit trip={trip} />}
               </div>
             </section>
 
             {/* 4) Suggested Day Trips */}
-            <section id="dayTrips" data-section className="scroll-mt-24 min-h-[100svh]">
-              <div className="px-2 md:px-6 lg:px-8 xl:px-10 py-8 sm:py-9 md:py-10 lg:py-12 mt-24 text-[15px] sm:text-[16px] md:text-[17px] lg:text-[18px]">
+            <section id="dayTrips" data-section className={sectionClass}>
+              <div className={innerClass}>
                 {trip && <SuggestedDayTrips trip={trip} />}
               </div>
             </section>
 
             {/* 5) Neighbourhoods */}
-            <section id="neighbourhoods" data-section className="scroll-mt-24 min-h-[100svh]">
-              <div className="px-2 md:px-6 lg:px-8 xl:px-10 py-8 sm:py-9 md:py-10 lg:py-12 mt-24 text-[15px] sm:text-[16px] md:text-[17px] lg:text-[18px]">
+            <section id="neighbourhoods" data-section className={sectionClass}>
+              <div className={innerClass}>
                 {trip && <Neighbourhoods trip={trip} />}
               </div>
             </section>
 
             {/* 6) Markets for Shopping */}
-            <section id="markets" data-section className="scroll-mt-24 min-h-[100svh]">
-              <div className="px-2 md:px-6 lg:px-8 xl:px-10 py-8 sm:py-9 md:py-10 lg:py-12 mt-24 text-[15px] sm:text-[16px] md:text-[17px] lg:text-[18px]">
+            <section id="markets" data-section className={sectionClass}>
+              <div className={innerClass}>
                 {trip && <Markets trip={trip} />}
               </div>
             </section>
 
             {/* 7) Extras */}
-            <section id="extras" data-section className="scroll-mt-24 min-h-[100svh]">
-              <div className="px-2 md:px-6 lg:px-8 xl:px-10 py-8 sm:py-9 md:py-10 lg:py-12 mt-24 text-[15px] sm:text-[16px] md:text-[17px] lg:text-[18px]">
+            <section id="extras" data-section className={sectionClass}>
+              <div className={innerClass}>
                 {trip && <Extras trip={trip} />}
               </div>
             </section>
 
             {/* 8) Local Essentials */}
-            <section id="localEssentials" data-section className="scroll-mt-24 min-h-[100svh]">
-              <div className="px-2 md:px-6 lg:px-8 xl:px-10 py-8 sm:py-9 md:py-10 lg:py-12 mt-24 text-[15px] sm:text-[16px] md:text-[17px] lg:text-[18px]">
+            <section id="localEssentials" data-section className={sectionClass}>
+              <div className={innerClass}>
                 {trip && <LocalEssentials trip={trip} />}
               </div>
             </section>
 
             {/* 9) Getting Around */}
-            <section id="gettingAround" data-section className="scroll-mt-24 min-h-[100svh]">
-              <div className="px-2 md:px-6 lg:px-8 xl:px-10 py-8 sm:py-9 md:py-10 lg:py-12 mt-24 text-[15px] sm:text-[16px] md:text-[17px] lg:text-[18px]">
+            <section id="gettingAround" data-section className={sectionClass}>
+              <div className={innerClass}>
                 {trip && <GettingAround trip={trip} />}
               </div>
             </section>

@@ -30,4 +30,15 @@ export const tripApi = {
     const { data } = await apiClient.get('/trips/stats');
     return data; // { stats }
   },
+
+  async generateShareToken(tripId) {
+    const { data } = await apiClient.post(`/trips/${tripId}/share`);
+    return data; // { shareToken, shareUrl }
+  },
+
+  async getByIdWithShare(tripId, shareToken) {
+    const params = shareToken ? { share: shareToken } : {};
+    const { data } = await apiClient.get(`/trips/${tripId}`, { params });
+    return data; // { trip }
+  },
 };

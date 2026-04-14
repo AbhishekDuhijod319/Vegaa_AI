@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@400;500;600&display=swap');
+
 
 @tailwind base;
 @tailwind components;
@@ -186,6 +186,14 @@ html {
   .surface-accent {
     background-color: hsl(var(--accent));
     color: hsl(var(--accent-foreground));
+  }
+
+  /* Uniform sub-section header — replaces hardcoded bg-slate-500 */
+  .section-subheading {
+    @apply text-base font-semibold mb-3 px-4 py-2 rounded-xl text-center;
+    background: oklch(0.94 0.01 260);
+    color: oklch(0.25 0.05 260);
+    border: 1px solid oklch(0.88 0.01 260);
   }
 }
 

@@ -137,7 +137,7 @@ export default function Extras({ trip }) {
       {/* Must Visit Places */}
       {rainy.length > 0 && (
         <div className="mb-6">
-          <h3 className="text-base font-semibold mb-3 bg-slate-500 text-white rounded-md max-w-full text-center px-2 py-1">Must Visit Places</h3>
+          <h3 className="section-subheading">Must Visit Places</h3>
           <div
             ref={rainyDots.trackRef}
             onScroll={rainyDots.handleScroll}
@@ -197,7 +197,7 @@ export default function Extras({ trip }) {
       {/* Nightlife */}
       {night.length > 0 && (
         <div className="mb-6">
-          <h3 className="text-base font-semibold mb-3  bg-slate-500 text-white rounded-md max-w-full text-center px-2 py-1">Nightlife</h3>
+          <h3 className="section-subheading">Nightlife</h3>
           <div
             ref={nightDots.trackRef}
             onScroll={nightDots.handleScroll}
@@ -257,7 +257,7 @@ export default function Extras({ trip }) {
       {/* Family Friendly */}
       {family.length > 0 && (
         <div className="mb-6">
-          <h3 className="text-base font-semibold mb-3  bg-slate-500 text-white rounded-md max-w-full text-center px-2 py-1">Family Friendly</h3>
+          <h3 className="section-subheading">Family Friendly</h3>
           <div
             ref={familyDots.trackRef}
             onScroll={familyDots.handleScroll}

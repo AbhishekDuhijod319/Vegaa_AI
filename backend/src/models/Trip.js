@@ -29,6 +29,7 @@ const tripSchema = new mongoose.Schema(
     },
     tripData: { type: mongoose.Schema.Types.Mixed, default: {} },
     coverPhotoUrl: { type: String, default: '' },
+    shareToken: { type: String, default: null, index: true },
   },
   { timestamps: true }
 );

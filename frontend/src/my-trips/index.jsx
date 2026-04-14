@@ -126,7 +126,25 @@ function MyTrips() {
   }, [confirmId])
 
   if (loading) {
-    return <div className='mx-auto max-w-7xl px-5 sm:px-8 md:px-12 lg:px-16 xl:px-20 pt-24 pb-12'>Loading your trips...</div>;
+    return (
+      <div className='mx-auto max-w-7xl px-5 sm:px-8 md:px-12 lg:px-16 xl:px-20 pt-24 pb-12'>
+        <h1 className='text-2xl font-semibold mb-4'>My Trips</h1>
+        <div className='grid grid-cols-1 md:grid-cols-2 min-[1200px]:grid-cols-3 gap-4'>
+          {[0, 1, 2].map(i => (
+            <div key={i} className='rounded-2xl border bg-card overflow-hidden animate-pulse'>
+              <div className='w-full bg-muted' style={{ aspectRatio: '16/9' }} />
+              <div className='p-4 space-y-3'>
+                <div className='h-5 bg-muted rounded w-3/4' />
+                <div className='grid grid-cols-2 gap-2'>
+                  <div className='h-10 bg-muted/60 rounded' />
+                  <div className='h-10 bg-muted/60 rounded' />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -150,7 +168,7 @@ function MyTrips() {
             const selection = t?.userSelection || {}
             const city = selection?.destination?.label || selection?.location?.label || selection?.destination || selection?.location || 'Trip'
             const days = selection?.noOfDays || diffDays(selection?.startDate, selection?.endDate) || 0
-            const budgetFmt = formatCurrency(selection?.budgetAmount, selection?.currency) || selection?.budget || null
+            const budgetFmt = formatCurrency(selection?.amount, selection?.currency) || null
             const datesFmt = formatDateRange(selection?.startDate, selection?.endDate) || null
 
             return (
@@ -195,7 +213,7 @@ function MyTrips() {
                   <Link to={`/view-trip/${t._id || t.id}`} className='block p-4'>
                     <h3 className='font-semibold text-[18px] sm:text-[20px] leading-tight'>{city}</h3>
 
-                    <div className='mt-2 grid grid-cols-2 gap-2 text-sm text-muted-foreground'>
+                    <div className='mt-2 grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm text-muted-foreground'>
                       <div className=''>
                         <span className='block'>Duration</span>
                         <span className='font-medium text-foreground'>{days} day{days === 1 ? '' : 's'}</span>
@@ -203,6 +221,14 @@ function MyTrips() {
                       <div className=''>
                         <span className='block'>Budget</span>
                         <span className='font-medium text-foreground'>{budgetFmt || '—'}</span>
+                      </div>
+                      <div className=''>
+                        <span className='block'>Travelers</span>
+                        <span className='font-medium text-foreground'>{selection?.numTravelers || 1}</span>
+                      </div>
+                      <div className=''>
+                        <span className='block'>Transport</span>
+                        <span className='font-medium text-foreground capitalize'>{selection?.transportMode || '—'}</span>
                       </div>
                     </div>
 

@@ -26,6 +26,7 @@ const userSchema = new mongoose.Schema(
     googleId: { type: String, sparse: true, index: true },
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
     lastLoginAt: { type: Date, default: null },
+    deletionScheduledAt: { type: Date, default: null },
     preferences: {
       defaultCurrency: { type: String, default: 'INR' },
       theme: { type: String, default: 'light' },

@@ -1,6 +1,7 @@
 const tripRepository = require('../repositories/tripRepository');
 const imageService = require('./image.service');
 const cloudinaryService = require('./cloudinary.service');
+const crypto = require('crypto');
 const logger = require('../utils/logger');
 
 const tripService = {
@@ -14,7 +15,6 @@ const tripService = {
     let persistedCoverUrl = coverPhotoUrl || '';
 
     if (persistedCoverUrl && !cloudinaryService.isCloudinaryUrl(persistedCoverUrl)) {
-      // It's a Pexels URL — upload it to Cloudinary for permanence
       try {
         const result = await cloudinaryService.uploadFromUrl(
           persistedCoverUrl,
@@ -25,10 +25,8 @@ const tripService = {
         logger.info(`Trip cover photo persisted: ${destination} → ${result.publicId}`);
       } catch (err) {
         logger.warn(`Failed to persist cover photo to Cloudinary: ${err.message}. Using original URL.`);
-        // Keep the original URL as fallback
       }
     } else if (!persistedCoverUrl && destination) {
-      // No cover photo provided — fetch and persist one via Pexels → Cloudinary
       try {
         const result = await imageService.searchAndPersist(destination, 'destinations');
         if (result?.secureUrl) {
@@ -65,7 +63,6 @@ const tripService = {
   },
 
   async update(tripId, userId, updateData) {
-    // If updating coverPhotoUrl with a non-Cloudinary URL, persist it
     if (
       updateData.coverPhotoUrl &&
       !cloudinaryService.isCloudinaryUrl(updateData.coverPhotoUrl)
@@ -116,6 +113,35 @@ const tripService = {
       tripRepository.getUniqueDestinations(userId),
     ]);
     return { totalTrips: count, uniqueDestinations: destinations.length, destinations };
+  },
+
+  /**
+   * Generate a unique share token for a trip (owner only).
+   * Returns the updated trip with the shareToken set.
+   */
+  async generateShareToken(tripId, userId) {
+    // First verify ownership
+    const trip = await tripRepository.getById(tripId);
+    if (!trip) {
+      const err = new Error('Trip not found.');
+      err.status = 404;
+      throw err;
+    }
+    if (trip.userId?.toString() !== userId) {
+      const err = new Error('Access denied. Only the trip owner can generate share links.');
+      err.status = 403;
+      throw err;
+    }
+
+    // Generate a URL-safe random token if one doesn't exist
+    if (!trip.shareToken) {
+      const token = crypto.randomBytes(24).toString('base64url');
+      const updated = await tripRepository.update(tripId, userId, { shareToken: token });
+      return updated;
+    }
+
+    // Return existing token
+    return trip;
   },
 };
 

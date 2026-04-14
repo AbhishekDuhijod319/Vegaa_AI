@@ -77,7 +77,7 @@ export default function GettingAround({ trip }) {
 
       {(transitTypes.length > 0 || transitTips.length > 0) && (
         <div className="mb-6">
-          <h3 className="text-base font-semibold mb-3 bg-slate-500 text-white px-2 py-1 rounded-md text-center">Public Transit</h3>
+          <h3 className="section-subheading">Public Transit</h3>
           {transitTypes.length > 0 && (
             <div className="mb-4">
               <h4 className="text-sm font-semibold text-muted-foreground">Transit Types</h4>
@@ -106,7 +106,7 @@ export default function GettingAround({ trip }) {
 
       {rideOptions.length > 0 && (
         <div className="mb-6">
-          <h3 className="text-base font-semibold mb-3 bg-slate-500 text-white px-2 py-1 rounded-md text-center">Ride‑Hailing</h3>
+          <h3 className="section-subheading">Ride‑Hailing</h3>
           <ol className="list-decimal pl-5 space-y-2 text-sm text-foreground/90">
             {rideOptions.map((it, idx) => (
               <li key={`${it.title}|${idx}`}>
@@ -122,7 +122,7 @@ export default function GettingAround({ trip }) {
 
       {passCards.length > 0 && (
         <div className="mb-6">
-          <h3 className="text-base font-semibold mb-3 bg-slate-500 text-white px-2 py-1 rounded-md text-center">Cards & Passes</h3>
+          <h3 className="section-subheading">Cards & Passes</h3>
           <ol className="list-decimal pl-5 space-y-2 text-sm text-foreground/90">
             {passCards.map((it, idx) => (
               <li key={`${it.title}|${idx}`}>
@@ -141,7 +141,7 @@ export default function GettingAround({ trip }) {
 
       {travelTimeCards.length > 0 && (
         <div className="mb-6">
-          <h3 className="text-base font-semibold mb-3 bg-slate-500 text-white px-2 py-1 rounded-md text-center">Typical Travel Times</h3>
+          <h3 className="section-subheading">Typical Travel Times</h3>
           <ol className="list-decimal pl-5 space-y-2 text-sm text-foreground/90">
             {travelTimeCards.map((it, idx) => (
               <li key={`${it.title}|${idx}`}>
@@ -157,7 +157,7 @@ export default function GettingAround({ trip }) {
 
       {walkingBikingTips.length > 0 && (
         <div className="mb-6">
-          <h3 className="text-base font-semibold mb-3 bg-slate-500 text-white px-2 py-1 rounded-md text-center">Walking / Biking</h3>
+          <h3 className="section-subheading">Walking / Biking</h3>
           <ol className="list-decimal pl-5 space-y-2 text-sm text-foreground/90">
             {walkingBikingTips.map((it, idx) => (
               <li key={`${it.title}|${idx}`}>

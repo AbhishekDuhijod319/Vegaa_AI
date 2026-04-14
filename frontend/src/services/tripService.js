@@ -24,12 +24,35 @@ function normalizeTripData(raw) {
     };
   });
 
+  // Normalize hotels — map address→location for backwards compatibility, normalize amenities
+  const hotels = ensureArr(obj.hotels).map(h => ({
+    ...h,
+    location: h.location || h.address || '',
+    amenities: ensureArr(h.amenities),
+    rating: typeof h.rating === 'number' ? h.rating : parseFloat(h.rating) || null,
+  }));
+
+  // Normalize restaurants — map address→location
+  const restaurants = ensureArr(obj.restaurants).map(r => ({
+    ...r,
+    location: r.location || r.address || '',
+    rating: typeof r.rating === 'number' ? r.rating : parseFloat(r.rating) || null,
+  }));
+
+  // Normalize placesToVisit
+  const placesToVisit = ensureArr(obj.placesToVisit).map(p => ({
+    ...p,
+    location: p.location || p.address || '',
+  }));
+
   const normalized = {
-    summary: obj.summary || '',
-    hotels: ensureArr(obj.hotels),
-    restaurants: ensureArr(obj.restaurants),
+    tripSummary: ensureObj(obj.tripSummary),
+    summary: obj.summary || obj.tripSummary?.title || '',
+    hotels,
+    restaurants,
+    placesToVisit,
     markets: ensureArr(obj.markets),
-    neighborhoods: ensureArr(obj.neighborhoods),
+    neighbourhoods: ensureArr(obj.neighbourhoods || obj.neighborhoods),
     gettingAround: {
       ...ga,
       publicTransit: ensureObj(ga.publicTransit),

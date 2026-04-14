@@ -439,7 +439,7 @@ function FaqSection() {
     <section
       id="faq"
       data-section
-      className="min-h-[100svh] flex flex-col justify-center pt-28 md:pt-32 pb-24 bg-[#F2F2F7] dark:bg-black font-sans"
+      className="min-h-[100svh] flex flex-col justify-center pt-28 md:pt-32 pb-24 bg-secondary font-sans"
       style={{ scrollMarginTop: "var(--app-header-offset)" }}
       aria-label="FAQ"
     >
@@ -460,7 +460,7 @@ function FaqSection() {
           </div>
           <input
             type="text"
-            className="block w-full pl-10 pr-3 py-3 border-none rounded-xl bg-white dark:bg-[#1C1C1E] text-foreground placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 shadow-sm transition-all"
+            className="block w-full pl-10 pr-3 py-3 border-none rounded-xl bg-card text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 shadow-sm transition-all"
             placeholder="Search"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -470,11 +470,11 @@ function FaqSection() {
         {/* iOS Grouped List */}
         <div className="space-y-4">
           {filteredFaqs.length > 0 ? (
-            <div className="bg-white dark:bg-[#1C1C1E] rounded-2xl overflow-hidden shadow-sm">
+            <div className="bg-card rounded-2xl overflow-hidden shadow-sm">
               {filteredFaqs.map((item, idx) => {
                 const isOpen = openIndex === idx;
                 return (
-                  <div key={idx} className="border-b border-gray-100 dark:border-gray-800 last:border-0">
+                  <div key={idx} className="border-b border-border last:border-0">
                     <button
                       onClick={() => setOpenIndex(isOpen ? null : idx)}
                       className="w-full flex items-center justify-between p-5 text-left bg-transparent hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
@@ -491,7 +491,7 @@ function FaqSection() {
                       className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
                         }`}
                     >
-                      <div className="p-5 pt-0 text-[16px] text-gray-600 dark:text-gray-300 leading-relaxed">
+                      <div className="p-5 pt-0 text-[16px] text-muted-foreground leading-relaxed">
                         {item.a}
                       </div>
                     </div>
@@ -500,18 +500,18 @@ function FaqSection() {
               })}
             </div>
           ) : (
-            <div className="text-center py-10 text-gray-500">
+            <div className="text-center py-10 text-muted-foreground">
               No results found.
             </div>
           )}
         </div>
 
         {/* "Ask a Question" Card */}
-        <div className="mt-8 bg-white dark:bg-[#1C1C1E] rounded-2xl p-6 shadow-sm">
+        <div className="mt-8 bg-card rounded-2xl p-6 shadow-sm">
           <h3 className="text-lg font-semibold mb-4">Have more questions?</h3>
           <form onSubmit={onSubmitQuestion} className="space-y-4">
             <textarea
-              className="w-full min-h-[100px] p-4 rounded-xl bg-[#F2F2F7] dark:bg-black border-none text-foreground placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none transition-all"
+              className="w-full min-h-[100px] p-4 rounded-xl bg-secondary border-none text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none transition-all"
               placeholder="Type your question here..."
               value={newQuestion}
               onChange={(e) => setNewQuestion(e.target.value)}

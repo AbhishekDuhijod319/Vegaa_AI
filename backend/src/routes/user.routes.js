@@ -24,4 +24,25 @@ router.put(
   asyncHandler(userController.updateAvatar)
 );
 
+// PUT /api/users/profile — Update name/email
+router.put(
+  '/profile',
+  authenticate,
+  asyncHandler(userController.updateProfile)
+);
+
+// POST /api/users/schedule-deletion — Schedule account deletion (30-day grace)
+router.post(
+  '/schedule-deletion',
+  authenticate,
+  asyncHandler(userController.scheduleDeletion)
+);
+
+// POST /api/users/cancel-deletion — Cancel scheduled deletion
+router.post(
+  '/cancel-deletion',
+  authenticate,
+  asyncHandler(userController.cancelDeletion)
+);
+
 module.exports = router;

@@ -19,6 +19,18 @@ const tripController = {
 
   async getById(req, res) {
     const trip = await tripService.getById(req.params.id);
+
+    // Ownership check: owner can always view
+    const isOwner = trip.userId?.toString() === req.user.userId;
+
+    // Non-owners need a valid share token
+    if (!isOwner) {
+      const providedToken = req.query.share || req.query.token;
+      if (!trip.shareToken || !providedToken || providedToken !== trip.shareToken) {
+        return res.status(403).json({ error: 'You do not have access to this trip. Ask the owner for a share link.' });
+      }
+    }
+
     res.json({ trip });
   },
 
@@ -35,6 +47,19 @@ const tripController = {
   async stats(req, res) {
     const stats = await tripService.getStats(req.user.userId);
     res.json({ stats });
+  },
+
+  /**
+   * POST /:id/share — Generate a share token for a trip (owner only)
+   */
+  async generateShareToken(req, res) {
+    const trip = await tripService.generateShareToken(req.params.id, req.user.userId);
+    const shareUrl = `/view-trip/${trip._id}?share=${trip.shareToken}`;
+    res.json({
+      message: 'Share link generated.',
+      shareToken: trip.shareToken,
+      shareUrl,
+    });
   },
 };
 

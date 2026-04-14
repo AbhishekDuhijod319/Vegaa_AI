@@ -109,7 +109,19 @@ const authService = {
     }
 
     await userRepository.updateLastLogin(user._id);
-    return this.generateTokenPair(user);
+
+    // Auto-cancel scheduled deletion on successful login
+    let deletionCancelled = false;
+    if (user.deletionScheduledAt) {
+      await userRepository.cancelDeletion(user._id);
+      deletionCancelled = true;
+    }
+
+    const result = await this.generateTokenPair(user);
+    if (deletionCancelled) {
+      result.deletionCancelled = true;
+    }
+    return result;
   },
 
   /**
@@ -142,12 +154,20 @@ const authService = {
       user = await userRepository.findByEmail(profile.email);
     }
 
+    let deletionCancelled = false;
     if (user) {
       // Update profile info from Google
       user.name = profile.name || user.name;
       user.picture = profile.picture || user.picture;
       user.googleId = profile.sub;
       user.lastLoginAt = new Date();
+
+      // Auto-cancel scheduled deletion on login
+      if (user.deletionScheduledAt) {
+        user.deletionScheduledAt = null;
+        deletionCancelled = true;
+      }
+
       await user.save();
     } else {
       // Create new user
@@ -161,7 +181,11 @@ const authService = {
       });
     }
 
-    return this.generateTokenPair(user);
+    const result = await this.generateTokenPair(user);
+    if (deletionCancelled) {
+      result.deletionCancelled = true;
+    }
+    return result;
   },
 
   /**

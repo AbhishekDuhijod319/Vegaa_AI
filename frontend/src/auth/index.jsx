@@ -90,8 +90,10 @@ const AuthPage = () => {
     }
   };
 
-  // --- Google Login (Existing Integration) ---
+  // --- Google Login (Popup mode for reliable localhost dev) ---
   const googleLogin = useGoogleLogin({
+    flow: 'implicit',
+    ux_mode: 'popup',
     onSuccess: async (tokenInfo) => {
       setLoading(true);
       try {
@@ -105,8 +107,9 @@ const AuthPage = () => {
         setLoading(false);
       }
     },
-    onError: () => {
-      toast.error("Google login failed");
+    onError: (err) => {
+      console.error('Google OAuth error:', err);
+      toast.error("Google login failed. Check console for details.");
     }
   });
 

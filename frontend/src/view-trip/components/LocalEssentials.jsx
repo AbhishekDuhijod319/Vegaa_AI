@@ -77,7 +77,7 @@ export default function LocalEssentials({ trip }) {
       {/* Safety & Etiquette */}
       {safetyEtiquette.length > 0 && (
         <div className="mb-6">
-          <h3 className="text-base font-semibold mb-3 bg-slate-500 text-white px-2 py-1 rounded-md text-center">Safety & Etiquette</h3>
+          <h3 className="section-subheading">Safety & Etiquette</h3>
           <ol className="list-decimal pl-5 space-y-2 text-sm text-foreground/90">
             {safetyEtiquette.map((it, idx) => (
               <li key={`${it.title}|${idx}`}>
@@ -92,7 +92,7 @@ export default function LocalEssentials({ trip }) {
       {/* Emergency Numbers */}
       {emergencyCards.length > 0 && (
         <div className="mb-6">
-          <h3 className="text-base font-semibold mb-3  bg-slate-500 text-white px-2 py-1 rounded-md text-center">Emergency Numbers</h3>
+          <h3 className="section-subheading">Emergency Numbers</h3>
           <ol className="list-decimal pl-5 space-y-2 text-sm text-foreground/90">
             {emergencyCards.map((it, idx) => (
               <li key={`${it.title}|${idx}`}>
@@ -107,7 +107,7 @@ export default function LocalEssentials({ trip }) {
       {/* Connectivity */}
       {(simProviders.length > 0 || eSimOptions.length > 0 || le?.simAndConnectivity?.wifiTips) && (
         <div className="mb-6">
-          <h3 className="text-base font-semibold mb-3  bg-slate-500 text-white px-2 py-1 rounded-md text-center">Connectivity</h3>
+          <h3 className="section-subheading">Connectivity</h3>
           <ol className="list-decimal pl-5 space-y-2 text-sm text-foreground/90">
             {[...simProviders, ...eSimOptions].map((it, idx) => (
               <li key={`${it.title}|${idx}`}>
@@ -127,7 +127,7 @@ export default function LocalEssentials({ trip }) {
       {/* Money & Typical Costs */}
       {(typicalCostsCards.length > 0 || le?.money?.currency) && (
         <div className="mb-6">
-          <h3 className="text-base font-semibold mb-3  bg-slate-500 text-white px-2 py-1 rounded-md text-center">Money & Typical Costs</h3>
+          <h3 className="section-subheading">Money & Typical Costs</h3>
           <ol className="list-decimal pl-5 space-y-2 text-sm text-foreground/90">
             {le?.money?.currency && (
               <li key="currency"><span className="font-medium">Currency</span>: {le.money.currency}</li>

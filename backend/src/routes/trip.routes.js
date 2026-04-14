@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const tripController = require('../controllers/trip.controller');
-const { authenticate, optionalAuth } = require('../middleware/auth');
+const { authenticate } = require('../middleware/auth');
 const { apiLimiter } = require('../middleware/rateLimit');
 const { validate, createTripSchema, updateTripSchema } = require('../middleware/validate');
 const { asyncHandler } = require('../utils/helpers');
@@ -16,7 +16,10 @@ router.put('/:id', authenticate, validate(updateTripSchema), asyncHandler(tripCo
 router.delete('/:id', authenticate, asyncHandler(tripController.delete));
 router.get('/stats', authenticate, asyncHandler(tripController.stats));
 
-// Public route (for shareable trip links)
-router.get('/:id', optionalAuth, asyncHandler(tripController.getById));
+// Generate a share token for a trip (owner only)
+router.post('/:id/share', authenticate, asyncHandler(tripController.generateShareToken));
+
+// View trip (requires login + ownership OR valid share token)
+router.get('/:id', authenticate, asyncHandler(tripController.getById));
 
 module.exports = router;

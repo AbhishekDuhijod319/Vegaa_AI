@@ -220,70 +220,45 @@ function InfoSection({ trip }) {
     return uniq.slice(0, 6);
   }, [trip]);
 
-  // Build a 10+ line description including distance and attractions
+  // Use AI-generated description or build a concise fallback
   const description = useMemo(() => {
+    // Primary: AI-generated trip summary description
+    const aiDesc = trip?.tripData?.tripSummary?.description;
+    if (aiDesc && aiDesc.length > 20) {
+      const lines = [aiDesc];
+      if (originLabel && distance?.km) {
+        lines.push(
+          `Distance from ${originLabel}: ${distance.km.toFixed(0)} km (${distance.mi.toFixed(0)} mi).`
+        );
+      }
+      if (parsedBudget?.amount) {
+        lines.push(
+          `Budget: ${fmtCurrency(parsedBudget.amount, parsedBudget.currency)}${convertedLabel ? ` • ${convertedLabel}` : ""}.`
+        );
+      }
+      return lines.join("\n");
+    }
+
+    // Fallback: concise auto-generated description
     const lines = [];
     const address = distance?.destAddress ? ` (${distance.destAddress})` : "";
-    lines.push(
-      `${destLabel}${address} is a destination known for its unique charm and local experiences.`
-    );
+    lines.push(`${destLabel}${address} is a destination known for its unique charm and local experiences.`);
     if (originLabel && distance?.km) {
-      lines.push(
-        `Distance from ${originLabel}: ${distance.km.toFixed(
-          0
-        )} km (${distance.mi.toFixed(0)} mi).`
-      );
+      lines.push(`Distance from ${originLabel}: ${distance.km.toFixed(0)} km (${distance.mi.toFixed(0)} mi).`);
     }
-    lines.push(
-      `Your plan covers ${days} day${
-        days === 1 ? "" : "s"
-      }, balancing must‑see sights and downtime.`
-    );
+    lines.push(`Your plan covers ${days} day${days === 1 ? "" : "s"}, balancing must‑see sights and downtime.`);
     if (transportValue) {
-      lines.push(
-        `Primary travel mode: ${
-          transportValue.charAt(0).toUpperCase() + transportValue.slice(1)
-        }.`
-      );
+      lines.push(`Primary travel mode: ${transportValue.charAt(0).toUpperCase() + transportValue.slice(1)}.`);
     }
     if (parsedBudget?.amount) {
-      lines.push(
-        `Budget noted: ${fmtCurrency(
-          parsedBudget.amount,
-          parsedBudget.currency
-        )}${convertedLabel ? ` • ${convertedLabel}` : ""}.`
-      );
+      lines.push(`Budget: ${fmtCurrency(parsedBudget.amount, parsedBudget.currency)}${convertedLabel ? ` • ${convertedLabel}` : ""}.`);
     }
     if (topAttractions.length) {
-      lines.push(
-        `Popular attractions: ${topAttractions.slice(0, 3).join(", ")}.`
-      );
-      if (topAttractions.length > 3)
-        lines.push(`More to explore: ${topAttractions.slice(3).join(", ")}.`);
+      lines.push(`Popular attractions: ${topAttractions.join(", ")}.`);
     }
-    lines.push(
-      `Expect a mix of cultural highlights, local cuisine, scenic viewpoints, and neighborhood walks.`
-    );
-    lines.push(
-      `Use public transit and walking where convenient; rideshares or taxis for late evenings.`
-    );
-    lines.push(
-      `Dining ranges from street food favorites to mid‑range restaurants; reservations recommended for hotspots.`
-    );
-    lines.push(
-      `Pack comfortable shoes, a refillable water bottle, and layers for changing weather.`
-    );
-    lines.push(`Scroll Down to View More`);
-
-    // Ensure at least 10 lines
-    while (lines.length < 10)
-      lines.splice(
-        lines.length - 1,
-        0,
-        "Additional tips: check opening hours and ticket availability in advance."
-      );
     return lines.join("\n");
   }, [
+    trip,
     destLabel,
     originLabel,
     distance,
