@@ -73,6 +73,7 @@ const updateTripSchema = Joi.object({
   coverPhotoUrl: Joi.string().uri().allow(''),
   summary: Joi.string().allow(''),
   status: Joi.string().valid('draft', 'generated', 'archived'),
+  regenerate: Joi.boolean().default(false),
 });
 
 // ─── AI Schemas ─────────────────────────────────────

@@ -1,12 +1,10 @@
 import React, { useRef, useState, useCallback } from "react";
 import SmartImage from "@/components/ui/SmartImage";
-import { MapPin } from "lucide-react";
+import { MapPin, Navigation, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const mapsUrl = (q) =>
-  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-    q || ""
-  )}`;
+  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q || "")}`;
 
 function coalesceArray(obj, paths) {
   for (const p of paths) {
@@ -35,17 +33,6 @@ export default function SuggestedDayTrips({ trip }) {
     trip?.destination ||
     "";
 
-  if (!items?.length) {
-    return (
-      <div>
-        <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-4 md:mb-5">
-          Suggested Day Trips
-        </h2>
-        <p className="text-muted-foreground">No day trips suggested.</p>
-      </div>
-    );
-  }
-
   const trackRef = useRef(null);
   const rafId = useRef(null);
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -59,16 +46,9 @@ export default function SuggestedDayTrips({ trip }) {
     const mid = el.scrollLeft + el.clientWidth / 2;
     children.forEach((child, i) => {
       const rect = child.getBoundingClientRect();
-      const childMid =
-        rect.left +
-        rect.width / 2 +
-        el.scrollLeft -
-        el.getBoundingClientRect().left;
+      const childMid = rect.left + rect.width / 2 + el.scrollLeft - el.getBoundingClientRect().left;
       const d = Math.abs(childMid - mid);
-      if (d < bestDist) {
-        bestDist = d;
-        bestIdx = i;
-      }
+      if (d < bestDist) { bestDist = d; bestIdx = i; }
     });
     setCurrentIdx(bestIdx);
   }, []);
@@ -87,11 +67,18 @@ export default function SuggestedDayTrips({ trip }) {
     el.scrollTo({ left, behavior: "smooth" });
   }, []);
 
+  if (!items?.length) {
+    return (
+      <div>
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-4 md:mb-5">Suggested Day Trips</h2>
+        <p className="text-muted-foreground">No day trips suggested.</p>
+      </div>
+    );
+  }
+
   return (
     <div>
-      <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-4 md:mb-5">
-        Suggested Day Trips
-      </h2>
+      <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-4 md:mb-5">Suggested Day Trips</h2>
       <div
         ref={trackRef}
         onScroll={handleScroll}
@@ -102,19 +89,24 @@ export default function SuggestedDayTrips({ trip }) {
         {items.map((raw, idx) => {
           const it = typeof raw === "string" ? { title: raw } : raw || {};
           const title = it?.title || it?.name || `Day Trip ${idx + 1}`;
-          const location =
-            it?.location || it?.distanceFrom || destination || "";
+          const location = it?.location || it?.distanceFrom || destination || "";
           const description = it?.description || it?.details || "";
-          const key = `${title}|${location}|${idx}`;
+          const distance = it?.distance || "";
+          const highlights = Array.isArray(it?.highlights) ? it.highlights : [];
+          const key = `${title}|${idx}`;
 
           return (
-            <article
-              key={key}
-              className="relative rounded-2xl border bg-card hover:shadow-md transition-shadow overflow-hidden flex flex-col snap-center"
-            >
+            <article key={key} className="relative rounded-2xl border bg-card hover:shadow-md transition-shadow overflow-hidden flex flex-col snap-center">
+              {/* Distance badge */}
+              {distance && (
+                <span className="absolute top-3 left-3 z-10 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-emerald-600 text-white inline-flex items-center gap-1">
+                  <Navigation className="size-3" /> {distance}
+                </span>
+              )}
+
               <div className="w-full overflow-hidden bg-muted aspect-[4/3] sm:aspect-[3/2] md:aspect-[16/9]">
                 <SmartImage
-                  query={`${title} ${location}`}
+                  query={`${title} tourist destination`}
                   alt={title}
                   className="w-full h-full object-cover"
                   pexelsFallback={true}
@@ -123,33 +115,40 @@ export default function SuggestedDayTrips({ trip }) {
               </div>
 
               <div className="p-4 flex-1 flex flex-col gap-2">
-                <h3 className="font-semibold text-[18px] leading-tight line-clamp-2">
-                  {title}
-                </h3>
+                <h3 className="font-semibold text-[18px] leading-tight line-clamp-2">{title}</h3>
+
                 {location && (
                   <p className="text-sm text-muted-foreground flex items-center gap-1">
-                    <MapPin className="size-3.5" /> {location}
-                  </p>
-                )}
-                {description && (
-                  <p className="text-sm text-foreground/90 line-clamp-4">
-                    {description}
+                    <MapPin className="size-3.5 shrink-0" /> <span className="line-clamp-1">{location}</span>
                   </p>
                 )}
 
-                {(location || destination) && (
-                  <div className="mt-auto pt-2">
-                    <a
-                      href={mapsUrl(`${title} ${location || destination}`)}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <Button size="sm" variant="outline" className="w-full">
-                        View on Map
-                      </Button>
-                    </a>
+                {description && (
+                  <p className="text-sm text-foreground/90 line-clamp-3">{description}</p>
+                )}
+
+                {/* Highlights */}
+                {highlights.length > 0 && (
+                  <div className="mt-1">
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <Sparkles className="size-3.5 text-amber-500" />
+                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Highlights</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {highlights.map((h, i) => (
+                        <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-muted text-foreground/80 border">
+                          {h}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 )}
+
+                <div className="mt-auto pt-2">
+                  <a href={mapsUrl(`${title} ${location || destination}`)} target="_blank" rel="noreferrer">
+                    <Button size="sm" variant="outline" className="w-full">View on Map</Button>
+                  </a>
+                </div>
               </div>
             </article>
           );
@@ -165,9 +164,7 @@ export default function SuggestedDayTrips({ trip }) {
               aria-label={`Go to card ${i + 1}`}
               aria-current={i === currentIdx ? "true" : undefined}
               onClick={() => goTo(i)}
-              className={`h-2.5 w-2.5 rounded-full transition-all ${
-                i === currentIdx ? "bg-foreground w-6" : "bg-gray-400"
-              }`}
+              className={`h-2.5 w-2.5 rounded-full transition-all ${i === currentIdx ? "bg-foreground w-6" : "bg-gray-400"}`}
             />
           ))}
         </div>

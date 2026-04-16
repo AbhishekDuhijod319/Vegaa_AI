@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import SmartImage from "@/components/ui/SmartImage";
-import { Globe, MapPin, Star } from "lucide-react";
+import { Globe, MapPin, Star, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { placesApi } from "@/api/places";
 
@@ -9,15 +9,34 @@ function googleMapsUrl(name, location) {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
 }
 
-function formatPriceRange(priceRange, currency) {
-  if (!priceRange) return "—";
-  if (!currency) return priceRange;
-  const m = /\$?\s?(\d+(?:[.,]\d+)?)\s?-\s?\$?\s?(\d+(?:[.,]\d+)?)/.exec(String(priceRange));
-  if (!m) return priceRange;
-  const [_, low, high] = m;
-  const fmt = (n) => new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(Number(String(n).replace(/,/g, '.')));
-  return `${fmt(low)} - ${fmt(high)}`;
+function formatINR(value) {
+  if (!value && value !== 0) return "—";
+  const num = typeof value === 'number' ? value : parseFloat(String(value).replace(/[^\d.]/g, ''));
+  if (isNaN(num)) return typeof value === 'string' ? value : "—";
+  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(num);
 }
+
+function formatPriceRange(priceRange, pricePerNight) {
+  // Prefer pricePerNight numeric value for consistent INR formatting
+  if (pricePerNight && typeof pricePerNight === 'number') {
+    return `${formatINR(pricePerNight)}/night`;
+  }
+  if (priceRange) {
+    // If it already has ₹ symbol, return as-is
+    if (String(priceRange).includes('₹')) return priceRange;
+    // Try to extract numbers and format
+    const m = /(\d[\d,]*)\s*-\s*(\d[\d,]*)/.exec(String(priceRange));
+    if (m) return `₹${m[1]} - ₹${m[2]} per night`;
+    return priceRange;
+  }
+  return "—";
+}
+
+const CATEGORY_STYLES = {
+  budget: { label: "Budget", className: "bg-green-600 text-white" },
+  "mid-range": { label: "Mid-Range", className: "bg-blue-600 text-white" },
+  premium: { label: "Premium", className: "bg-amber-600 text-white" },
+};
 
 function Hotels({ trip }) {
   const hotels = Array.isArray(trip?.tripData?.hotels)
@@ -26,16 +45,14 @@ function Hotels({ trip }) {
       ? trip.hotels
       : [];
 
-  const currency = trip?.userSelection?.currency;
   const list = hotels;
 
-  // Resolve rich place info (website, opening hours; drop photos)
+  // Resolve rich place info (website, opening hours)
   const [placeInfo, setPlaceInfo] = useState({});
   useEffect(() => {
     let ignore = false;
     async function load() {
       const results = {};
-      // Limit parallel calls to avoid quota spikes
       const chunk = async (items, size) => {
         for (let i = 0; i < items.length; i += size) {
           const slice = items.slice(i, i + size);
@@ -49,7 +66,6 @@ function Hotels({ trip }) {
                 results[q] = {
                   website: place?.websiteUri || null,
                   opening: place?.currentOpeningHours || null,
-                  // photoUrl removed
                 };
               }
             } catch {
@@ -126,15 +142,14 @@ function Hotels({ trip }) {
         aria-label="Hotel recommendations carousel"
       >
         {list.map((hotel) => {
-          const hasLounge = Array.isArray(hotel?.amenities)
-            ? hotel.amenities.some((a) => typeof a === 'string' && a.toLowerCase().includes('lounge'))
-            : false;
           const isOYO = typeof hotel?.name === 'string' && /\boyo\b/i.test(hotel.name);
           const location = hotel?.location || "";
           const rating = hotel?.rating ?? "—";
-          const priceRange = formatPriceRange(hotel?.priceRange, currency);
+          const priceDisplay = formatPriceRange(hotel?.priceRange, hotel?.pricePerNight);
           const info = getInfo(hotel);
           const qKey = [hotel?.name || "", location].filter(Boolean).join(" ");
+          const category = hotel?.category || "";
+          const catStyle = CATEGORY_STYLES[category];
 
           // Derive check-in/out times when available from opening hours text
           const checkInOut = (() => {
@@ -145,6 +160,13 @@ function Hotels({ trip }) {
 
           return (
             <article key={qKey} className="relative rounded-2xl border bg-card hover:shadow-md transition-shadow overflow-hidden flex flex-col snap-center">
+              {/* Category badge */}
+              {catStyle && (
+                <span className={`absolute top-3 left-3 z-10 rounded-full px-2.5 py-0.5 text-xs font-semibold ${catStyle.className}`}>
+                  {catStyle.label}
+                </span>
+              )}
+
               {/* Image */}
               <div className="w-full overflow-hidden bg-muted [aspect-ratio:4/3] sm:[aspect-ratio:3/2] md:[aspect-ratio:16/9]">
                 <SmartImage
@@ -175,12 +197,14 @@ function Hotels({ trip }) {
                   <span className="inline-flex items-center gap-1">
                     <Star className="size-3.5 text-yellow-500" /> {rating}
                   </span>
-                  <span className="text-right">{priceRange}</span>
+                  <span className="text-right font-medium text-foreground inline-flex items-center justify-end gap-1">
+                    <IndianRupee className="size-3.5" /> {priceDisplay}
+                  </span>
                 </div>
 
                 {/* Description and amenities */}
                 {hotel?.description && (
-                  <p className="text-sm text-foreground/90 line-clamp-4">{hotel.description}</p>
+                  <p className="text-sm text-foreground/90 line-clamp-3">{hotel.description}</p>
                 )}
                 {Array.isArray(hotel?.amenities) && hotel.amenities.length > 0 && (
                   <div>

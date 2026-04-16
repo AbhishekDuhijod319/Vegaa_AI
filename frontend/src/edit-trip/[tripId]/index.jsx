@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { tripApi } from '@/api/trips';
+import { aiApi } from '@/api/ai';
 import { imageApi } from '@/api/images';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 import Select from "react-select";
-import { AiOutlineCalendar } from "react-icons/ai";
+import { AiOutlineCalendar, AiOutlineLoading3Quarters } from "react-icons/ai";
 import { FaRoute } from "react-icons/fa";
 import {
   placesAutocompleteStyles,
@@ -147,29 +148,24 @@ const EditTrip = () => {
     try {
       const newDays = daysBetween(sel.startDate, sel.endDate) || sel.noOfDays;
 
-      let nextCover = trip.coverPhotoUrl;
-      try {
-        const label = sel.destination?.label || sel.location?.label;
-        if (label) {
-          const imgResult = await imageApi.search(label, 1);
-          if (imgResult.photos?.length > 0) {
-            nextCover = imgResult.photos[0].src?.large || nextCover;
-          }
-        }
-      } catch (error) {
-        console.error("Failed to update cover photo:", error);
-      }
-
-      const updated = {
-        userSelection: {
-          ...sel,
-          noOfDays: newDays,
-        },
-        coverPhotoUrl: nextCover || trip.coverPhotoUrl || "",
+      const updatedSelection = {
+        ...sel,
+        noOfDays: newDays,
       };
 
-      await tripApi.update(tripId, updated);
-      toast.success("Trip updated");
+      // Regenerate trip via backend (AI call + update in one request)
+      toast.info("Regenerating your trip plan with updated details...", {
+        duration: 30000,
+        id: "regenerating-toast",
+      });
+
+      const result = await tripApi.update(tripId, {
+        userSelection: updatedSelection,
+        regenerate: true,
+      });
+
+      toast.dismiss("regenerating-toast");
+      toast.success("Trip regenerated successfully!");
 
       try {
         if (Notification && Notification.permission !== "denied") {
@@ -177,8 +173,8 @@ const EditTrip = () => {
             await Notification.requestPermission();
           }
           if (Notification.permission === "granted") {
-            new Notification("Trip updated", {
-              body: "Your itinerary changes were saved.",
+            new Notification("Trip regenerated", {
+              body: "Your trip plan has been regenerated with updated details.",
             });
           }
         }
@@ -189,7 +185,9 @@ const EditTrip = () => {
       navigate(`/view-trip/${tripId}`);
     } catch (e) {
       console.error(e);
-      toast.error("Save failed");
+      toast.dismiss("regenerating-toast");
+      const errorMsg = e.response?.data?.error || "Failed to regenerate trip. Please try again.";
+      toast.error(errorMsg);
     } finally {
       setSaving(false);
     }
@@ -205,9 +203,10 @@ const EditTrip = () => {
       <div className="mt-20">
         <div className="flex items-center gap-4">
           <div>
-            <h2 className="font-bold text-4xl mb-2">Plan Your Journey</h2>
+            <h2 className="font-bold text-4xl mb-2">Edit Your Journey</h2>
             <p className="text-muted-foreground mt-3">
-              Tell us about your trip, and we'll craft a personalized itinerary.
+              Update your trip details below. Saving will regenerate your
+              complete itinerary with AI.
             </p>
           </div>
         </div>
@@ -447,13 +446,28 @@ const EditTrip = () => {
       </div>
       </div>
 
-      <div className="my-2 flex justify-end">
+      {/* Regeneration info banner */}
+      <div className="mt-4 p-4 rounded-xl bg-primary/5 border border-primary/20 text-sm text-muted-foreground">
+        <p className="flex items-center gap-2">
+          <span className="text-primary font-semibold">ℹ</span>
+          Saving will regenerate your entire trip plan using AI based on the updated details. This may take 15–30 seconds.
+        </p>
+      </div>
+
+      <div className="my-4 flex justify-end">
         <Button
           disabled={saving}
           onClick={onSave}
-          className="rounded-lg px-8 py-6"
+          className="rounded-lg px-8 py-6 relative"
         >
-          {saving ? "Saving..." : "Save Changes"}
+          {saving ? (
+            <span className="flex items-center gap-2">
+              <AiOutlineLoading3Quarters className="h-4 w-4 animate-spin" />
+              Regenerating Trip...
+            </span>
+          ) : (
+            "Regenerate Trip"
+          )}
         </Button>
       </div>
     </div>

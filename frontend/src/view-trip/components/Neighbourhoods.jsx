@@ -1,6 +1,6 @@
 import React, { useRef, useState, useCallback } from "react";
 import SmartImage from "@/components/ui/SmartImage";
-import { MapPin } from "lucide-react";
+import { MapPin, Compass, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const mapsUrl = (q) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q || "")}`;
@@ -30,15 +30,6 @@ export default function Neighbourhoods({ trip }) {
     || trip?.tripData?.destination
     || trip?.destination
     || "";
-
-  if (!items?.length) {
-    return (
-      <div>
-        <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-4 md:mb-5">Neighbourhoods</h2>
-        <p className="text-muted-foreground">No neighbourhoods listed.</p>
-      </div>
-    );
-  }
 
   const trackRef = useRef(null);
   const rafId = useRef(null);
@@ -74,6 +65,15 @@ export default function Neighbourhoods({ trip }) {
     el.scrollTo({ left, behavior: "smooth" });
   }, []);
 
+  if (!items?.length) {
+    return (
+      <div>
+        <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-4 md:mb-5">Neighbourhoods</h2>
+        <p className="text-muted-foreground">No neighbourhoods listed.</p>
+      </div>
+    );
+  }
+
   return (
     <div>
       <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-4 md:mb-5">Neighbourhoods</h2>
@@ -88,14 +88,23 @@ export default function Neighbourhoods({ trip }) {
           const it = typeof raw === 'string' ? { title: raw } : raw || {};
           const title = it?.title || it?.name || `Neighbourhood ${idx + 1}`;
           const location = it?.location || destination || "";
-          const description = it?.description || it?.details || it?.highlights || "";
-          const key = `${title}|${location}|${idx}`;
+          const description = it?.description || it?.details || "";
+          const vibe = it?.vibe || "";
+          const bestFor = it?.bestFor || "";
+          const key = `${title}|${idx}`;
 
           return (
             <article key={key} className="relative rounded-2xl border bg-card hover:shadow-md transition-shadow overflow-hidden flex flex-col snap-center">
+              {/* Vibe badge */}
+              {vibe && (
+                <span className="absolute top-3 left-3 z-10 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-violet-600 text-white">
+                  {vibe}
+                </span>
+              )}
+
               <div className="w-full overflow-hidden bg-muted aspect-[4/3] sm:aspect-[3/2] md:aspect-[16/9]">
                 <SmartImage
-                  query={`${title} ${location}`}
+                  query={`${title} neighbourhood ${location}`}
                   alt={title}
                   className="w-full h-full object-cover"
                   pexelsFallback={true}
@@ -105,22 +114,28 @@ export default function Neighbourhoods({ trip }) {
 
               <div className="p-4 flex-1 flex flex-col gap-2">
                 <h3 className="font-semibold text-[18px] leading-tight line-clamp-2">{title}</h3>
-                {location && (
+
+                {bestFor && (
                   <p className="text-sm text-muted-foreground flex items-center gap-1">
-                    <MapPin className="size-3.5" /> {location}
+                    <Tag className="size-3.5 shrink-0" /> <span>Best for: <span className="font-medium text-foreground">{bestFor}</span></span>
                   </p>
-                )}
-                {description && (
-                  <p className="text-sm text-foreground/90 line-clamp-4">{description}</p>
                 )}
 
                 {location && (
-                  <div className="mt-auto pt-2">
-                    <a href={mapsUrl(`${title} ${location}`)} target="_blank" rel="noreferrer">
-                      <Button size="sm" variant="outline" className="w-full">View on Map</Button>
-                    </a>
-                  </div>
+                  <p className="text-sm text-muted-foreground flex items-center gap-1">
+                    <MapPin className="size-3.5 shrink-0" /> <span className="line-clamp-1">{location}</span>
+                  </p>
                 )}
+
+                {description && (
+                  <p className="text-sm text-foreground/90 line-clamp-3">{description}</p>
+                )}
+
+                <div className="mt-auto pt-2">
+                  <a href={mapsUrl(`${title} ${location}`)} target="_blank" rel="noreferrer">
+                    <Button size="sm" variant="outline" className="w-full">View on Map</Button>
+                  </a>
+                </div>
               </div>
             </article>
           );

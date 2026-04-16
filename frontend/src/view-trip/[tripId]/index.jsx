@@ -76,9 +76,10 @@ function Viewtrip() {
     { id: "gettingAround", label: "Getting Around" },
   ];
 
-  // Shared section styles — removed min-h-[100svh] and redundant mt-24
+  // Shared section styles
   const sectionClass = "scroll-mt-[calc(var(--app-header-offset,80px)+1rem)]";
-  const innerClass = "px-2 md:px-6 lg:px-8 xl:px-10 py-8 md:py-12 text-[15px] sm:text-[16px] md:text-[17px] lg:text-[18px]";
+  const innerClass = "px-2 md:px-6 lg:px-8 xl:px-10 py-8 md:py-10 text-[15px] sm:text-[16px] md:text-[17px] lg:text-[18px]";
+  const divider = <hr className="border-t border-border/50 mx-4 md:mx-8" />;
 
   return (
     <div>
@@ -98,12 +99,16 @@ function Viewtrip() {
               </div>
             </section>
 
+            {divider}
+
             {/* 2) Recommended Restaurants */}
             <section id="restaurants" data-section className={sectionClass}>
               <div className={innerClass}>
                 {trip && <Restaurants trip={trip} />}
               </div>
             </section>
+
+            {divider}
 
             {/* 3) Places To Visit */}
             <section id="places" data-section className={sectionClass}>
@@ -112,12 +117,16 @@ function Viewtrip() {
               </div>
             </section>
 
+            {divider}
+
             {/* 4) Suggested Day Trips */}
             <section id="dayTrips" data-section className={sectionClass}>
               <div className={innerClass}>
                 {trip && <SuggestedDayTrips trip={trip} />}
               </div>
             </section>
+
+            {divider}
 
             {/* 5) Neighbourhoods */}
             <section id="neighbourhoods" data-section className={sectionClass}>
@@ -126,12 +135,16 @@ function Viewtrip() {
               </div>
             </section>
 
+            {divider}
+
             {/* 6) Markets for Shopping */}
             <section id="markets" data-section className={sectionClass}>
               <div className={innerClass}>
                 {trip && <Markets trip={trip} />}
               </div>
             </section>
+
+            {divider}
 
             {/* 7) Extras */}
             <section id="extras" data-section className={sectionClass}>
@@ -140,12 +153,16 @@ function Viewtrip() {
               </div>
             </section>
 
+            {divider}
+
             {/* 8) Local Essentials */}
             <section id="localEssentials" data-section className={sectionClass}>
               <div className={innerClass}>
                 {trip && <LocalEssentials trip={trip} />}
               </div>
             </section>
+
+            {divider}
 
             {/* 9) Getting Around */}
             <section id="gettingAround" data-section className={sectionClass}>

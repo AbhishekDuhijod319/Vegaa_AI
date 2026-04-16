@@ -4,6 +4,9 @@ import { imageApi } from "@/api/images";
 // ── In-memory cache ──────────────────────────────────────────────────
 const imageCache = new Map(); // key → { src, srcSet, sizes }
 
+// ── Global dedup: track Pexels photo IDs already used on this page ──
+const usedPhotoIds = new Set();
+
 // ── Curated fallback gradients (never show black/white blank) ────────
 const FALLBACK_GRADIENTS = [
   "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
@@ -16,7 +19,6 @@ const FALLBACK_GRADIENTS = [
 ];
 
 const pickGradient = (query = "") => {
-  // Deterministic gradient based on query so same query = same gradient
   let hash = 0;
   for (let i = 0; i < query.length; i++) {
     hash = ((hash << 5) - hash + query.charCodeAt(i)) | 0;
@@ -25,12 +27,38 @@ const pickGradient = (query = "") => {
 };
 
 /**
+ * Pick the first Pexels photo from results that hasn't been used yet.
+ * Returns { photo, url } or null.
+ */
+function pickUniquePhoto(photos) {
+  if (!Array.isArray(photos) || photos.length === 0) return null;
+  for (const photo of photos) {
+    const id = photo?.id;
+    if (id && !usedPhotoIds.has(id)) {
+      const url =
+        photo.src?.large ||
+        photo.src?.medium ||
+        photo.src?.landscape ||
+        photo.src?.original;
+      if (url) {
+        usedPhotoIds.add(id);
+        return { photo, url };
+      }
+    }
+  }
+  // If all are used, return the first one anyway (better than nothing)
+  const fallback = photos[0];
+  const url = fallback?.src?.large || fallback?.src?.medium || fallback?.src?.original;
+  return url ? { photo: fallback, url } : null;
+}
+
+/**
  * SmartImage — robust image component with:
  *  1. Progressive loading (skeleton → image)
  *  2. Retry with exponential backoff
  *  3. Beautiful gradient fallback on failure (never shows black)
  *  4. In-memory caching to avoid re-fetching
- *  5. Lazy intersection-based loading
+ *  5. Global deduplication — no two SmartImages show the same Pexels photo
  */
 const SmartImage = ({
   src,
@@ -109,26 +137,19 @@ const SmartImage = ({
         }
       }
 
-      // Strategy 2: Pexels backend API
+      // Strategy 2: Pexels backend API — fetch multiple results to enable dedup
       if (pexelsFallback) {
         try {
-          const data = await imageApi.search(query, 1);
-          const photo = data.photos?.[0];
-          if (photo) {
-            const url =
-              photo.src?.large ||
-              photo.src?.medium ||
-              photo.src?.landscape ||
-              photo.src?.original;
-            if (url) {
-              await tryLoad(url);
-              if (!cancelledRef.current) {
-                imageCache.set(cacheKey, { src: url, srcSet: "", sizes });
-                setImgSrc(url);
-                setState("loaded");
-                onReadyRef.current?.(url);
-                return;
-              }
+          const data = await imageApi.search(query, 5); // Request 5 for dedup pool
+          const picked = pickUniquePhoto(data.photos || []);
+          if (picked) {
+            await tryLoad(picked.url);
+            if (!cancelledRef.current) {
+              imageCache.set(cacheKey, { src: picked.url, srcSet: "", sizes });
+              setImgSrc(picked.url);
+              setState("loaded");
+              onReadyRef.current?.(picked.url);
+              return;
             }
           }
         } catch {
@@ -136,25 +157,24 @@ const SmartImage = ({
         }
       }
 
-      // Strategy 3: Retry once after 1.5s
+      // Strategy 3: Retry once after 1.5s with different query variation
       if (retryCount.current < 1 && !cancelledRef.current) {
         retryCount.current++;
         await new Promise((r) => setTimeout(r, 1500));
         if (!cancelledRef.current && pexelsFallback) {
           try {
-            const data = await imageApi.search(query, 1);
-            const photo = data.photos?.[0];
-            if (photo) {
-              const url = photo.src?.large || photo.src?.medium || photo.src?.original;
-              if (url) {
-                await tryLoad(url);
-                if (!cancelledRef.current) {
-                  imageCache.set(cacheKey, { src: url, srcSet: "", sizes });
-                  setImgSrc(url);
-                  setState("loaded");
-                  onReadyRef.current?.(url);
-                  return;
-                }
+            // Slightly modify query for different results
+            const retryQuery = `${query} photo`;
+            const data = await imageApi.search(retryQuery, 3);
+            const picked = pickUniquePhoto(data.photos || []);
+            if (picked) {
+              await tryLoad(picked.url);
+              if (!cancelledRef.current) {
+                imageCache.set(cacheKey, { src: picked.url, srcSet: "", sizes });
+                setImgSrc(picked.url);
+                setState("loaded");
+                onReadyRef.current?.(picked.url);
+                return;
               }
             }
           } catch {
@@ -202,7 +222,6 @@ const SmartImage = ({
         role="img"
         aria-label={alt || query}
       >
-        {/* Subtle text label so it's not just empty color */}
         <span className="text-white/30 text-xs font-medium px-4 py-3 select-none">
           {alt || query}
         </span>
@@ -226,7 +245,6 @@ const SmartImage = ({
       crossOrigin="anonymous"
       referrerPolicy="no-referrer"
       onError={() => {
-        // If the cached/loaded image also fails on render, show gradient
         setImgSrc(null);
         setState("error");
         imageCache.delete(cacheKey);

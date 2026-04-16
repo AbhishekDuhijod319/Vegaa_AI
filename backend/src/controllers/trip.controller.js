@@ -35,7 +35,20 @@ const tripController = {
   },
 
   async update(req, res) {
-    const trip = await tripService.update(req.params.id, req.user.userId, req.body);
+    const { regenerate, ...updateData } = req.body;
+
+    // If regenerate flag is set, use AI to regenerate the trip
+    if (regenerate && updateData.userSelection) {
+      const trip = await tripService.regenerateAndUpdate(
+        req.params.id,
+        req.user.userId,
+        updateData.userSelection
+      );
+      return res.json({ trip, regenerated: true });
+    }
+
+    // Standard metadata-only update
+    const trip = await tripService.update(req.params.id, req.user.userId, updateData);
     res.json({ trip });
   },
 

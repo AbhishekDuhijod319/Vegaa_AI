@@ -1,13 +1,38 @@
 import React, { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import SmartImage from "@/components/ui/SmartImage";
-import { MapPin, Star } from "lucide-react";
+import { MapPin, Star, IndianRupee, UtensilsCrossed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { placesApi } from "@/api/places";
 
 const googleMapsUrl = (q) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q || "")}`;
 
-// Simple in-memory cache for place lookups within this session
-const placeCache = new Map(); // key: query -> { rating, ratingCount, website }
+const placeCache = new Map();
+
+const CATEGORY_STYLES = {
+  budget: { label: "Budget", className: "bg-green-600 text-white" },
+  "mid-range": { label: "Mid-Range", className: "bg-blue-600 text-white" },
+  premium: { label: "Premium", className: "bg-amber-600 text-white" },
+};
+
+function formatINR(value) {
+  if (!value && value !== 0) return "—";
+  const num = typeof value === 'number' ? value : parseFloat(String(value).replace(/[^\d.]/g, ''));
+  if (isNaN(num)) return typeof value === 'string' ? value : "—";
+  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(num);
+}
+
+function formatPriceRange(priceRange, pricePerPerson) {
+  if (pricePerPerson && typeof pricePerPerson === 'number') {
+    return `${formatINR(pricePerPerson)}/person`;
+  }
+  if (priceRange) {
+    if (String(priceRange).includes('₹')) return priceRange;
+    const m = /(\d[\d,]*)\s*-\s*(\d[\d,]*)/.exec(String(priceRange));
+    if (m) return `₹${m[1]} - ₹${m[2]} per person`;
+    return priceRange;
+  }
+  return "—";
+}
 
 function Restaurants({ trip }) {
   const base = Array.isArray(trip?.tripData?.restaurants)
@@ -16,7 +41,6 @@ function Restaurants({ trip }) {
       ? trip.restaurants
       : [];
 
-  // Destination context for fallback search
   const destination = useMemo(() => (
     trip?.userSelection?.destination?.label ||
     trip?.userSelection?.location?.label ||
@@ -48,7 +72,7 @@ function Restaurants({ trip }) {
             for (const p of places) {
               const name = p?.displayName?.text || "";
               const addr = p?.formattedAddress || "";
-              const key = `${name}|${addr}`;
+              const key = name.toLowerCase().trim();
               if (!name || seen.has(key)) continue;
               seen.add(key);
               items.push({
@@ -58,7 +82,6 @@ function Restaurants({ trip }) {
                 location: addr || destination,
                 cuisine: undefined,
                 description: "",
-                // photoUrl removed; SmartImage will use Pexels
               });
             }
           } catch {}
@@ -101,9 +124,7 @@ function Restaurants({ trip }) {
                   placeCache.set(q, info);
                   results[q] = info;
                 }
-              } catch {
-                // ignore error for individual item
-              }
+              } catch {}
             })
           );
         }
@@ -182,16 +203,26 @@ function Restaurants({ trip }) {
       >
         {list.map((r) => {
           const info = getInfo(r);
-          const rating = info?.rating ?? "—";
+          const rating = info?.rating ?? r?.rating ?? "—";
           const location = r?.location || "";
           const key = [r?.name || "", location].filter(Boolean).join(" ");
+          const priceDisplay = formatPriceRange(r?.priceRange, r?.pricePerPerson);
+          const category = r?.category || "";
+          const catStyle = CATEGORY_STYLES[category];
 
           return (
             <article key={key} className="relative rounded-2xl border bg-card hover:shadow-md transition-shadow overflow-hidden flex flex-col snap-center">
+              {/* Category badge */}
+              {catStyle && (
+                <span className={`absolute top-3 left-3 z-10 rounded-full px-2.5 py-0.5 text-xs font-semibold ${catStyle.className}`}>
+                  {catStyle.label}
+                </span>
+              )}
+
               {/* Image */}
               <div className="w-full overflow-hidden bg-muted [aspect-ratio:4/3] sm:[aspect-ratio:3/2] md:[aspect-ratio:16/9]">
                 <SmartImage
-                  query={`${r?.name || ""} ${location}`}
+                  query={`${r?.name || ""} ${r?.cuisine || ""} restaurant ${destination}`}
                   alt={r?.name || "Restaurant"}
                   className="w-full h-full object-cover"
                   pexelsFallback={true}
@@ -210,10 +241,26 @@ function Restaurants({ trip }) {
                   <span className="inline-flex items-center gap-1">
                     <Star className="size-3.5 text-yellow-500" /> {rating}
                   </span>
-                  <span className="text-right">{r?.priceRange || ''}</span>
+                  <span className="text-right font-medium text-foreground inline-flex items-center justify-end gap-1">
+                    <IndianRupee className="size-3.5" /> {priceDisplay}
+                  </span>
                 </div>
 
-                {r?.cuisine && <p className="text-sm text-foreground/90">{r.cuisine}</p>}
+                {r?.cuisine && (
+                  <p className="text-sm text-muted-foreground inline-flex items-center gap-1">
+                    <UtensilsCrossed className="size-3.5" /> {r.cuisine}
+                  </p>
+                )}
+
+                {r?.mustTry && (
+                  <p className="text-sm text-foreground/90">
+                    <span className="font-medium">Must try:</span> {r.mustTry}
+                  </p>
+                )}
+
+                {r?.description && (
+                  <p className="text-sm text-foreground/80 line-clamp-2">{r.description}</p>
+                )}
 
                 <div className="mt-auto pt-2">
                   <a href={googleMapsUrl(`${r?.name || ''} ${location}`)} target="_blank" rel="noreferrer">

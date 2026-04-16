@@ -1,18 +1,15 @@
 import React, { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import SmartImage from "@/components/ui/SmartImage";
-import { MapPin, Star } from "lucide-react";
+import { MapPin, Star, Clock, Ticket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { placesApi } from "@/api/places";
 
 function googleMapsUrl(name, location) {
   const q = [name || "", location || ""].filter(Boolean).join(" ");
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-    q
-  )}`;
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
 }
 
 function PlacesToVisit({ trip }) {
-  // Destination context for fallback search
   const destination = useMemo(
     () =>
       trip?.userSelection?.destination?.label ||
@@ -23,8 +20,44 @@ function PlacesToVisit({ trip }) {
     [trip]
   );
 
-  // Extract activities from itinerary: supports both {day.activities:[...]} and old slot-based
-  const baseAttractions = useMemo(() => {
+  // PRIMARY: Read from tripData.placesToVisit (the AI-generated flat list)
+  const basePlaces = useMemo(() => {
+    const places = Array.isArray(trip?.tripData?.placesToVisit)
+      ? trip.tripData.placesToVisit
+      : Array.isArray(trip?.placesToVisit)
+      ? trip.placesToVisit
+      : [];
+
+    // Map to consistent shape
+    const mapped = places
+      .filter((p) => p && (p.name || p.title))
+      .map((p) => ({
+        title: p.name || p.title,
+        location: p.location || p.address || destination || "",
+        description: p.description || p.details || "",
+        bestTime: p.bestTime || "",
+        entryFee: p.entryFee || "",
+        timeNeeded: p.timeNeeded || "",
+      }));
+
+    // De-duplicate by title
+    const seen = new Set();
+    const uniq = [];
+    for (const p of mapped) {
+      const key = p.title.toLowerCase().trim();
+      if (!seen.has(key)) {
+        seen.add(key);
+        uniq.push(p);
+      }
+    }
+
+    return uniq;
+  }, [trip, destination]);
+
+  // FALLBACK: If placesToVisit is empty, try extracting from itinerary activities
+  const itineraryFallback = useMemo(() => {
+    if (basePlaces.length > 0) return [];
+
     const days = Array.isArray(trip?.tripData?.itinerary)
       ? trip.tripData.itinerary
       : Array.isArray(trip?.itinerary)
@@ -34,45 +67,43 @@ function PlacesToVisit({ trip }) {
     const entries = days.flatMap((d) => {
       if (Array.isArray(d?.activities)) return d.activities;
       const slots = [d?.morning, d?.afternoon, d?.evening].filter(Boolean);
-      return slots.flatMap((slot) => (Array.isArray(slot?.activities) ? slot.activities : [slot]));
+      return slots.flatMap((slot) =>
+        Array.isArray(slot?.activities) ? slot.activities : [slot]
+      );
     });
 
     const mapped = entries
-      .filter((a) => a && (a.title || a.name))
+      .filter((a) => a && (a.title || a.name || a.activity))
       .map((a) => ({
-        title: a.title || a.name,
+        title: a.title || a.name || a.activity,
         location: a.location || a.address || destination || "",
-        time: a.time || a.slot || "",
         description: a.description || a.details || "",
-        // Remove direct photoUrl to enforce Pexels usage
-        // photoUrl: a.photoUrl || null,
+        bestTime: a.time || "",
+        entryFee: a.estimatedCost || "",
+        timeNeeded: "",
       }));
 
-    // De-duplicate by title+location
     const seen = new Set();
     const uniq = [];
     for (const a of mapped) {
-      const key = `${a.title}|${a.location}`;
+      const key = a.title.toLowerCase().trim();
       if (!seen.has(key)) {
         seen.add(key);
         uniq.push(a);
       }
     }
 
-    // Limit based on trip length
-    const daysCount = Number(trip?.userSelection?.days || trip?.days || 3);
-    const target = Math.min(Math.max(daysCount * 3, 9), 18);
-    return uniq.slice(0, target);
-  }, [trip, destination]);
+    return uniq.slice(0, 18);
+  }, [basePlaces, trip, destination]);
 
-  // Fallback when AI itinerary is empty
-  const [fallback, setFallback] = useState([]);
+  // Google Places API fallback when both are empty
+  const [googleFallback, setGoogleFallback] = useState([]);
   const [finding, setFinding] = useState(false);
   useEffect(() => {
     let ignore = false;
     async function fetchFallback() {
-      if (baseAttractions.length > 0 || !destination) {
-        setFallback([]);
+      if (basePlaces.length > 0 || itineraryFallback.length > 0 || !destination) {
+        setGoogleFallback([]);
         return;
       }
       try {
@@ -92,38 +123,42 @@ function PlacesToVisit({ trip }) {
             for (const p of places) {
               const name = p?.displayName?.text || "";
               const addr = p?.formattedAddress || destination || "";
-              const k = `${name}|${addr}`;
+              const k = name.toLowerCase().trim();
               if (!name || seen.has(k)) continue;
               seen.add(k);
               items.push({
                 title: name,
                 location: addr,
-                time: "",
                 description: "",
-                // photoUrl removed; SmartImage will fetch via Pexels using query
+                bestTime: "",
+                entryFee: "",
+                timeNeeded: "",
               });
             }
           } catch {}
         }
-        items.sort((a, b) => 0); // keep discovery order
         const top = items.slice(0, 18);
-        if (!ignore) setFallback(top);
+        if (!ignore) setGoogleFallback(top);
       } finally {
         if (!ignore) setFinding(false);
       }
     }
     fetchFallback();
-    return () => {
-      ignore = true;
-    };
-  }, [baseAttractions, destination]);
+    return () => { ignore = true; };
+  }, [basePlaces, itineraryFallback, destination]);
 
+  // Final merged list: placesToVisit → itinerary fallback → Google fallback
   const attractions = useMemo(
-    () => (baseAttractions.length ? baseAttractions : fallback),
-    [baseAttractions, fallback]
+    () =>
+      basePlaces.length > 0
+        ? basePlaces
+        : itineraryFallback.length > 0
+        ? itineraryFallback
+        : googleFallback,
+    [basePlaces, itineraryFallback, googleFallback]
   );
 
-  // Enrich with Google Places data (ratings only; no photos)
+  // Enrich with Google Places data (ratings only)
   const [placeInfo, setPlaceInfo] = useState({});
   useEffect(() => {
     let ignore = false;
@@ -143,12 +178,9 @@ function PlacesToVisit({ trip }) {
                   results[q] = {
                     rating: place?.rating || null,
                     ratingCount: place?.userRatingCount || null,
-                    // photoUrl removed
                   };
                 }
-              } catch (e) {
-                // ignore individual errors
-              }
+              } catch {}
             })
           );
         }
@@ -161,9 +193,7 @@ function PlacesToVisit({ trip }) {
       }
     }
     load();
-    return () => {
-      ignore = true;
-    };
+    return () => { ignore = true; };
   }, [attractions]);
 
   const getInfo = (a) => {
@@ -171,30 +201,7 @@ function PlacesToVisit({ trip }) {
     return placeInfo[q] || {};
   };
 
-  // Bayesian rating-based ranking (minimal drop-in)
-  const bayesianScore = (rating, count, C = 4.2, m = 50) => {
-    const v = Number(count) || 0;
-    const R = Number(rating) || 0;
-    if (!R || !isFinite(R)) return 0;
-    return (v / (v + m)) * R + (m / (v + m)) * C;
-  };
-
-  const sortedAttractions = useMemo(() => {
-    // If no enrichment yet, keep original order
-    if (!attractions.length) return [];
-    return [...attractions].sort((a, b) => {
-      const ia = getInfo(a);
-      const ib = getInfo(b);
-      const sa = bayesianScore(ia.rating, ia.ratingCount);
-      const sb = bayesianScore(ib.rating, ib.ratingCount);
-      // Remove photo bias; images now fetched via Pexels uniformly
-      const photoBiasA = 0;
-      const photoBiasB = 0;
-      return sb + photoBiasB - (sa + photoBiasA);
-    });
-  }, [attractions, placeInfo]);
-
-  // Dot pagination and precise scroll tracking
+  // Dot pagination and scroll tracking
   const trackRef = useRef(null);
   const rafId = useRef(0);
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -233,6 +240,13 @@ function PlacesToVisit({ trip }) {
     setCurrentIdx(clamped);
   }, []);
 
+  if (attractions.length === 0) return (
+    <div>
+      <h2 className="text-2xl font-semibold mb-4">Places to Visit</h2>
+      <p className="text-muted-foreground">{finding ? "Finding places nearby..." : "No places found."}</p>
+    </div>
+  );
+
   return (
     <div>
       <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-4 md:mb-5">Places to Visit</h2>
@@ -243,9 +257,9 @@ function PlacesToVisit({ trip }) {
         role="listbox"
         aria-label="Places to visit carousel"
       >
-        {(sortedAttractions.length ? sortedAttractions : attractions).map((a, idx) => {
+        {attractions.map((a, idx) => {
           const info = getInfo(a);
-          const rating = info?.rating ?? "—";
+          const rating = info?.rating ?? null;
           const location = a?.location || "";
 
           return (
@@ -256,7 +270,7 @@ function PlacesToVisit({ trip }) {
               {/* Image */}
               <div className="w-full overflow-hidden bg-muted [aspect-ratio:4/3] sm:[aspect-ratio:3/2] md:[aspect-ratio:16/9]">
                 <SmartImage
-                  query={`${a?.title || ""} ${location}`}
+                  query={`${a?.title || ""} ${destination}`}
                   alt={a?.title || "Attraction"}
                   className="w-full h-full object-cover"
                   pexelsFallback={true}
@@ -264,32 +278,49 @@ function PlacesToVisit({ trip }) {
                 />
               </div>
 
-                {/* Body */}
-                <div className="p-4 flex-1 flex flex-col gap-2">
-                  <h3 className="text-base font-semibold leading-tight line-clamp-2">
-                    {a?.title || "Attraction"}
-                  </h3>
-                  <p className="text-sm text-muted-foreground flex items-center gap-1">
-                    <MapPin className="size-3.5" /> {location || "—"}
-                  </p>
+              {/* Body */}
+              <div className="p-4 flex-1 flex flex-col gap-2">
+                <h3 className="text-base font-semibold leading-tight line-clamp-2">
+                  {a?.title || "Attraction"}
+                </h3>
+                <p className="text-sm text-muted-foreground flex items-center gap-1">
+                  <MapPin className="size-3.5" /> {location || "—"}
+                </p>
 
-                  <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+                <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+                  {rating && (
                     <span className="inline-flex items-center gap-1">
                       <Star className="size-3.5 text-yellow-500" /> {rating}
                     </span>
-                    <span className="text-right">{a?.time || ""}</span>
-                  </div>
-
-                  {a?.description && (
-                    <p className="text-sm text-foreground/90 line-clamp-4">{a.description}</p>
                   )}
-
-                  <div className="mt-auto pt-2">
-                    <a href={googleMapsUrl(a?.title, location)} target="_blank" rel="noreferrer">
-                      <Button size="sm" variant="outline" className="w-full">View on Map</Button>
-                    </a>
-                  </div>
+                  {a?.entryFee && (
+                    <span className="inline-flex items-center gap-1">
+                      <Ticket className="size-3.5" /> {a.entryFee}
+                    </span>
+                  )}
+                  {a?.timeNeeded && (
+                    <span className="inline-flex items-center gap-1">
+                      <Clock className="size-3.5" /> {a.timeNeeded}
+                    </span>
+                  )}
                 </div>
+
+                {a?.bestTime && (
+                  <p className="text-xs text-muted-foreground">
+                    <span className="font-medium">Best time:</span> {a.bestTime}
+                  </p>
+                )}
+
+                {a?.description && (
+                  <p className="text-sm text-foreground/90 line-clamp-4">{a.description}</p>
+                )}
+
+                <div className="mt-auto pt-2">
+                  <a href={googleMapsUrl(a?.title, location)} target="_blank" rel="noreferrer">
+                    <Button size="sm" variant="outline" className="w-full">View on Map</Button>
+                  </a>
+                </div>
+              </div>
             </article>
           );
         })}
@@ -298,7 +329,7 @@ function PlacesToVisit({ trip }) {
       {/* Dot pagination */}
       <div className="flex justify-center mt-4 lg:hidden" aria-label="Carousel pagination">
         <div className="inline-flex items-center gap-2">
-          {(sortedAttractions.length ? sortedAttractions : attractions).map((_, i) => (
+          {attractions.map((_, i) => (
             <button
               key={i}
               aria-label={`Go to card ${i + 1}`}

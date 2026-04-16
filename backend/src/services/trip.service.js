@@ -1,6 +1,7 @@
 const tripRepository = require('../repositories/tripRepository');
 const imageService = require('./image.service');
 const cloudinaryService = require('./cloudinary.service');
+const aiService = require('./ai.service');
 const crypto = require('crypto');
 const logger = require('../utils/logger');
 
@@ -86,6 +87,103 @@ const tripService = {
       throw err;
     }
     return trip;
+  },
+
+  /**
+   * Regenerate trip data using AI based on updated userSelection,
+   * then persist the new tripData + userSelection + cover photo.
+   */
+  async regenerateAndUpdate(tripId, userId, userSelection) {
+    // 1. Verify ownership
+    const existingTrip = await tripRepository.getById(tripId);
+    if (!existingTrip) {
+      const err = new Error('Trip not found.');
+      err.status = 404;
+      throw err;
+    }
+    if (existingTrip.userId?.toString() !== userId) {
+      const err = new Error('Access denied.');
+      err.status = 403;
+      throw err;
+    }
+
+    // 2. Extract params from userSelection for AI
+    const destination =
+      userSelection?.destination?.label ||
+      userSelection?.destination ||
+      '';
+    const startLocation =
+      userSelection?.startLocation?.label ||
+      userSelection?.startLocation ||
+      '';
+
+    const startDate = userSelection?.startDate || '';
+    const endDate = userSelection?.endDate || '';
+    let totalDays = userSelection?.noOfDays || 3;
+
+    if (startDate && endDate) {
+      const s = new Date(startDate);
+      const e = new Date(endDate);
+      const diff = Math.ceil((e - s) / (1000 * 60 * 60 * 24)) + 1;
+      if (diff > 0) totalDays = diff;
+    }
+
+    const travelers = userSelection?.numTravelers || 1;
+    const budget = userSelection?.amount || 0;
+    const currency = userSelection?.currency || 'INR';
+    const transportMode = userSelection?.transportMode || '';
+
+    logger.info(`Regenerating trip ${tripId} for destination: ${destination} (${totalDays} days)`);
+
+    // 3. Call AI to regenerate
+    const tripData = await aiService.generateTrip({
+      destination,
+      startLocation,
+      totalDays,
+      travelers,
+      budget,
+      currency,
+      transportMode,
+      startDate,
+      endDate,
+    });
+
+    // 4. Fetch new cover photo if destination changed
+    let coverPhotoUrl = existingTrip.coverPhotoUrl || '';
+    const oldDestination =
+      existingTrip.userSelection?.destination?.label ||
+      existingTrip.userSelection?.destination ||
+      '';
+
+    if (destination && destination !== oldDestination) {
+      try {
+        const imgResult = await imageService.searchAndPersist(destination, 'destinations');
+        if (imgResult?.secureUrl) {
+          coverPhotoUrl = imgResult.secureUrl;
+        }
+      } catch (err) {
+        logger.warn(`Failed to fetch new cover photo during regeneration: ${err.message}`);
+      }
+    }
+
+    // 5. Persist updated trip
+    const updated = await tripRepository.update(tripId, userId, {
+      userSelection: { ...userSelection, noOfDays: totalDays },
+      tripData,
+      coverPhotoUrl,
+      destination,
+      summary: tripData?.tripSummary?.title || `Trip to ${destination}`,
+      status: 'generated',
+    });
+
+    if (!updated) {
+      const err = new Error('Failed to update trip after regeneration.');
+      err.status = 500;
+      throw err;
+    }
+
+    logger.info(`Trip ${tripId} regenerated successfully for ${destination}`);
+    return updated;
   },
 
   async delete(tripId, userId) {
