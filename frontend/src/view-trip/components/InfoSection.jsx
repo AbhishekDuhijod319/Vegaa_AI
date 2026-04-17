@@ -276,22 +276,23 @@ function InfoSection({ trip }) {
 
   return (
     <section className="relative min-h-[100svh] grid md:grid-cols-2 overflow-hidden">
-      {/* Background hero image layer (Pexels-powered) */}
+      {/* Background hero image layer (Pexels-powered, high quality 1920+ px) */}
       <div className="absolute inset-0 -z-10">
         <SmartImage
-          query={destLabel}
+          query={`${destLabel} city skyline landscape`}
           alt={`${destLabel} background`}
           className="absolute inset-0 w-full h-full object-cover"
           enhance={true}
+          quality="high"
           sizes="100vw"
           fetchpriority="high"
         />
-        {/* Overlay gradient for readability */}
+        {/* Multi-layer overlay for depth and readability */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.35) 100%)",
+              "linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.20) 35%, rgba(0,0,0,0.30) 70%, rgba(0,0,0,0.60) 100%)",
           }}
           aria-hidden="true"
         />

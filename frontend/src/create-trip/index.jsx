@@ -18,6 +18,7 @@ import Select from "react-select";
 import { FcGoogle } from "react-icons/fc";
 import { AiOutlineLoading3Quarters, AiOutlineCalendar } from "react-icons/ai";
 import { FaRoute } from "react-icons/fa";
+import TripGeneratingOverlay from "@/components/ui/TripGeneratingOverlay";
 
 import { useAuth } from '@/contexts/AuthContext';
 import { generateTrip, saveAiTrip } from "@/services/tripService";
@@ -481,6 +482,9 @@ const CreateTrip = () => {
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Full-screen generating overlay */}
+      <TripGeneratingOverlay isVisible={loading} />
     </section>
   );
 };

@@ -120,6 +120,7 @@ function Restaurants({ trip }) {
                     rating: place?.rating || null,
                     ratingCount: place?.userRatingCount || null,
                     website: place?.websiteUri || null,
+                    photoRef: place?.photoRef || null,
                   };
                   placeCache.set(q, info);
                   results[q] = info;
@@ -211,7 +212,7 @@ function Restaurants({ trip }) {
           const catStyle = CATEGORY_STYLES[category];
 
           return (
-            <article key={key} className="relative rounded-2xl border bg-card hover:shadow-md transition-shadow overflow-hidden flex flex-col snap-center">
+            <article key={key} className="group relative rounded-2xl border bg-card hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col snap-center">
               {/* Category badge */}
               {catStyle && (
                 <span className={`absolute top-3 left-3 z-10 rounded-full px-2.5 py-0.5 text-xs font-semibold ${catStyle.className}`}>
@@ -220,11 +221,12 @@ function Restaurants({ trip }) {
               )}
 
               {/* Image */}
-              <div className="w-full overflow-hidden bg-muted [aspect-ratio:4/3] sm:[aspect-ratio:3/2] md:[aspect-ratio:16/9]">
+              <div className="w-full overflow-hidden bg-muted aspect-[4/3] sm:aspect-[3/2]">
                 <SmartImage
                   query={`${r?.name || ""} ${r?.cuisine || ""} restaurant ${destination}`}
                   alt={r?.name || "Restaurant"}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  googlePhotoRef={info?.photoRef}
                   pexelsFallback={true}
                   sizes="(min-width: 1200px) 33vw, (min-width: 768px) 50vw, 100vw"
                 />

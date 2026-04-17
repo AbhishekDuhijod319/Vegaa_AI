@@ -1,7 +1,8 @@
-import React, { useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import SmartImage from "@/components/ui/SmartImage";
 import { MapPin, Compass, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { placesApi } from "@/api/places";
 
 const mapsUrl = (q) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q || "")}`;
 
@@ -30,6 +31,47 @@ export default function Neighbourhoods({ trip }) {
     || trip?.tripData?.destination
     || trip?.destination
     || "";
+
+  // Enrich with Google Places data (photoRef for images)
+  const [placeInfo, setPlaceInfo] = useState({});
+  useEffect(() => {
+    let ignore = false;
+    async function load() {
+      const results = {};
+      const chunk = async (list, size) => {
+        for (let i = 0; i < list.length; i += size) {
+          const slice = list.slice(i, i + size);
+          await Promise.all(
+            slice.map(async (raw) => {
+              const it = typeof raw === 'string' ? { title: raw } : raw || {};
+              const title = it?.title || it?.name || "";
+              const loc = it?.location || destination || "";
+              const q = [title, loc].filter(Boolean).join(" ");
+              if (!q) return;
+              try {
+                const resp = await placesApi.search(q);
+                const place = resp?.data?.places?.[0];
+                if (place) {
+                  results[q] = { photoRef: place?.photoRef || null };
+                }
+              } catch {}
+            })
+          );
+        }
+      };
+      if (items.length) {
+        await chunk(items, 3);
+        if (!ignore) setPlaceInfo(results);
+      }
+    }
+    load();
+    return () => { ignore = true; };
+  }, [items, destination]);
+
+  const getPhotoRef = (title, location) => {
+    const q = [title, location].filter(Boolean).join(" ");
+    return placeInfo[q]?.photoRef || null;
+  };
 
   const trackRef = useRef(null);
   const rafId = useRef(null);
@@ -94,7 +136,7 @@ export default function Neighbourhoods({ trip }) {
           const key = `${title}|${idx}`;
 
           return (
-            <article key={key} className="relative rounded-2xl border bg-card hover:shadow-md transition-shadow overflow-hidden flex flex-col snap-center">
+            <article key={key} className="group relative rounded-2xl border bg-card hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col snap-center">
               {/* Vibe badge */}
               {vibe && (
                 <span className="absolute top-3 left-3 z-10 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-violet-600 text-white">
@@ -102,11 +144,12 @@ export default function Neighbourhoods({ trip }) {
                 </span>
               )}
 
-              <div className="w-full overflow-hidden bg-muted aspect-[4/3] sm:aspect-[3/2] md:aspect-[16/9]">
-                <SmartImage
-                  query={`${title} neighbourhood ${location}`}
+              <div className="w-full overflow-hidden bg-muted aspect-[4/3] sm:aspect-[3/2]">
+              <SmartImage
+                  query={`${title} neighbourhood area ${location}`}
                   alt={title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  googlePhotoRef={getPhotoRef(title, location)}
                   pexelsFallback={true}
                   sizes="(min-width: 1200px) 33vw, (min-width: 768px) 50vw, 100vw"
                 />

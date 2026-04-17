@@ -85,13 +85,13 @@ function CardCarousel({ items, destination, label, carousel }) {
         {items.map((it, idx) => (
           <article
             key={`${it.title}|${idx}`}
-            className="relative rounded-2xl border bg-card hover:shadow-md transition-shadow overflow-hidden flex flex-col snap-center"
+            className="group relative rounded-2xl border bg-card hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col snap-center"
           >
-            <div className="w-full overflow-hidden bg-muted aspect-[4/3] sm:aspect-[3/2] md:aspect-[16/9]">
+            <div className="w-full overflow-hidden bg-muted aspect-[4/3] sm:aspect-[3/2]">
               <SmartImage
-                query={`${it.title} ${it.location || destination}`}
+                query={`${it.title} ${it.location || destination} activity`}
                 alt={it.title}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 pexelsFallback={true}
                 sizes="(min-width: 1200px) 33vw, (min-width: 768px) 50vw, 100vw"
               />

@@ -14,6 +14,8 @@ import LocalEssentials from "../components/LocalEssentials";
 import Neighbourhoods from "../components/Neighbourhoods";
 import SuggestedDayTrips from "../components/SuggestedDayTrips";
 
+import ViewTripSkeleton from "@/components/ui/ViewTripSkeleton";
+
 function Viewtrip() {
   const { tripId } = useParams();
   const [searchParams] = useSearchParams();
@@ -49,11 +51,7 @@ function Viewtrip() {
   }, [tripId, searchParams]);
 
   if (loading) {
-    return (
-      <div className="p-10 md:px-20 lg:px-44 xl:px-56" style={{ paddingTop: 'calc(var(--app-header-offset, 80px) + 2rem)' }}>
-        <p className="text-muted-foreground">Loading trip...</p>
-      </div>
-    );
+    return <ViewTripSkeleton />;
   }
 
   if (!trip) {

@@ -63,9 +63,20 @@ const ScrollManager = () => {
 // Loading fallback component
 const PageLoader = () => (
   <div className="flex items-center justify-center min-h-screen bg-background">
-    <div className="flex flex-col items-center gap-4">
-      <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-      <p className="text-muted-foreground text-sm">Loading...</p>
+    <div className="flex flex-col items-center gap-5">
+      <div className="relative">
+        {/* Outer glow ring */}
+        <div
+          className="w-14 h-14 rounded-full border-2 border-primary/10 absolute inset-0 animate-ping"
+          style={{ animationDuration: "2s" }}
+        />
+        {/* Main spinner */}
+        <div
+          className="w-14 h-14 rounded-full border-[3px] border-primary/20 border-t-primary animate-spin"
+          style={{ animationDuration: "0.8s" }}
+        />
+      </div>
+      <p className="text-muted-foreground text-sm animate-pulse">Loading...</p>
     </div>
   </div>
 );

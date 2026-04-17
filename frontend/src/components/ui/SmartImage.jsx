@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { imageApi } from "@/api/images";
+import { placesApi } from "@/api/places";
 
 // ── In-memory cache ──────────────────────────────────────────────────
-const imageCache = new Map(); // key → { src, srcSet, sizes }
+const imageCache = new Map(); // key → url string
 
 // ── Global dedup: track Pexels photo IDs already used on this page ──
 const usedPhotoIds = new Set();
@@ -27,38 +28,46 @@ const pickGradient = (query = "") => {
 };
 
 /**
- * Pick the first Pexels photo from results that hasn't been used yet.
- * Returns { photo, url } or null.
+ * Pick the best Pexels photo URL based on quality level.
+ *  - "high" → large2x (1880px) or original (full res) for hero images
+ *  - "standard" → large (940px) for cards
  */
-function pickUniquePhoto(photos) {
+function pickPhotoUrl(photo, quality = "standard") {
+  if (!photo?.src) return null;
+  if (quality === "high") {
+    return photo.src.large2x || photo.src.original || photo.src.large || photo.src.landscape;
+  }
+  return photo.src.large || photo.src.medium || photo.src.landscape || photo.src.original;
+}
+
+/**
+ * Pick the first Pexels photo from results that hasn't been used yet.
+ */
+function pickUniquePhoto(photos, quality = "standard") {
   if (!Array.isArray(photos) || photos.length === 0) return null;
   for (const photo of photos) {
     const id = photo?.id;
     if (id && !usedPhotoIds.has(id)) {
-      const url =
-        photo.src?.large ||
-        photo.src?.medium ||
-        photo.src?.landscape ||
-        photo.src?.original;
+      const url = pickPhotoUrl(photo, quality);
       if (url) {
         usedPhotoIds.add(id);
-        return { photo, url };
+        return url;
       }
     }
   }
-  // If all are used, return the first one anyway (better than nothing)
-  const fallback = photos[0];
-  const url = fallback?.src?.large || fallback?.src?.medium || fallback?.src?.original;
-  return url ? { photo: fallback, url } : null;
+  // All used — return first anyway
+  return pickPhotoUrl(photos[0], quality);
 }
 
 /**
  * SmartImage — robust image component with:
- *  1. Progressive loading (skeleton → image)
- *  2. Retry with exponential backoff
- *  3. Beautiful gradient fallback on failure (never shows black)
- *  4. In-memory caching to avoid re-fetching
- *  5. Global deduplication — no two SmartImages show the same Pexels photo
+ *  1. Progressive loading (skeleton → smooth fade-in)
+ *  2. Google Places Photo support (real venue images)
+ *  3. Quality-aware Pexels fallback (high = 1920+ px, standard = 940px)
+ *  4. Beautiful gradient fallback (never shows blank/broken)
+ *  5. In-memory caching + global Pexels dedup
+ *
+ * Load priority: direct src → Google Places photo → Pexels → gradient
  */
 const SmartImage = ({
   src,
@@ -71,6 +80,8 @@ const SmartImage = ({
   onReady,
   enhance = false,
   pexelsFallback = true,
+  googlePhotoRef = null,
+  quality = "standard", // "high" for hero images (1920+ px), "standard" for cards
   fetchpriority = "low",
 }) => {
   const [state, setState] = useState("idle"); // idle | loading | loaded | error
@@ -84,22 +95,22 @@ const SmartImage = ({
     onReadyRef.current = onReady;
   }, [onReady]);
 
-  // Memoize key
+  // Memoize cache key
   const cacheKey = useMemo(
-    () => (src ? `src:${src}` : `q:${query}`),
-    [src, query]
+    () => (src ? `src:${src}` : googlePhotoRef ? `gref:${googlePhotoRef}` : `q:${query}:${quality}`),
+    [src, query, googlePhotoRef, quality]
   );
 
   // Gradient fallback (deterministic per query)
   const fallbackGradient = useMemo(() => pickGradient(query || src || ""), [query, src]);
 
-  // Try loading a single URL
+  // Try loading a single URL via Image object
   const tryLoad = useCallback(
     (url) =>
       new Promise((resolve, reject) => {
         const img = new Image();
         img.onload = () => resolve(url);
-        img.onerror = () => reject(new Error(`Failed to load: ${url}`));
+        img.onerror = () => reject(new Error(`Failed: ${url}`));
         img.src = url;
       }),
     []
@@ -110,23 +121,24 @@ const SmartImage = ({
     cancelledRef.current = false;
     retryCount.current = 0;
 
+    // Check cache first
     const cached = imageCache.get(cacheKey);
-    if (cached?.src) {
-      setImgSrc(cached.src);
+    if (cached) {
+      setImgSrc(cached);
       setState("loaded");
-      onReadyRef.current?.(cached.src);
+      onReadyRef.current?.(cached);
       return;
     }
 
     const load = async () => {
       setState("loading");
 
-      // Strategy 1: Direct src
+      // Strategy 1: Direct src prop
       if (src) {
         try {
           await tryLoad(src);
           if (!cancelledRef.current) {
-            imageCache.set(cacheKey, { src, srcSet: "", sizes });
+            imageCache.set(cacheKey, src);
             setImgSrc(src);
             setState("loaded");
             onReadyRef.current?.(src);
@@ -137,18 +149,38 @@ const SmartImage = ({
         }
       }
 
-      // Strategy 2: Pexels backend API — fetch multiple results to enable dedup
+      // Strategy 2: Google Places Photo (actual venue images)
+      if (googlePhotoRef) {
+        try {
+          const googleUrl = await placesApi.getPhotoUrl(googlePhotoRef, quality === "high" ? 1200 : 600);
+          if (googleUrl && !cancelledRef.current) {
+            await tryLoad(googleUrl);
+            if (!cancelledRef.current) {
+              imageCache.set(cacheKey, googleUrl);
+              setImgSrc(googleUrl);
+              setState("loaded");
+              onReadyRef.current?.(googleUrl);
+              return;
+            }
+          }
+        } catch {
+          // Fall through to Pexels
+        }
+      }
+
+      // Strategy 3: Pexels (scenic/stock images with quality-aware resolution)
       if (pexelsFallback) {
         try {
-          const data = await imageApi.search(query, 5); // Request 5 for dedup pool
-          const picked = pickUniquePhoto(data.photos || []);
-          if (picked) {
-            await tryLoad(picked.url);
+          const perPage = quality === "high" ? 3 : 5;
+          const data = await imageApi.search(query, perPage);
+          const url = pickUniquePhoto(data.photos || [], quality);
+          if (url) {
+            await tryLoad(url);
             if (!cancelledRef.current) {
-              imageCache.set(cacheKey, { src: picked.url, srcSet: "", sizes });
-              setImgSrc(picked.url);
+              imageCache.set(cacheKey, url);
+              setImgSrc(url);
               setState("loaded");
-              onReadyRef.current?.(picked.url);
+              onReadyRef.current?.(url);
               return;
             }
           }
@@ -157,23 +189,22 @@ const SmartImage = ({
         }
       }
 
-      // Strategy 3: Retry once after 1.5s with different query variation
-      if (retryCount.current < 1 && !cancelledRef.current) {
+      // Strategy 4: Retry once with modified query
+      if (retryCount.current < 1 && !cancelledRef.current && pexelsFallback) {
         retryCount.current++;
-        await new Promise((r) => setTimeout(r, 1500));
-        if (!cancelledRef.current && pexelsFallback) {
+        await new Promise((r) => setTimeout(r, 1200));
+        if (!cancelledRef.current) {
           try {
-            // Slightly modify query for different results
-            const retryQuery = `${query} photo`;
+            const retryQuery = `${query} landscape`;
             const data = await imageApi.search(retryQuery, 3);
-            const picked = pickUniquePhoto(data.photos || []);
-            if (picked) {
-              await tryLoad(picked.url);
+            const url = pickUniquePhoto(data.photos || [], quality);
+            if (url) {
+              await tryLoad(url);
               if (!cancelledRef.current) {
-                imageCache.set(cacheKey, { src: picked.url, srcSet: "", sizes });
-                setImgSrc(picked.url);
+                imageCache.set(cacheKey, url);
+                setImgSrc(url);
                 setState("loaded");
-                onReadyRef.current?.(picked.url);
+                onReadyRef.current?.(url);
                 return;
               }
             }
@@ -183,7 +214,7 @@ const SmartImage = ({
         }
       }
 
-      // All strategies failed → show gradient
+      // All strategies failed → gradient
       if (!cancelledRef.current) {
         setState("error");
       }
@@ -193,11 +224,11 @@ const SmartImage = ({
     return () => {
       cancelledRef.current = true;
     };
-  }, [cacheKey, src, query, sizes, pexelsFallback, tryLoad]);
+  }, [cacheKey, src, query, sizes, pexelsFallback, googlePhotoRef, quality, tryLoad]);
 
   // ── Render ──────────────────────────────────────────────────────────
 
-  // Loading skeleton
+  // Loading skeleton with gradient placeholder
   if (state === "loading" && !imgSrc) {
     return (
       <div
@@ -212,7 +243,7 @@ const SmartImage = ({
     );
   }
 
-  // Error / failed — beautiful gradient fallback with query label
+  // Error state — beautiful gradient fallback with subtle label
   if (state === "error" && !imgSrc) {
     return (
       <div
@@ -222,14 +253,14 @@ const SmartImage = ({
         role="img"
         aria-label={alt || query}
       >
-        <span className="text-white/30 text-xs font-medium px-4 py-3 select-none">
+        <span className="text-white/20 text-xs font-medium px-4 py-3 select-none">
           {alt || query}
         </span>
       </div>
     );
   }
 
-  // Loaded image
+  // Loaded image with smooth fade-in
   return (
     <img
       ref={containerRef}
@@ -237,12 +268,11 @@ const SmartImage = ({
       alt={alt}
       width={width}
       height={height}
-      className={`transition-opacity duration-500 opacity-100 ${
+      className={`transition-opacity duration-700 ease-out opacity-100 ${
         enhance ? "brightness-105 contrast-105 saturate-110" : ""
       } ${className}`}
       loading={fetchpriority === "high" ? "eager" : "lazy"}
       decoding="async"
-      crossOrigin="anonymous"
       referrerPolicy="no-referrer"
       onError={() => {
         setImgSrc(null);

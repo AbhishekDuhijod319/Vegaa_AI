@@ -178,6 +178,7 @@ function PlacesToVisit({ trip }) {
                   results[q] = {
                     rating: place?.rating || null,
                     ratingCount: place?.userRatingCount || null,
+                    photoRef: place?.photoRef || null,
                   };
                 }
               } catch {}
@@ -265,14 +266,15 @@ function PlacesToVisit({ trip }) {
           return (
             <article
               key={`${a?.title || idx}-${location}`}
-              className="relative rounded-2xl border bg-card hover:shadow-md transition-shadow overflow-hidden flex flex-col snap-center"
+              className="group relative rounded-2xl border bg-card hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col snap-center"
             >
               {/* Image */}
-              <div className="w-full overflow-hidden bg-muted [aspect-ratio:4/3] sm:[aspect-ratio:3/2] md:[aspect-ratio:16/9]">
+              <div className="w-full overflow-hidden bg-muted aspect-[4/3] sm:aspect-[3/2]">
                 <SmartImage
-                  query={`${a?.title || ""} ${destination}`}
+                  query={`${a?.title || ""} ${destination} landmark`}
                   alt={a?.title || "Attraction"}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  googlePhotoRef={info?.photoRef}
                   pexelsFallback={true}
                   sizes="(min-width: 1200px) 33vw, (min-width: 768px) 50vw, 100vw"
                 />

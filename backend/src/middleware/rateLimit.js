@@ -45,4 +45,11 @@ const uploadLimiter = createLimiter(
   'Upload limit exceeded. Please try again later.'
 );
 
-module.exports = { authLimiter, aiLimiter, apiLimiter, imageLimiter, uploadLimiter };
+// Place photos: 200 per hour per user (stay within Google's $200/month free tier)
+const placePhotoLimiter = createLimiter(
+  60 * 60 * 1000,
+  200,
+  'Place photo rate limit exceeded. Please slow down.'
+);
+
+module.exports = { authLimiter, aiLimiter, apiLimiter, imageLimiter, uploadLimiter, placePhotoLimiter };

@@ -71,6 +71,46 @@ export default function Markets({ trip }) {
 
   const list = useMemo(() => (base.length ? base.slice(0, 8) : fallback), [base, fallback]);
 
+  // Enrich with Google Places data (photoRef for images)
+  const [placeInfo, setPlaceInfo] = useState({});
+  useEffect(() => {
+    let ignore = false;
+    async function load() {
+      const results = {};
+      const chunk = async (items, size) => {
+        for (let i = 0; i < items.length; i += size) {
+          const slice = items.slice(i, i + size);
+          await Promise.all(
+            slice.map(async (m) => {
+              const q = [m?.name || "", m?.location || ""].filter(Boolean).join(" ");
+              if (!q) return;
+              try {
+                const resp = await placesApi.search(q);
+                const place = resp?.data?.places?.[0];
+                if (place) {
+                  results[q] = {
+                    photoRef: place?.photoRef || null,
+                  };
+                }
+              } catch {}
+            })
+          );
+        }
+      };
+      if (list.length) {
+        await chunk(list, 3);
+        if (!ignore) setPlaceInfo(results);
+      }
+    }
+    load();
+    return () => { ignore = true; };
+  }, [list]);
+
+  const getInfo = (m) => {
+    const q = [m?.name || "", m?.location || ""].filter(Boolean).join(" ");
+    return placeInfo[q] || {};
+  };
+
   // Scroll tracking hooks
   const trackRef = useRef(null);
   const rafId = useRef(null);
@@ -126,9 +166,10 @@ export default function Markets({ trip }) {
         {list.map((m) => {
           const location = m?.location || "";
           const key = [m?.name || "", location].filter(Boolean).join(" ");
+          const info = getInfo(m);
 
           return (
-            <article key={key} className="relative rounded-2xl border bg-card hover:shadow-md transition-shadow overflow-hidden flex flex-col snap-center">
+            <article key={key} className="group relative rounded-2xl border bg-card hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col snap-center">
               {/* Type badge */}
               {m?.type && (
                 <span className="absolute top-3 left-3 z-10 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-violet-600 text-white">
@@ -137,11 +178,12 @@ export default function Markets({ trip }) {
               )}
 
               {/* Image */}
-              <div className="w-full overflow-hidden bg-muted aspect-[4/3] sm:aspect-[3/2] md:aspect-[16/9]">
+              <div className="w-full overflow-hidden bg-muted aspect-[4/3] sm:aspect-[3/2]">
                 <SmartImage
-                  query={`${m?.name || ""} market ${destination}`}
+                  query={`${m?.name || ""} market shopping ${destination}`}
                   alt={m?.name || "Market"}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  googlePhotoRef={info?.photoRef}
                   pexelsFallback={true}
                   sizes="(min-width: 1200px) 33vw, (min-width: 768px) 50vw, 100vw"
                 />

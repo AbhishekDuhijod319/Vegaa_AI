@@ -127,18 +127,28 @@ function MyTrips() {
 
   if (loading) {
     return (
-      <div className='mx-auto max-w-7xl px-5 sm:px-8 md:px-12 lg:px-16 xl:px-20 pt-24 pb-12'>
-        <h1 className='text-2xl font-semibold mb-4'>My Trips</h1>
+      <div className='mx-auto max-w-7xl px-5 sm:px-8 md:px-12 lg:px-16 xl:px-20 pt-24 pb-12 animate-in fade-in duration-500'>
+        <div className='flex items-center gap-3 mb-6'>
+          <h1 className='text-2xl font-semibold'>My Trips</h1>
+          <div className="relative ml-2">
+            <div className="w-5 h-5 rounded-full border-2 border-primary/20 border-t-primary animate-spin" style={{ animationDuration: "0.8s" }} />
+          </div>
+        </div>
         <div className='grid grid-cols-1 md:grid-cols-2 min-[1200px]:grid-cols-3 gap-4'>
-          {[0, 1, 2].map(i => (
-            <div key={i} className='rounded-2xl border bg-card overflow-hidden animate-pulse'>
-              <div className='w-full bg-muted' style={{ aspectRatio: '16/9' }} />
+          {[0, 1, 2, 3, 4, 5].map(i => (
+            <div
+              key={i}
+              className='rounded-2xl border bg-card overflow-hidden animate-pulse'
+              style={{ animationDelay: `${i * 120}ms` }}
+            >
+              <div className='w-full bg-muted/60' style={{ aspectRatio: '16/9' }} />
               <div className='p-4 space-y-3'>
-                <div className='h-5 bg-muted rounded w-3/4' />
+                <div className='h-5 bg-muted/70 rounded-md w-3/4' />
                 <div className='grid grid-cols-2 gap-2'>
-                  <div className='h-10 bg-muted/60 rounded' />
-                  <div className='h-10 bg-muted/60 rounded' />
+                  <div className='h-10 bg-muted/40 rounded-lg' />
+                  <div className='h-10 bg-muted/40 rounded-lg' />
                 </div>
+                <div className='h-4 bg-muted/30 rounded w-1/2' />
               </div>
             </div>
           ))}

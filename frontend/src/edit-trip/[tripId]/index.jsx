@@ -10,6 +10,7 @@ import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 import Select from "react-select";
 import { AiOutlineCalendar, AiOutlineLoading3Quarters } from "react-icons/ai";
 import { FaRoute } from "react-icons/fa";
+import TripGeneratingOverlay from "@/components/ui/TripGeneratingOverlay";
 import {
   placesAutocompleteStyles,
   currencySelectStyles,
@@ -193,7 +194,21 @@ const EditTrip = () => {
     }
   };
 
-  if (!trip) return <div className="p-5 md:px-16 lg:px-44">Loading...</div>;
+  if (!trip) return (
+    <div className="p-5 md:px-16 lg:px-44 pt-28 animate-in fade-in duration-500">
+      <div className="flex flex-col gap-6">
+        <div className="space-y-3">
+          <div className="h-10 bg-muted/60 rounded-lg w-64 animate-pulse" />
+          <div className="h-5 bg-muted/40 rounded-md w-96 animate-pulse" style={{ animationDelay: '100ms' }} />
+        </div>
+        <div className="grid md:grid-cols-2 gap-6">
+          {[1,2,3,4].map(i => (
+            <div key={i} className="h-14 bg-muted/40 rounded-lg animate-pulse" style={{ animationDelay: `${i*80}ms` }} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 
   const sel = trip.userSelection || {};
 
@@ -470,6 +485,9 @@ const EditTrip = () => {
           )}
         </Button>
       </div>
+
+      {/* Full-screen regenerating overlay */}
+      <TripGeneratingOverlay isVisible={saving} />
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import {
-  Phone, Shield, AlertTriangle, HandHeart,
+  Phone, Shield, AlertTriangle, HeartHandshake,
   Wifi, CreditCard, Languages, IndianRupee,
   Coffee, Bus, Droplets, UtensilsCrossed,
 } from "lucide-react";
@@ -196,7 +196,7 @@ export default function LocalEssentials({ trip }) {
 
         {/* Etiquette */}
         {etiquette.length > 0 && (
-          <SectionCard icon={HandHeart} title="Local Etiquette">
+          <SectionCard icon={HeartHandshake} title="Local Etiquette">
             <ul className="space-y-2 list-none">
               {etiquette.map((item, i) => {
                 const { title } = normalize(item);
