@@ -207,19 +207,20 @@ DATA QUALITY RULES:
 - Use "location" as the field name for addresses everywhere (NOT "address").
 - The "placesToVisit" array MUST contain AT LEAST 8 items — this is a separate section from itinerary.
 - The response must be culturally accurate and locally relevant.
+- EVERY location entity (hotels, restaurants, placesToVisit, itinerary activities, markets, neighbourhoods, suggestedDayTrips) MUST include a "coordinates" object with real "lat" and "lng" numbers. Use accurate, real-world GPS coordinates.
 
 OUTPUT FORMAT:
 Return ONLY valid JSON. No markdown code fences. No explanatory text before or after. Pure JSON object.
 
 {
   "tripSummary": { "title": "...", "description": "...", "totalDays": ${totalDays}, "travelers": ${travelers}, "budget": "₹${budget}" },
-  "hotels": [{ "name": "...", "location": "...", "pricePerNight": 1200, "priceRange": "...", "rating": 4.2, "description": "...", "amenities": ["..."], "category": "budget", "image_query": "..." }],
-  "itinerary": [{ "day": 1, "title": "...", "activities": [{ "time": "...", "activity": "...", "location": "...", "details": "...", "estimatedCost": "...", "image_query": "..." }] }],
-  "restaurants": [{ "name": "...", "cuisine": "...", "pricePerPerson": 200, "priceRange": "...", "rating": 4.5, "location": "...", "mustTry": "...", "description": "...", "category": "budget", "image_query": "..." }],
-  "placesToVisit": [{ "name": "...", "location": "...", "description": "...", "bestTime": "...", "entryFee": "...", "timeNeeded": "...", "image_query": "..." }],
-  "suggestedDayTrips": [{ "name": "...", "distance": "...", "description": "...", "highlights": ["..."], "image_query": "..." }],
-  "neighbourhoods": [{ "name": "...", "vibe": "...", "bestFor": "...", "description": "..." }],
-  "markets": [{ "name": "...", "type": "...", "bestFor": "...", "timings": "...", "description": "...", "location": "...", "image_query": "..." }],
+  "hotels": [{ "name": "...", "location": "...", "pricePerNight": 1200, "priceRange": "...", "rating": 4.2, "description": "...", "amenities": ["..."], "category": "budget", "image_query": "...", "coordinates": { "lat": 28.6139, "lng": 77.2090 } }],
+  "itinerary": [{ "day": 1, "title": "...", "activities": [{ "time": "...", "activity": "...", "location": "...", "details": "...", "estimatedCost": "...", "image_query": "...", "coordinates": { "lat": 28.6139, "lng": 77.2090 } }] }],
+  "restaurants": [{ "name": "...", "cuisine": "...", "pricePerPerson": 200, "priceRange": "...", "rating": 4.5, "location": "...", "mustTry": "...", "description": "...", "category": "budget", "image_query": "...", "coordinates": { "lat": 28.6139, "lng": 77.2090 } }],
+  "placesToVisit": [{ "name": "...", "location": "...", "description": "...", "bestTime": "...", "entryFee": "...", "timeNeeded": "...", "image_query": "...", "coordinates": { "lat": 28.6139, "lng": 77.2090 } }],
+  "suggestedDayTrips": [{ "name": "...", "distance": "...", "description": "...", "highlights": ["..."], "image_query": "...", "coordinates": { "lat": 28.6139, "lng": 77.2090 } }],
+  "neighbourhoods": [{ "name": "...", "vibe": "...", "bestFor": "...", "description": "...", "coordinates": { "lat": 28.6139, "lng": 77.2090 } }],
+  "markets": [{ "name": "...", "type": "...", "bestFor": "...", "timings": "...", "description": "...", "location": "...", "image_query": "...", "coordinates": { "lat": 28.6139, "lng": 77.2090 } }],
   "localEssentials": { "emergencyNumbers": [{"title":"...","description":"..."}], "currency": "...", "language": "...", "safetyTips": ["..."], "commonScams": ["..."], "etiquette": ["..."], "simAndConnectivity": { "simProviders": [{"name":"...","description":"..."}], "eSIM": [{"name":"...","description":"..."}], "wifiTips": "..." }, "money": { "currency": "...", "typicalCosts": { "meal": "...", "transport": "...", "coffee": "...", "water": "..." } } },
   "gettingAround": { "overview": "...", "publicTransit": { "types": [{"title":"...","description":"..."}], "tips": [{"title":"...","description":"..."}] }, "rideHailing": { "options": [{"title":"...","description":"..."}], "approximateCost": "..." }, "walkingBiking": { "tips": "..." }, "cardsAndPasses": [{"title":"...","priceRange":"...","validity":"...","whereToBuy":"..."}], "typicalTravelTimes": [{"title":"...","time":"...","mode":"..."}] },
   "extras": { "rainyDayIdeas": [{"title":"...","description":"...","location":"..."}], "nightlife": [{"title":"...","description":"...","location":"..."}], "familyFriendly": [{"title":"...","description":"...","location":"..."}], "packingTips": ["..."], "bestTimeToVisit": "...", "localCustoms": ["..."], "usefulApps": ["..."] }

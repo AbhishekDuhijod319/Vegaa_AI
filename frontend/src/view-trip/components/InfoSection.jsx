@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import SmartImage from "@/components/ui/SmartImage";
+import TripMap from "@/components/ui/TripMap";
 import { Button } from "@/components/ui/button";
 import { FaShareAlt } from "react-icons/fa";
 import { Link } from "react-router-dom";
@@ -13,6 +14,7 @@ import {
   Train,
   Car,
   MapPin,
+  Map as MapIcon,
 } from "lucide-react";
 import { placesApi } from "@/api/places";
 
@@ -269,13 +271,16 @@ function InfoSection({ trip }) {
     topAttractions,
   ]);
 
+  // Mobile: toggle between description and map
+  const [showMap, setShowMap] = useState(false);
+
   // Fixed, accessible text colors over the hero background
   const titleColor = "text-white";
   const descColor = "text-white/90";
   const chipBg = "bg-white/10 text-white";
 
   return (
-    <section className="relative min-h-[100svh] grid md:grid-cols-2 overflow-hidden">
+    <section className="relative min-h-[100svh] overflow-hidden">
       {/* Background hero image layer (Pexels-powered, high quality 1920+ px) */}
       <div className="absolute inset-0 -z-10">
         <SmartImage
@@ -298,32 +303,55 @@ function InfoSection({ trip }) {
         />
       </div>
 
-      {/* Left: destination summary (consistent order across breakpoints) */}
-      <div
-        className={`p-6 md:p-8 pt-24 sm:pt-28 md:pt-32 flex flex-col justify-end ${titleColor}`}
-      >
-        {/* Summary block: title, chips, converted label, actions */}
-        <div className="order-2">
+      {/* ── Main content grid ── */}
+      <div className="relative min-h-[100svh] grid grid-rows-[1fr_auto] md:grid-rows-1 md:grid-cols-[1fr_1fr] lg:grid-cols-[55%_45%] xl:grid-cols-[60%_40%]">
+
+        {/* ── Left column: Destination info ── */}
+        <div
+          className={`p-6 md:p-8 pt-24 sm:pt-28 md:pt-32 flex flex-col justify-end ${titleColor}`}
+        >
+          {/* Route block: origin -> destination */}
+          <div
+            className={`flex items-center gap-2 text-sm sm:text-base ${descColor}`}
+          >
+            {originLabel ? (
+              <>
+                <MapPin className="size-4" aria-hidden />
+                <span className="font-medium">{originLabel}</span>
+                <ArrowRight className="size-4" aria-hidden />
+                <MapPin className="size-4" aria-hidden />
+                <span className="font-semibold">{destLabel}</span>
+              </>
+            ) : (
+              <>
+                <MapPin className="size-4" aria-hidden />
+                <span className="font-semibold">{destLabel}</span>
+              </>
+            )}
+          </div>
+
+          {/* Title */}
           <h2
-            className={`mt-6 font-bold leading-tight drop-shadow-md text-3xl sm:text-4xl md:text-5xl xl:text-6xl`}
+            className="mt-4 font-bold leading-tight drop-shadow-md text-3xl sm:text-4xl md:text-5xl xl:text-6xl"
           >
             {destLabel}
           </h2>
 
+          {/* Info chips */}
           <div className="flex flex-wrap gap-2 mt-4">
             <span
-              className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${chipBg} backdrop-blur`}
+              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full ${chipBg} backdrop-blur text-sm`}
             >
               <Calendar className="size-4" /> {days}{" "}
               {days === 1 ? "Day" : "Days"}
             </span>
             <span
-              className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${chipBg} backdrop-blur`}
+              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full ${chipBg} backdrop-blur text-sm`}
             >
               <Wallet className="size-4" /> {budgetLabel || "—"}
             </span>
             <span
-              className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${chipBg} backdrop-blur`}
+              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full ${chipBg} backdrop-blur text-sm`}
             >
               <Users className="size-4" />{" "}
               {trip?.userSelection?.numTravelers ||
@@ -331,7 +359,7 @@ function InfoSection({ trip }) {
                 "—"}
             </span>
             <span
-              className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${chipBg} backdrop-blur`}
+              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full ${chipBg} backdrop-blur text-sm`}
             >
               {transportIcon}{" "}
               {transportValue
@@ -340,11 +368,14 @@ function InfoSection({ trip }) {
                 : "—"}
             </span>
           </div>
+
           {convertedLabel && (
             <p className={`mt-3 text-xs sm:text-sm ${descColor}`}>
               {convertedLabel}
             </p>
           )}
+
+          {/* Actions */}
           <div className="mt-4 flex items-center gap-2">
             <Link to={`/edit-trip/${trip?._id || trip?.id}`} className="hidden sm:block">
               <Button
@@ -367,39 +398,43 @@ function InfoSection({ trip }) {
             >
               <FaShareAlt />
             </Button>
+
+            {/* Mobile: toggle map button */}
+            <Button
+              variant="outline"
+              className="md:hidden bg-white/10 text-white border-white/20 hover:bg-white/20"
+              onClick={() => setShowMap(!showMap)}
+            >
+              <MapIcon className="size-4 mr-1" />
+              {showMap ? "Description" : "Map"}
+            </Button>
+          </div>
+
+          {/* Description (desktop: always visible, mobile: toggleable) */}
+          <div className={`mt-6 mb-6 ${showMap ? "hidden md:block" : "block"}`}>
+            <div className="p-5 md:p-6 rounded-xl bg-black/30 backdrop-blur-md shadow-lg text-white max-h-[260px] overflow-y-auto custom-scrollbar">
+              <h3 className="text-base sm:text-lg font-semibold mb-1">
+                About {destLabel}
+              </h3>
+              <p className="text-white/90 leading-relaxed whitespace-pre-line text-sm sm:text-base">
+                {description}
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Route block: origin -> destination (always first) */}
+        {/* ── Right column: Interactive Map ── */}
         <div
-          className={`order-1 mt-4 flex items-center gap-2 text-sm sm:text-base ${descColor}`}
+          className={`
+            ${showMap ? "block" : "hidden"} md:block
+            p-3 md:p-4 lg:p-6
+            md:pt-28 lg:pt-32
+            md:pb-6 lg:pb-8
+          `}
         >
-          {originLabel ? (
-            <>
-              <MapPin className="size-4" aria-hidden />
-              <span className="font-medium">{originLabel}</span>
-              <ArrowRight className="size-4" aria-hidden />
-              <MapPin className="size-4" aria-hidden />
-              <span className="font-semibold">{destLabel}</span>
-            </>
-          ) : (
-            <>
-              <MapPin className="size-4" aria-hidden />
-              <span className="font-semibold">{destLabel}</span>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Right: Destination description */}
-      <div className="px-6 sm:px-8 md:px-10 py-6 sm:py-8 lg:py-10 pt-24 lg:mt-24 sm:pt-28 md:pt-32">
-        <div className="p-5 md:p-6 rounded-xl bg-black/30 backdrop-blur-md shadow-lg text-white">
-          <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-1">
-            About {destLabel}
-          </h3>
-          <p className="text-white/90 leading-relaxed whitespace-pre-line text-sm sm:text-base md:text-[17px] lg:text-[18px]">
-            {description}
-          </p>
+          <div className="w-full h-[50vh] md:h-full min-h-[300px] md:min-h-[500px] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/20 backdrop-blur-sm">
+            <TripMap trip={trip} transportMode={transportValue} className="w-full h-full" />
+          </div>
         </div>
       </div>
     </section>
