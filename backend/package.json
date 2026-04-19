@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "node --watch server.js",
     "start": "node server.js",
-    "build": "echo \"No build step required\""
+    "build": "npm install"
   },
   "dependencies": {
     "@google/genai": "^1.50.0",
