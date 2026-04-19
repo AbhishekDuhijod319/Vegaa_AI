@@ -16,7 +16,7 @@ import { imageApi } from '@/api/images';
 // Stat Card Component
 const StatCard = ({ icon: Icon, label, value, delay }) => (
   <div
-    className="reveal relative p-6 rounded-2xl liquid-glass overflow-hidden group hover:bg-white/20 transition-all duration-300"
+    className="reveal relative p-6 rounded-2xl glass-card overflow-hidden group transition-all duration-300"
     data-reveal-delay={delay * 1000}
   >
     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">

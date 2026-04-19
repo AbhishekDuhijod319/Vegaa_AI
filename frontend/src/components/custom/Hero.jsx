@@ -219,7 +219,7 @@ const Hero = ({ onGetStarted, onLearnMore }) => {
           }}
         >
           <div className="space-y-6 max-w-4xl anim-slide-in">
-            <div className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-sm font-medium text-white liquid-glass-subtle shadow-sm mb-2">
+            <div className="inline-flex items-center rounded-full px-4 py-1.5 text-sm font-medium text-white glass-dark shadow-sm mb-2">
               <span>✨ AI-Powered Travel Planning</span>
             </div>
 
@@ -256,7 +256,7 @@ const Hero = ({ onGetStarted, onLearnMore }) => {
                 size="lg"
                 variant="outline"
                 onClick={onLearnMore}
-                className="h-14 px-8 text-lg font-semibold rounded-full border-2 border-white/30 bg-white/10 text-white liquid-glass-subtle hover:bg-white/20 hover:border-white/50 transition-all duration-200 w-full sm:w-auto"
+                className="h-14 px-8 text-lg font-semibold rounded-full border border-white/25 text-white glass-dark hover:bg-white/10 hover:border-white/40 transition-all duration-200 w-full sm:w-auto"
               >
                 Learn How It Works
               </Button>

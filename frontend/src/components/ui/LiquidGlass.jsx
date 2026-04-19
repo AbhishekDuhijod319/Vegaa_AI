@@ -2,56 +2,37 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 
 /**
- * LiquidGlassFilter — Renders a hidden SVG that defines the frosted-glass
- * filter used by all `.liquid-glass` elements.  Mount once near the app root.
+ * GlassCard — Reusable glassmorphism card component.
+ * Uses CSS backdrop-filter (no SVG dependency).
  *
- * Inspired by iOS 26 Liquid Glass:
- *   feGaussianBlur  → frosted refraction
- *   feColorMatrix   → saturation boost (colors bleed through vividly)
- *   feComponentTransfer → slight brightness lift
+ * @param {'default'|'subtle'|'strong'|'dark'|'nav'|'card'} variant
  */
-export function LiquidGlassFilter() {
-  return (
-    <svg
-      aria-hidden="true"
-      focusable="false"
-      style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }}
-    >
-      <defs>
-        {/* Standard frosted glass */}
-        <filter id="frosted" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
-          <feColorMatrix
-            in="blur"
-            type="saturate"
-            values="1.8"
-            result="saturated"
-          />
-          <feComponentTransfer in="saturated" result="bright">
-            <feFuncR type="linear" slope="1.1" intercept="0.05" />
-            <feFuncG type="linear" slope="1.1" intercept="0.05" />
-            <feFuncB type="linear" slope="1.1" intercept="0.05" />
-          </feComponentTransfer>
-          <feComposite in="bright" in2="SourceGraphic" operator="over" />
-        </filter>
+export function GlassCard({
+  variant = 'card',
+  className,
+  children,
+  as: Component = 'div',
+  ...props
+}) {
+  const variantClass = {
+    default: 'glass',
+    subtle:  'glass-subtle',
+    strong:  'glass-strong',
+    dark:    'glass-dark',
+    nav:     'glass-nav',
+    card:    'glass-card',
+  }[variant] || 'glass-card';
 
-        {/* Lighter variant for small chips / pills */}
-        <filter id="frosted-light" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur" />
-          <feColorMatrix in="blur" type="saturate" values="1.4" result="sat" />
-          <feComposite in="sat" in2="SourceGraphic" operator="over" />
-        </filter>
-      </defs>
-    </svg>
+  return (
+    <Component className={cn(variantClass, className)} {...props}>
+      {children}
+    </Component>
   );
 }
 
 /**
- * LiquidGlassPanel — Reusable wrapper that applies the liquid glass effect.
- *
- * @param {'default'|'subtle'|'strong'|'dark'} variant
- * @param {string} className  — additional classes
- * @param {React.ReactNode} children
+ * LiquidGlassPanel — Legacy alias for GlassCard.
+ * Kept for backward compatibility. Prefer GlassCard in new code.
  */
 export function LiquidGlassPanel({
   variant = 'default',
@@ -60,18 +41,19 @@ export function LiquidGlassPanel({
   as: Component = 'div',
   ...props
 }) {
-  const variantClass = {
-    default: 'liquid-glass',
-    subtle: 'liquid-glass-subtle',
-    strong: 'liquid-glass-strong',
-    dark: 'liquid-glass-dark',
-  }[variant] || 'liquid-glass';
-
   return (
-    <Component className={cn(variantClass, className)} {...props}>
+    <GlassCard variant={variant} className={className} as={Component} {...props}>
       {children}
-    </Component>
+    </GlassCard>
   );
+}
+
+/**
+ * LiquidGlassFilter — Deprecated. Kept as empty component for backward compat.
+ * The SVG filter is no longer needed; glass is implemented via CSS backdrop-filter.
+ */
+export function LiquidGlassFilter() {
+  return null;
 }
 
 export default LiquidGlassFilter;

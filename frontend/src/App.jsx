@@ -226,14 +226,14 @@ function DestinationsSection({ destinations }) {
             <button
               aria-label="Previous destination"
               onClick={() => scrollBy(-300)}
-              className="h-12 w-12 rounded-full liquid-glass-subtle flex items-center justify-center hover:scale-105 transition-all active:scale-95 text-foreground"
+              className="h-12 w-12 rounded-full glass-subtle flex items-center justify-center hover:scale-105 transition-all active:scale-95 text-foreground"
             >
               <ChevronLeft className="h-6 w-6" />
             </button>
             <button
               aria-label="Next destination"
               onClick={() => scrollBy(300)}
-              className="h-12 w-12 rounded-full liquid-glass-subtle flex items-center justify-center hover:scale-105 transition-all active:scale-95 text-foreground"
+              className="h-12 w-12 rounded-full glass-subtle flex items-center justify-center hover:scale-105 transition-all active:scale-95 text-foreground"
             >
               <ChevronRight className="h-6 w-6" />
             </button>
@@ -283,7 +283,7 @@ function DestinationsSection({ destinations }) {
                 <div className="absolute inset-0 p-6 flex flex-col justify-end pointer-events-none">
                   <div className="mb-3">
                     <span
-                      className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold liquid-glass-subtle"
+                      className="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold glass-dark"
                       style={{ color: '#fff', textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}
                     >
                       {d.city}
@@ -321,99 +321,127 @@ function DestinationsSection({ destinations }) {
   );
 }
 
-// 3) How It Works — Alternating image/text layout
+// 3) How It Works — Card-based responsive layout
+import { LogIn, Sparkles, Map, Clock, Star, Share2, Edit3, Compass, CalendarCheck, Wallet } from "lucide-react";
+
+const STEP_ICONS = [LogIn, Sparkles, Map];
+
 function HowItWorksSections({ steps }) {
   return (
     <section
-      className="py-20 md:py-32 bg-gradient-to-b from-background via-secondary/10 to-background"
-      aria-label="How it works"
+      id="how-it-works"
+      data-section
+      className="py-20 md:py-28 lg:py-36 bg-gradient-to-b from-background via-secondary/20 to-background"
+      aria-label="How Vegaa AI works"
+      style={{ scrollMarginTop: "var(--app-header-offset)" }}
     >
-      <div className="max-w-7xl mx-auto px-6 md:px-12">
-        {/* Section Header */}
-        <div className="text-center mb-16 md:mb-24">
-          <span className="inline-block text-primary font-semibold tracking-wide uppercase text-xs md:text-sm bg-primary/10 px-4 py-1.5 rounded-full mb-4">
+      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-10">
+
+        {/* ── Section Header ── */}
+        <div className="text-center mb-14 md:mb-20">
+          <span className="inline-block text-primary font-semibold tracking-widest uppercase text-[11px] md:text-xs bg-primary/10 px-4 py-1.5 rounded-full mb-5">
             How It Works
           </span>
-          <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground">
-            Three simple steps to your
-            <br className="hidden md:block" />
-            <span className="text-primary"> perfect trip</span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-tight">
+            Plan your perfect trip
+            <br className="hidden sm:block" />
+            <span className="text-primary"> in three steps</span>
           </h2>
+          <p className="mt-4 text-muted-foreground text-base md:text-lg max-w-xl mx-auto">
+            Vegaa AI turns your destination idea into a complete, personalised itinerary — in under a minute.
+          </p>
         </div>
 
-        {/* Alternating Steps */}
-        <div className="space-y-24 md:space-y-32">
+        {/* ── Step Cards ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 lg:gap-7">
           {steps.map((s, idx) => {
-            // Alternate: even = image left, odd = image right
-            const isReversed = idx % 2 !== 0;
-
+            const Icon = STEP_ICONS[idx] || Sparkles;
             return (
               <div
                 key={s.id}
                 id={s.id}
                 data-section
-                className={`grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 items-center ${
-                  isReversed ? "md:[direction:rtl]" : ""
-                }`}
+                className="group relative glass-card rounded-[1.75rem] overflow-hidden flex flex-col"
                 style={{ scrollMarginTop: "var(--app-header-offset)" }}
               >
-                {/* Image Side */}
-                <div className={`w-full ${isReversed ? "md:[direction:ltr]" : ""}`}>
-                  <div className="relative group">
-                    {/* Step number badge */}
-                    <div className="absolute -top-4 -left-4 md:-top-6 md:-left-6 z-10 w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg md:text-2xl shadow-lg">
-                      {String(idx + 1).padStart(2, "0")}
-                    </div>
-
-                    <div className="relative rounded-3xl overflow-hidden shadow-2xl ring-1 ring-black/5">
-                      <div className="w-full aspect-[4/3] md:aspect-[3/2]">
-                        <SmartImage
-                          query={s.query || s.title}
-                          alt={s.title}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                          pexelsFallback={true}
-                          sizes="(min-width: 768px) 50vw, 100vw"
-                          width={1200}
-                          height={800}
-                          fetchpriority="low"
-                        />
-                      </div>
-                      {/* Subtle gradient overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    </div>
+                {/* Step image */}
+                <div className="relative w-full aspect-[4/3] overflow-hidden flex-none">
+                  <SmartImage
+                    query={s.query || s.title}
+                    alt={s.title}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    pexelsFallback={true}
+                    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                    width={800}
+                    height={600}
+                    fetchpriority="low"
+                  />
+                  {/* Gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/40 pointer-events-none" />
+                  {/* Step number badge — top-left */}
+                  <div className="absolute top-4 left-4 w-10 h-10 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm shadow-lg">
+                    {String(idx + 1).padStart(2, "0")}
                   </div>
                 </div>
 
-                {/* Text Side */}
-                <div className={`w-full ${isReversed ? "md:[direction:ltr]" : ""}`}>
-                  <div className="max-w-lg space-y-6">
-                    <div className="flex items-center gap-3">
-                      <div className="h-px flex-1 bg-border max-w-[60px]" />
-                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
-                        Step {idx + 1}
-                      </span>
+                {/* Content */}
+                <div className="flex flex-col flex-1 p-6 md:p-7 space-y-4">
+                  {/* Icon + label row */}
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary flex-none">
+                      <Icon size={16} />
                     </div>
-
-                    <h3 className="text-2xl md:text-4xl font-bold tracking-tight text-foreground leading-tight">
-                      {s.title}
-                    </h3>
-
-                    <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
-                      {s.desc}
-                    </p>
-
-                    {/* Visual connector dot */}
-                    {idx < steps.length - 1 && (
-                      <div className="hidden md:flex items-center gap-2 pt-4">
-                        <div className="w-2 h-2 rounded-full bg-primary/40" />
-                        <div className="h-px w-12 bg-gradient-to-r from-primary/40 to-transparent" />
-                      </div>
-                    )}
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+                      Step {idx + 1}
+                    </span>
                   </div>
+
+                  <h3 className="text-xl md:text-2xl font-bold tracking-tight text-foreground leading-snug">
+                    {s.title}
+                  </h3>
+
+                  <p className="text-muted-foreground text-sm md:text-base leading-relaxed flex-1">
+                    {s.desc}
+                  </p>
+
+                  {/* Feature bullets */}
+                  {s.bullets && s.bullets.length > 0 && (
+                    <ul className="space-y-2 pt-1">
+                      {s.bullets.map((b) => (
+                        <li key={b} className="flex items-start gap-2.5 text-sm text-muted-foreground">
+                          <span className="mt-0.5 w-4 h-4 rounded-full bg-primary/15 flex items-center justify-center flex-none">
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary block" />
+                          </span>
+                          {b}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
+
+                {/* Connector line – only between cards on desktop */}
+                {idx < steps.length - 1 && (
+                  <div className="hidden lg:block absolute -right-3.5 top-1/2 -translate-y-1/2 z-10">
+                    <div className="w-7 h-7 rounded-full glass-subtle border border-border flex items-center justify-center">
+                      <span className="text-primary text-xs font-bold">→</span>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}
+        </div>
+
+        {/* ── CTA strip ── */}
+        <div className="mt-14 md:mt-20 text-center">
+          <p className="text-muted-foreground text-sm mb-4">Ready to build your first itinerary?</p>
+          <Button
+            size="lg"
+            className="rounded-full px-10 h-12 text-base font-semibold shadow-sm hover:scale-105 transition-transform"
+            onClick={() => document.getElementById('hero')?.scrollIntoView({ behavior: 'smooth' })}
+          >
+            Start Planning Free
+          </Button>
         </div>
       </div>
     </section>
@@ -621,21 +649,39 @@ export default function App() {
     () => [
       {
         id: "how1",
-        title: "Tell us about your trip",
-        desc: "Pick a destination, set your dates and budget.",
-        query: "trip planning",
+        title: "Sign in & set your preferences",
+        desc: "Sign in with Google in one tap. Then tell us where you want to go, your travel dates, number of travellers, and your total budget.",
+        query: "travel destination planning map",
+        bullets: [
+          "Quick Google sign-in — no new passwords",
+          "Pick any destination worldwide",
+          "Set travel dates, budget & group size",
+          "Choose your travel vibe: adventure, relaxation, culture & more",
+        ],
       },
       {
         id: "how2",
-        title: "We craft your itinerary",
-        desc: "We combine data and AI to build a plan tailored to you.",
-        query: "itinerary planning",
+        title: "AI builds your full itinerary",
+        desc: "Vegaa AI analyses your inputs and generates a complete day-by-day itinerary with hotels, places, restaurant picks, getting around tips, and local essentials — all tailored to your budget.",
+        query: "AI itinerary travel technology",
+        bullets: [
+          "Day-by-day activity & hotel plan",
+          "Budget-aware suggestions in INR",
+          "Best restaurants and local food spots",
+          "Transport & getting around tips",
+        ],
       },
       {
         id: "how3",
-        title: "Edit and share",
-        desc: "Change anything you like and share with friends.",
-        query: "friends travel",
+        title: "Explore, edit & save your trip",
+        desc: "View your itinerary on an interactive map, edit any detail, regenerate sections you're not happy with, and save everything to your profile for later.",
+        query: "travel itinerary map explore",
+        bullets: [
+          "Interactive Mapbox trip map with route",
+          "One-click regeneration for any section",
+          "Save trips to your profile dashboard",
+          "Access all your past trips anytime",
+        ],
       },
     ],
     []

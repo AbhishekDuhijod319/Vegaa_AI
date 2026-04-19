@@ -1,47 +1,32 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { useGoogleLogin } from "@react-oauth/google";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import Brand from "./header/Brand";
 import Nav from "./header/Nav";
 import UserMenu from "./header/UserMenu";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Sun, Moon } from "lucide-react";
 
 /**
- * App header with logo, simple nav links, and user menu.
- * Uses iOS-style liquid glass for the floating navbar.
+ * App header with logo, nav links, dark mode toggle and user menu.
+ * Uses proper CSS glassmorphism (.glass-nav) for the floating navbar.
  */
 const Header = () => {
   const navigate = useNavigate();
-  const { user: currentUser, isAuthenticated, googleLogin: authGoogleLogin, logout } = useAuth();
-
-  // Start Google OAuth login
-  const login = useGoogleLogin({
-    onSuccess: async (tokenInfo) => {
-      try {
-        await authGoogleLogin(tokenInfo.access_token);
-        navigate("/create-trip");
-      } catch (err) {
-        console.error("Google login failed", err);
-      }
-    },
-    onError: (error) => {
-      console.error("Google login error:", error);
-    },
-    flow: "implicit",
-  });
+  const { user: currentUser, isAuthenticated, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   const onLogout = async () => {
     await logout();
     navigate("/");
   };
-  
+
   // Mobile menu open state
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Smoothly scroll to sections from any route; closes menu on navigation
+  // Smoothly scroll to sections from any route
   const goTo = (id) => {
     const scrollToId = () => {
       try {
@@ -89,34 +74,45 @@ const Header = () => {
           "relative w-full max-w-5xl mx-auto",
           "px-2 py-2 pl-6",
           "flex items-center justify-between",
-          // iOS liquid glass styling
-          "rounded-full liquid-glass",
+          // Proper CSS glassmorphism navbar
+          "rounded-full glass-nav",
           // Enable interactions
           "pointer-events-auto transition-all duration-500 ease-in-out",
-          // Hover effect
-          "hover:shadow-lg hover:scale-[1.002]"
         )}
       >
-        {/* Left: Brand only */}
+        {/* Left: Brand */}
         <div className="flex items-center">
           <Brand />
         </div>
-        
+
         {/* Center: Nav (desktop only) */}
         <Nav currentUser={currentUser} />
-        
-        {/* Right: Theme + Auth + Mobile menu */}
-        <div className="flex items-center gap-3 pr-2">
+
+        {/* Right: Theme toggle + Auth + Mobile menu */}
+        <div className="flex items-center gap-2 pr-2">
+
+          {/* Dark Mode Toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            onClick={toggleTheme}
+            className="rounded-full w-9 h-9 text-foreground/70 hover:text-foreground hover:bg-accent transition-colors"
+          >
+            {theme === 'dark'
+              ? <Sun className="w-4 h-4" aria-hidden />
+              : <Moon className="w-4 h-4" aria-hidden />
+            }
+          </Button>
+
           {/* Auth Button */}
           {!currentUser ? (
-            <div className="relative group">
-              <Button
-                className="relative bg-black text-white hover:bg-black/80 rounded-full px-8 py-5 h-10 text-sm font-medium transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 border border-transparent"
-                onClick={handleSignIn}
-              >
-                Sign In
-              </Button>
-            </div>
+            <Button
+              className="relative bg-foreground text-background hover:bg-foreground/85 rounded-full px-6 h-9 text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
+              onClick={handleSignIn}
+            >
+              Sign In
+            </Button>
           ) : (
             <div className="hidden lg:block">
               <UserMenu user={currentUser} onLogout={onLogout} />
@@ -129,27 +125,27 @@ const Header = () => {
               variant="ghost"
               size="icon"
               aria-label={menuOpen ? "Close menu" : "Open menu"}
-              className="rounded-full text-foreground/80 hover:bg-accent hover:text-foreground transition-colors"
+              className="rounded-full w-9 h-9 text-foreground/80 hover:bg-accent hover:text-foreground transition-colors"
               onClick={() => setMenuOpen((v) => !v)}
             >
-              {menuOpen ? <X className="w-6 h-6" aria-hidden /> : <Menu className="w-6 h-6" aria-hidden />}
+              {menuOpen ? <X className="w-5 h-5" aria-hidden /> : <Menu className="w-5 h-5" aria-hidden />}
             </Button>
-            
+
             {/* Mobile Menu Dropdown */}
             {menuOpen && (
-              <div className="absolute right-0 top-full mt-4 w-[90vw] max-w-sm rounded-3xl liquid-glass-strong p-4 anim-scale-in origin-top-right">
-                <nav className="grid gap-2" aria-label="Mobile navigation">
+              <div className="absolute right-0 top-full mt-3 w-[88vw] max-w-xs rounded-3xl glass-strong p-4 anim-scale-in origin-top-right">
+                <nav className="grid gap-1.5" aria-label="Mobile navigation">
                   <Button
                     variant="ghost"
-                    className="justify-start text-lg font-medium text-foreground/90 rounded-2xl h-14 pl-6 hover:bg-accent transition-colors"
+                    className="justify-start text-base font-medium text-foreground/90 rounded-2xl h-12 pl-5 hover:bg-accent transition-colors"
                     onClick={() => goTo("hero")}
                   >
                     Home
                   </Button>
                   <Button
                     variant="ghost"
-                    className="justify-start text-lg font-medium text-foreground/90 rounded-2xl h-14 pl-6 hover:bg-accent transition-colors"
-                    onClick={() => navigate('/about')}
+                    className="justify-start text-base font-medium text-foreground/90 rounded-2xl h-12 pl-5 hover:bg-accent transition-colors"
+                    onClick={() => { navigate('/about'); setMenuOpen(false); }}
                   >
                     About Us
                   </Button>
@@ -157,38 +153,42 @@ const Header = () => {
                     <>
                       <Button
                         variant="ghost"
-                        className="justify-start text-lg font-medium text-foreground/90 rounded-2xl h-14 pl-6 hover:bg-accent transition-colors"
-                        onClick={() => {
-                          navigate("/my-trips");
-                          setMenuOpen(false);
-                        }}
+                        className="justify-start text-base font-medium text-foreground/90 rounded-2xl h-12 pl-5 hover:bg-accent transition-colors"
+                        onClick={() => { navigate("/my-trips"); setMenuOpen(false); }}
                       >
-                        Trips
+                        My Trips
                       </Button>
                       <Button
                         variant="ghost"
-                        className="justify-start text-lg font-medium text-foreground/90 rounded-2xl h-14 pl-6 hover:bg-accent transition-colors"
-                        onClick={() => {
-                          navigate("/profile");
-                          setMenuOpen(false);
-                        }}
+                        className="justify-start text-base font-medium text-foreground/90 rounded-2xl h-12 pl-5 hover:bg-accent transition-colors"
+                        onClick={() => { navigate("/profile"); setMenuOpen(false); }}
                       >
                         Profile
                       </Button>
                     </>
                   )}
-                  <div className="my-2 border-t border-black/5" />
+                  <div className="my-1.5 border-t border-border/40" />
+                  {/* Theme toggle in mobile menu */}
+                  <Button
+                    variant="ghost"
+                    className="justify-start text-base font-medium text-foreground/90 rounded-2xl h-12 pl-5 hover:bg-accent transition-colors gap-3"
+                    onClick={() => { toggleTheme(); setMenuOpen(false); }}
+                  >
+                    {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                    {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                  </Button>
+                  <div className="my-1.5 border-t border-border/40" />
                   {!currentUser ? (
-                    <Button 
-                      className="justify-center text-lg font-bold rounded-2xl h-14 w-full bg-black text-white shadow-lg hover:shadow-xl hover:scale-[1.01] transition-all" 
+                    <Button
+                      className="justify-center text-base font-bold rounded-2xl h-12 w-full bg-foreground text-background shadow hover:bg-foreground/80 transition-all"
                       onClick={() => { handleSignIn(); setMenuOpen(false); }}
                     >
                       Sign In
                     </Button>
                   ) : (
-                    <Button 
-                      variant="destructive" 
-                      className="justify-center text-lg font-bold rounded-2xl h-14 w-full shadow-soft hover:scale-[1.01] transition-transform" 
+                    <Button
+                      variant="destructive"
+                      className="justify-center text-base font-bold rounded-2xl h-12 w-full"
                       onClick={() => { setMenuOpen(false); onLogout(); }}
                     >
                       Logout

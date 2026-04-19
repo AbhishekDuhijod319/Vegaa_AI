@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,300;1,14..32,400&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -43,46 +42,50 @@
   --color-sidebar-ring: var(--ring);
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   LIGHT THEME TOKENS
+   ═══════════════════════════════════════════════════════════════════ */
 :root {
   font-family: 'Inter', sans-serif;
-
-  /* Modern iOS-inspired values */
   --radius: 1rem;
 
-  /* Light theme: Soft, airy, modern */
-  --background: oklch(0.99 0 0);
-  --foreground: oklch(0.15 0.02 260);
+  /* Backgrounds */
+  --background: oklch(0.98 0.002 260);
+  --foreground: oklch(0.13 0.025 260);
 
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.15 0.02 260);
+  --card-foreground: oklch(0.13 0.025 260);
 
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.15 0.02 260);
+  --popover-foreground: oklch(0.13 0.025 260);
 
-  --primary: oklch(0.45 0.15 260);
+  /* Brand */
+  --primary: oklch(0.45 0.16 260);
   --primary-foreground: oklch(0.98 0 0);
-  --primary-rgb: 0, 119, 237;
 
-  --secondary: oklch(0.96 0.01 260);
+  /* Subtle surfaces */
+  --secondary: oklch(0.95 0.01 260);
   --secondary-foreground: oklch(0.25 0.05 260);
 
-  --muted: oklch(0.96 0.01 260);
-  --muted-foreground: oklch(0.45 0.02 260);
+  --muted: oklch(0.95 0.008 260);
+  --muted-foreground: oklch(0.48 0.02 260);
 
-  --accent: oklch(0.95 0.02 260);
-  --accent-foreground: oklch(0.25 0.05 260);
+  --accent: oklch(0.94 0.015 260);
+  --accent-foreground: oklch(0.20 0.04 260);
 
   --destructive: oklch(0.60 0.20 25);
-  --border: oklch(0.90 0.01 260);
-  --input: oklch(0.92 0.01 260);
-  --ring: oklch(0.45 0.15 260);
+  --border: oklch(0.88 0.008 260);
+  --input: oklch(0.91 0.008 260);
+  --ring: oklch(0.45 0.16 260);
 
-  --chart-1: oklch(0.48 0.24 264.376);
-  --chart-2: oklch(0.64 0.20 162.48);
-  --chart-3: oklch(0.72 0.20 70.08);
-  --chart-4: oklch(0.60 0.24 303.9);
-  --chart-5: oklch(0.62 0.22 16.439);
+  /* Charts */
+  --chart-1: oklch(0.48 0.24 264);
+  --chart-2: oklch(0.64 0.20 162);
+  --chart-3: oklch(0.72 0.20 70);
+  --chart-4: oklch(0.60 0.24 304);
+  --chart-5: oklch(0.62 0.22 16);
 
+  /* Sidebar */
   --sidebar: var(--card);
   --sidebar-foreground: var(--card-foreground);
   --sidebar-primary: var(--primary);
@@ -92,8 +95,90 @@
   --sidebar-border: var(--border);
   --sidebar-ring: var(--ring);
 
-  /* Header offset for anchor/scroll alignment */
+  /* Layout */
   --app-header-offset: clamp(72px, 8vh, 96px);
+
+  /* Glass system tokens (light) */
+  --glass-bg: rgba(255, 255, 255, 0.60);
+  --glass-border: rgba(255, 255, 255, 0.80);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+  --glass-blur: blur(20px) saturate(1.8);
+
+  --glass-nav-bg: rgba(252, 252, 255, 0.72);
+  --glass-nav-border: rgba(255, 255, 255, 0.90);
+  --glass-nav-shadow: 0 4px 24px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255,255,255,0.9);
+
+  --glass-card-bg: rgba(255, 255, 255, 0.55);
+  --glass-card-border: rgba(255, 255, 255, 0.75);
+  --glass-card-shadow: 0 4px 24px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.04);
+
+  --glass-subtle-bg: rgba(255, 255, 255, 0.40);
+  --glass-subtle-border: rgba(255, 255, 255, 0.60);
+
+  --glass-strong-bg: rgba(255, 255, 255, 0.80);
+  --glass-strong-border: rgba(255, 255, 255, 0.95);
+  --glass-strong-shadow: 0 20px 60px rgba(0, 0, 0, 0.12), 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   DARK THEME TOKENS
+   ═══════════════════════════════════════════════════════════════════ */
+.dark {
+  /* Backgrounds */
+  --background: oklch(0.09 0.018 260);
+  --foreground: oklch(0.94 0.008 260);
+
+  --card: oklch(0.13 0.016 260);
+  --card-foreground: oklch(0.94 0.008 260);
+
+  --popover: oklch(0.13 0.016 260);
+  --popover-foreground: oklch(0.94 0.008 260);
+
+  /* Brand — brighter on dark */
+  --primary: oklch(0.64 0.18 260);
+  --primary-foreground: oklch(0.98 0 0);
+
+  /* Subtle surfaces */
+  --secondary: oklch(0.16 0.014 260);
+  --secondary-foreground: oklch(0.85 0.01 260);
+
+  --muted: oklch(0.16 0.014 260);
+  --muted-foreground: oklch(0.60 0.018 260);
+
+  --accent: oklch(0.19 0.016 260);
+  --accent-foreground: oklch(0.88 0.01 260);
+
+  --destructive: oklch(0.65 0.22 25);
+  --border: oklch(0.22 0.012 260);
+  --input: oklch(0.20 0.012 260);
+  --ring: oklch(0.60 0.18 260);
+
+  /* Charts */
+  --chart-1: oklch(0.62 0.22 260);
+  --chart-2: oklch(0.72 0.18 162);
+  --chart-3: oklch(0.78 0.18 70);
+  --chart-4: oklch(0.68 0.22 304);
+  --chart-5: oklch(0.70 0.20 16);
+
+  /* Glass system tokens (dark) */
+  --glass-bg: rgba(20, 20, 35, 0.60);
+  --glass-border: rgba(255, 255, 255, 0.10);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.40), 0 2px 8px rgba(0, 0, 0, 0.20);
+
+  --glass-nav-bg: rgba(15, 15, 28, 0.75);
+  --glass-nav-border: rgba(255, 255, 255, 0.08);
+  --glass-nav-shadow: 0 4px 24px rgba(0, 0, 0, 0.40), 0 1px 4px rgba(0, 0, 0, 0.20), inset 0 1px 0 rgba(255,255,255,0.06);
+
+  --glass-card-bg: rgba(25, 25, 45, 0.55);
+  --glass-card-border: rgba(255, 255, 255, 0.08);
+  --glass-card-shadow: 0 4px 24px rgba(0, 0, 0, 0.30), 0 1px 4px rgba(0, 0, 0, 0.15);
+
+  --glass-subtle-bg: rgba(255, 255, 255, 0.06);
+  --glass-subtle-border: rgba(255, 255, 255, 0.10);
+
+  --glass-strong-bg: rgba(18, 18, 32, 0.85);
+  --glass-strong-border: rgba(255, 255, 255, 0.12);
+  --glass-strong-shadow: 0 20px 60px rgba(0, 0, 0, 0.50), 0 4px 16px rgba(0, 0, 0, 0.30);
 }
 
 /* ─── Base ──────────────────────────────────────────────────────────── */
@@ -102,21 +187,22 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Offset anchors and programmatic scrolls to account for the fixed header */
   scroll-padding-top: var(--app-header-offset);
   scroll-padding-bottom: 24px;
 }
 
 /* Custom scrollbar (Webkit) */
-::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: oklch(0.85 0 0);
+  background: oklch(0.82 0 0);
   border-radius: 20px;
-  border: 3px solid transparent;
+  border: 2px solid transparent;
   background-clip: content-box;
 }
-::-webkit-scrollbar-thumb:hover { background-color: oklch(0.75 0 0); }
+::-webkit-scrollbar-thumb:hover { background-color: oklch(0.70 0 0); }
+.dark ::-webkit-scrollbar-thumb { background-color: oklch(0.28 0 0); }
+.dark ::-webkit-scrollbar-thumb:hover { background-color: oklch(0.38 0 0); }
 
 /* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
@@ -134,6 +220,7 @@ html {
   body {
     @apply bg-background text-foreground antialiased;
     overflow-x: hidden;
+    transition: background-color 200ms ease, color 200ms ease;
   }
 
   html, body {
@@ -146,7 +233,7 @@ html {
 @media (prefers-reduced-motion: no-preference) {
   .theme-switch, .theme-switch * {
     transition-property: color, background-color, border-color, fill, stroke;
-    transition-duration: 150ms;
+    transition-duration: 200ms;
     transition-timing-function: ease-in-out;
   }
 }
@@ -167,7 +254,7 @@ html {
   gap: 1rem;
 }
 
-/* ─── Section anchor offset (keeps header from covering anchored content) */
+/* ─── Section anchor offset ─────────────────────────────────────────── */
 [data-section] {
   scroll-margin-top: var(--app-header-offset);
 }
@@ -178,145 +265,103 @@ html {
     color: #ffffff;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
   }
-  .contrast-strong { color: oklch(0.20 0 0); }
-  .surface-muted {
-    background-color: hsl(var(--muted));
-    color: hsl(var(--muted-foreground));
-  }
-  .surface-accent {
-    background-color: hsl(var(--accent));
-    color: hsl(var(--accent-foreground));
-  }
 
-  /* Uniform sub-section header — replaces hardcoded bg-slate-500 */
   .section-subheading {
     @apply text-base font-semibold mb-3 px-4 py-2 rounded-xl text-center;
-    background: oklch(0.94 0.01 260);
-    color: oklch(0.25 0.05 260);
-    border: 1px solid oklch(0.88 0.01 260);
+    background: var(--accent);
+    color: var(--accent-foreground);
+    border: 1px solid var(--border);
   }
 }
 
-/* ─── Number input spinners removal ────────────────────────────────── */
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-input[type="number"] { -moz-appearance: textfield; }
-.number-input::-webkit-outer-spin-button,
-.number-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-.number-input[type=number] { -moz-appearance: textfield; }
-
-/* ─── Datepicker ───────────────────────────────────────────────────── */
-.react-datepicker-popper { z-index: 9999 !important; }
-.react-datepicker {
-  font-family: 'Inter', sans-serif !important;
-  background-color: #ffffff !important;
-  border: 1px solid hsl(var(--border)) !important;
-  border-radius: 1rem !important;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
-  color: #111111 !important;
-  padding: 0.5rem !important;
-}
-.dark .react-datepicker { background-color: #000000 !important; color: #ffffff !important; }
-.react-datepicker__triangle { display: none !important; }
-.react-datepicker__header {
-  background-color: transparent !important;
-  border-bottom: 1px solid hsl(var(--border)) !important;
-  padding-top: 0.5rem !important;
-}
-.dark .react-datepicker__current-month,
-.dark .react-datepicker-time__header,
-.dark .react-datepicker-year-header { color: #ffffff !important; }
-.react-datepicker__current-month,
-.react-datepicker-time__header,
-.react-datepicker-year-header {
-  color: hsl(var(--foreground)) !important;
-  font-weight: 600 !important;
-  font-size: 0.95rem !important;
-  padding-bottom: 0.5rem !important;
-}
-.react-datepicker__day-name { color: hsl(var(--muted-foreground)) !important; font-weight: 500 !important; width: 2rem !important; margin: 0.2rem !important; }
-.react-datepicker__day { color: hsl(var(--foreground)) !important; width: 2rem !important; line-height: 2rem !important; margin: 0.2rem !important; border-radius: 0.5rem !important; }
-.react-datepicker__day:hover { background-color: hsl(var(--accent)) !important; color: hsl(var(--accent-foreground)) !important; }
-.react-datepicker__day--selected,
-.react-datepicker__day--keyboard-selected { background-color: hsl(var(--primary)) !important; color: hsl(var(--primary-foreground)) !important; }
-.react-datepicker__day--disabled { color: hsl(var(--muted-foreground)) !important; opacity: 0.4; }
-.react-datepicker__navigation { top: 12px !important; }
-.react-datepicker__navigation-icon::before { border-color: hsl(var(--muted-foreground)) !important; border-width: 2px 2px 0 0 !important; }
-
 /* ═══════════════════════════════════════════════════════════════════
-   iOS LIQUID GLASS SYSTEM
-   Based on SVG filter #frosted defined in LiquidGlass.jsx
+   GLASSMORPHISM SYSTEM
+   Pure CSS backdrop-filter — works cleanly on all backgrounds.
+   No SVG filter dependency.
    ═══════════════════════════════════════════════════════════════════ */
 
-.liquid-glass {
-  background: rgba(255, 255, 255, 0.12);
-  border: 1.5px solid rgba(255, 255, 255, 0.25);
-  box-shadow:
-    0 0 0 1.5px rgba(255, 255, 255, 0.5),
-    0 8px 32px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(20px) saturate(1.8) brightness(1.05);
-  -webkit-backdrop-filter: blur(20px) saturate(1.8) brightness(1.05);
-  transition: box-shadow 0.3s ease, background 0.3s ease, transform 0.3s ease;
+/* ── Standard glass — light or frosted panel ── */
+.glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  transition: box-shadow 0.3s ease, background 0.3s ease, transform 0.2s ease;
 }
-.liquid-glass:hover {
-  box-shadow:
-    0 0 0 1.5px rgba(255, 255, 255, 0.65),
-    0 12px 40px rgba(0, 0, 0, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
-  background: rgba(255, 255, 255, 0.18);
+.glass:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.10), 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
-/* Subtle variant — for small chips, pills, tags */
-.liquid-glass-subtle {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.35),
-    0 4px 16px rgba(0, 0, 0, 0.06);
-  backdrop-filter: blur(12px) saturate(1.4);
-  -webkit-backdrop-filter: blur(12px) saturate(1.4);
+/* ── Navbar glass — optimized for floating pills ── */
+.glass-nav {
+  background: var(--glass-nav-bg);
+  border: 1px solid var(--glass-nav-border);
+  box-shadow: var(--glass-nav-shadow);
+  backdrop-filter: blur(24px) saturate(2) brightness(1.02);
+  -webkit-backdrop-filter: blur(24px) saturate(2) brightness(1.02);
   transition: box-shadow 0.3s ease, background 0.3s ease;
 }
 
-/* Strong variant — for prominent panels */
-.liquid-glass-strong {
-  background: rgba(255, 255, 255, 0.18);
-  border: 2px solid transparent;
-  box-shadow:
-    0 0 0 2px rgba(255, 255, 255, 0.6),
-    0 16px 32px rgba(0, 0, 0, 0.12),
-    inset 0 2px 0 rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(24px) saturate(2) brightness(1.08);
-  -webkit-backdrop-filter: blur(24px) saturate(2) brightness(1.08);
-  transition: box-shadow 0.4s ease, background 0.3s ease;
+/* ── Card glass — for elevated cards with hover depth ── */
+.glass-card {
+  background: var(--glass-card-bg);
+  border: 1px solid var(--glass-card-border);
+  box-shadow: var(--glass-card-shadow);
+  backdrop-filter: blur(16px) saturate(1.6);
+  -webkit-backdrop-filter: blur(16px) saturate(1.6);
+  transition: box-shadow 0.3s ease, background 0.3s ease, transform 0.25s ease;
 }
-.liquid-glass-strong:hover {
-  box-shadow:
-    0 0 0 2px rgba(255, 255, 255, 0.75),
-    0 20px 40px rgba(0, 0, 0, 0.16),
-    inset 0 2px 0 rgba(255, 255, 255, 0.5);
+.glass-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.10), 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+.dark .glass-card:hover {
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.50), 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
-/* Dark variant — for dark-background contexts */
-.liquid-glass-dark {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1.5px solid rgba(255, 255, 255, 0.1);
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.15),
-    0 8px 32px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(20px) saturate(1.6) brightness(0.9);
-  -webkit-backdrop-filter: blur(20px) saturate(1.6) brightness(0.9);
-  transition: box-shadow 0.3s ease, background 0.3s ease;
+/* ── Subtle glass — for pills, chips, inline badges ── */
+.glass-subtle {
+  background: var(--glass-subtle-bg);
+  border: 1px solid var(--glass-subtle-border);
+  backdrop-filter: blur(10px) saturate(1.4);
+  -webkit-backdrop-filter: blur(10px) saturate(1.4);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
 }
-.liquid-glass-dark:hover {
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.25),
-    0 12px 40px rgba(0, 0, 0, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
-  background: rgba(0, 0, 0, 0.4);
+
+/* ── Strong glass — dropdown menus, popovers, modals ── */
+.glass-strong {
+  background: var(--glass-strong-bg);
+  border: 1px solid var(--glass-strong-border);
+  box-shadow: var(--glass-strong-shadow);
+  backdrop-filter: blur(32px) saturate(2) brightness(1.02);
+  -webkit-backdrop-filter: blur(32px) saturate(2) brightness(1.02);
+  transition: box-shadow 0.3s ease;
 }
+.dark .glass-strong {
+  backdrop-filter: blur(32px) saturate(1.6) brightness(0.95);
+  -webkit-backdrop-filter: blur(32px) saturate(1.6) brightness(0.95);
+}
+
+/* ── Dark glass — for overlays on dark/image backgrounds ── */
+.glass-dark {
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.20), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px) saturate(1.5) brightness(0.88);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5) brightness(0.88);
+  transition: background 0.2s ease, box-shadow 0.3s ease;
+}
+.glass-dark:hover {
+  background: rgba(0, 0, 0, 0.36);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+
+/* ─── Backward Compat Aliases (liquid-glass → glass) ─────────────── */
+.liquid-glass         { @apply glass; }
+.liquid-glass-subtle  { @apply glass-subtle; }
+.liquid-glass-strong  { @apply glass-strong; }
+.liquid-glass-dark    { @apply glass-dark; }
 
 /* ═══════════════════════════════════════════════════════════════════
    CENTRALIZED KEYFRAME ANIMATIONS
@@ -344,15 +389,23 @@ input[type="number"] { -moz-appearance: textfield; }
 }
 @keyframes gentlePulse {
   0%, 100% { opacity: 0.5; }
-  50%      { opacity: 1; }
+  50%       { opacity: 1; }
 }
 @keyframes bounceSubtle {
   0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-6px); }
+  50%       { transform: translateY(-6px); }
 }
 @keyframes skeleton-shimmer {
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
+}
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
 }
 
 /* Utility classes for direct use */
@@ -361,8 +414,9 @@ input[type="number"] { -moz-appearance: textfield; }
 .anim-slide-in       { animation: slideInFromBottom 0.7s ease-out both; }
 .anim-scale-in       { animation: scaleIn 0.5s ease-out both; }
 .anim-slide-in-left  { animation: slideInFromLeft 0.6s ease-out both; }
+.anim-float          { animation: float 4s ease-in-out infinite; }
 
-/* Stagger helpers — apply alongside an anim-* class */
+/* Stagger helpers */
 .anim-delay-1 { animation-delay: 100ms; }
 .anim-delay-2 { animation-delay: 200ms; }
 .anim-delay-3 { animation-delay: 300ms; }
@@ -372,7 +426,6 @@ input[type="number"] { -moz-appearance: textfield; }
 
 /* ═══════════════════════════════════════════════════════════════════
    SCROLL-TRIGGERED REVEAL SYSTEM
-   Works with useReveal.js IntersectionObserver hook
    ═══════════════════════════════════════════════════════════════════ */
 
 .reveal {
@@ -384,8 +437,6 @@ input[type="number"] { -moz-appearance: textfield; }
   opacity: 1;
   transform: translateY(0);
 }
-
-/* Variant: scale reveal */
 .reveal-scale {
   opacity: 0;
   transform: scale(0.92);
@@ -395,8 +446,6 @@ input[type="number"] { -moz-appearance: textfield; }
   opacity: 1;
   transform: scale(1);
 }
-
-/* Variant: slide from left */
 .reveal-left {
   opacity: 0;
   transform: translateX(-24px);
@@ -407,15 +456,80 @@ input[type="number"] { -moz-appearance: textfield; }
   transform: translateX(0);
 }
 
-/* ═══════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════════
+   FORM & INPUT DARK MODE FIXES
+   ═══════════════════════════════════════════════════════════════════ */
 
-/* Responsive improvements */
+/* ─── Number input spinners removal ─── */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type="number"] { -moz-appearance: textfield; }
+
+/* ─── Datepicker ─── */
+.react-datepicker-popper { z-index: 9999 !important; }
+.react-datepicker {
+  font-family: 'Inter', sans-serif !important;
+  background-color: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12) !important;
+  color: hsl(var(--foreground)) !important;
+  padding: 0.5rem !important;
+}
+.dark .react-datepicker {
+  background-color: oklch(0.13 0.016 260) !important;
+  color: oklch(0.94 0.008 260) !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.50) !important;
+}
+.react-datepicker__triangle { display: none !important; }
+.react-datepicker__header {
+  background-color: transparent !important;
+  border-bottom: 1px solid hsl(var(--border)) !important;
+  padding-top: 0.5rem !important;
+}
+.react-datepicker__current-month,
+.react-datepicker-time__header,
+.react-datepicker-year-header {
+  color: hsl(var(--foreground)) !important;
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+  padding-bottom: 0.5rem !important;
+}
+.react-datepicker__day-name {
+  color: hsl(var(--muted-foreground)) !important;
+  font-weight: 500 !important;
+  width: 2rem !important;
+  margin: 0.2rem !important;
+}
+.react-datepicker__day {
+  color: hsl(var(--foreground)) !important;
+  width: 2rem !important;
+  line-height: 2rem !important;
+  margin: 0.2rem !important;
+  border-radius: 0.5rem !important;
+}
+.react-datepicker__day:hover {
+  background-color: hsl(var(--accent)) !important;
+  color: hsl(var(--accent-foreground)) !important;
+}
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
+.react-datepicker__day--disabled { color: hsl(var(--muted-foreground)) !important; opacity: 0.4; }
+.react-datepicker__navigation { top: 12px !important; }
+.react-datepicker__navigation-icon::before {
+  border-color: hsl(var(--muted-foreground)) !important;
+  border-width: 2px 2px 0 0 !important;
+}
+
+/* ─── Responsive ─── */
 @media (max-width: 768px) {
   .horizontal-card-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  .no-caret-glow { padding: 1rem; }
 }
 
 @media (max-width: 640px) {

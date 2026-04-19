@@ -9,11 +9,11 @@ import {
 // Eagerly load components needed immediately
 import Header from "./components/custom/Header.jsx";
 import Footer from "./components/custom/Footer.jsx";
-import { LiquidGlassFilter } from "./components/ui/LiquidGlass.jsx";
 import { Toaster } from "sonner";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import ErrorBoundary from "./components/misc/ErrorBoundary.jsx";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
+import { ThemeProvider } from "./contexts/ThemeContext.jsx";
 import ProtectedRoute from "./components/layout/ProtectedRoute.jsx";
 
 // Lazy load route components for code splitting
@@ -28,8 +28,6 @@ const AuthPage = lazy(() => import("./auth/index.jsx"));
 
 /**
  * ScrollManager — robust scroll-to-top on route changes.
- * Temporarily disables smooth scrolling so the page doesn't "animate" to top
- * (which caused the landing-offset bug when combined with scroll-snap).
  */
 const ScrollManager = () => {
   const location = useLocation();
@@ -41,15 +39,11 @@ const ScrollManager = () => {
       }
     } catch { }
 
-    // Temporarily disable smooth scrolling for instant jump
     const html = document.documentElement;
     const prevBehavior = html.style.scrollBehavior;
     html.style.scrollBehavior = 'auto';
-
-    // Force synchronous scroll to top
     window.scrollTo(0, 0);
 
-    // Re-enable smooth scrolling after paint
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         html.style.scrollBehavior = prevBehavior || '';
@@ -65,12 +59,10 @@ const PageLoader = () => (
   <div className="flex items-center justify-center min-h-screen bg-background">
     <div className="flex flex-col items-center gap-5">
       <div className="relative">
-        {/* Outer glow ring */}
         <div
           className="w-14 h-14 rounded-full border-2 border-primary/10 absolute inset-0 animate-ping"
           style={{ animationDuration: "2s" }}
         />
-        {/* Main spinner */}
         <div
           className="w-14 h-14 rounded-full border-[3px] border-primary/20 border-t-primary animate-spin"
           style={{ animationDuration: "0.8s" }}
@@ -94,7 +86,6 @@ const Layout = ({ children, hideFooter }) => (
 
 /**
  * MinimalLayout — used for full-screen overlays (auth, etc.)
- * that don't need Header/Footer but still need scroll management.
  */
 const MinimalLayout = ({ children }) => (
   <>
@@ -114,7 +105,6 @@ const router = createBrowserRouter([
       </Layout>
     ),
   },
-
   {
     path: "/about",
     element: (
@@ -185,14 +175,14 @@ const router = createBrowserRouter([
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_AUTH_CLIENT_ID}>
-      <AuthProvider>
-        <ErrorBoundary>
-          {/* Global SVG filter for liquid glass — rendered once */}
-          <LiquidGlassFilter />
-          <RouterProvider router={router} />
-          <Toaster richColors position="top-center" />
-        </ErrorBoundary>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <ErrorBoundary>
+            <RouterProvider router={router} />
+            <Toaster richColors position="top-center" />
+          </ErrorBoundary>
+        </AuthProvider>
+      </ThemeProvider>
     </GoogleOAuthProvider>
   </React.StrictMode>
 );
