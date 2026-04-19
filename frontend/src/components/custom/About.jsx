@@ -1,33 +1,38 @@
 import React, { useRef } from 'react';
-import { ArrowRight, Globe, Heart, Shield, Sparkles, Github, Linkedin, Code2, Server, Database, Cloud, Cpu, Layers } from 'lucide-react';
+import { ArrowRight, Globe, Heart, Shield, Sparkles, Github, Linkedin, Code2, Server, Database, Cloud, Cpu, Layers, Mail, GraduationCap, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import SmartImage from '@/components/ui/SmartImage';
 import { useReveal } from '@/lib/useReveal';
 import { useNavigate } from 'react-router-dom';
+import SmartImage from '@/components/ui/SmartImage';
 
-// ─── PLACEHOLDER DATA — Update after user provides details ───────────────────
+// ─── Owner Info ───────────────────────────────────────────────────────────────
 const OWNER = {
-  name: '[Your Full Name]',
-  title: 'Final Year B.Tech Student',
-  college: '[Your College Name]',
-  batch: '2025',
-  bio: 'A passionate developer and traveler who built Vegaa AI as a final year project to solve the real problem of AI-powered personalized travel planning. Combining machine learning with a love for exploration.',
+  name: 'Abhishek Rajendrarao Duhijod',
+  title: 'MCA Final Year Student · 2025–2026',
+  college: 'JD College of Engineering & Management, Nagpur',
+  batch: '2026',
+  email: 'abhishekduhijod319@gmail.com',
   github: 'https://github.com/AbhishekDuhijod319',
-  linkedin: '#',
-  // image: '/owner.jpg', // Add local photo when available
+  linkedin: 'https://www.linkedin.com/in/abhishek-duhijod',
+  bio: 'A passionate full-stack developer and travel enthusiast who built Vegaa AI as a final-year MCA project to solve the real-world problem of AI-powered, personalized travel planning. Combining cutting-edge machine learning with a love for exploration, this platform turns complex travel decisions into effortless experiences.',
+  // Cloudinary authenticated photo — secured & cannot be downloaded directly
+  photo: 'https://res.cloudinary.com/dphatyl6s/image/authenticated/s--xRnHbiWP--/v1776615036/vegaa/admin/abhishek_duhijod_profile.jpg',
+  guide: 'Prof. Rohan B. Kokate',
+  coordinator: 'Mr. Rahul Ingle',
+  projectName: 'AI-Powered Personalized Smart Travel Planner',
 };
 
 const TECH_STACK = [
-  { icon: Code2,    label: 'React 19',      desc: 'Frontend UI framework' },
-  { icon: Layers,   label: 'Vite + TW',     desc: 'Build tool & styling' },
-  { icon: Server,   label: 'Node.js',        desc: 'Backend runtime' },
-  { icon: Database, label: 'MongoDB',        desc: 'NoSQL database' },
-  { icon: Cpu,      label: 'Google Gemini',  desc: 'AI itinerary engine' },
+  { icon: Code2,    label: 'React 19',       desc: 'Frontend UI framework' },
+  { icon: Layers,   label: 'Vite + CSS',     desc: 'Build tool & styling' },
+  { icon: Server,   label: 'Node.js',         desc: 'Backend runtime' },
+  { icon: Database, label: 'MongoDB',         desc: 'NoSQL database' },
+  { icon: Cpu,      label: 'Google Gemini',   desc: 'AI itinerary engine' },
   { icon: Cloud,    label: 'Vercel + Render', desc: 'Cloud deployment' },
 ];
 
-// ─── Hero ────────────────────────────────────────────────────────────────────
+// ─── Hero ─────────────────────────────────────────────────────────────────────
 const Hero = () => (
   <section className="relative h-[100svh] w-full overflow-hidden flex items-center justify-center">
     <div className="absolute inset-0 z-0">
@@ -44,7 +49,7 @@ const Hero = () => (
     <div className="relative z-10 text-center px-6 max-w-4xl mx-auto space-y-6">
       <div className="anim-fade-in-up">
         <span className="inline-block py-1.5 px-4 rounded-full glass-dark text-white/90 text-sm font-medium tracking-wide mb-6">
-          Final Year B.Tech Project · {OWNER.batch}
+          MCA Final Year Project · {OWNER.batch}
         </span>
         <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white tracking-tight leading-none">
           Reimagining<br />
@@ -185,19 +190,20 @@ const Creator = () => {
               {/* Glow ring */}
               <div className="absolute -inset-3 rounded-full bg-gradient-to-br from-primary/30 via-primary/10 to-transparent blur-xl" />
               <div className="relative w-full h-full rounded-full overflow-hidden ring-4 ring-border shadow-2xl">
-                <SmartImage
-                  query="professional developer portrait young man"
+                <img
+                  src={OWNER.photo}
                   alt={OWNER.name}
                   className="w-full h-full object-cover"
-                  width={400}
-                  height={400}
+                  crossOrigin="anonymous"
+                  onError={(e) => {
+                    // Fallback to initials avatar if Cloudinary secured URL fails locally
+                    e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(OWNER.name)}&background=6366f1&color=fff&size=400&bold=true`;
+                  }}
                 />
               </div>
               {/* Badge */}
-              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 glass-card rounded-full px-4 py-2 whitespace-nowrap">
-                <span className="text-xs font-semibold text-foreground">
-                  {OWNER.college} · {OWNER.batch}
-                </span>
+              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 glass-card rounded-full px-4 py-2 whitespace-nowrap shadow-lg">
+                <span className="text-xs font-semibold text-foreground">MCA · {OWNER.batch}</span>
               </div>
             </div>
           </div>
@@ -208,14 +214,35 @@ const Creator = () => {
               <h3 className="text-3xl md:text-4xl font-bold text-foreground">{OWNER.name}</h3>
               <p className="text-primary font-medium mt-1">{OWNER.title}</p>
             </div>
+
             <p className="text-muted-foreground text-lg leading-relaxed max-w-xl lg:max-w-none">
               {OWNER.bio}
             </p>
 
+            {/* Academic Info */}
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2 justify-center lg:justify-start">
+                <GraduationCap size={15} className="text-primary shrink-0" />
+                <span>{OWNER.college}</span>
+              </div>
+              <div className="flex items-center gap-2 justify-center lg:justify-start">
+                <BookOpen size={15} className="text-primary shrink-0" />
+                <span>Project Guide: <strong className="text-foreground">{OWNER.guide}</strong></span>
+              </div>
+              <div className="flex items-center gap-2 justify-center lg:justify-start">
+                <BookOpen size={15} className="text-primary shrink-0" />
+                <span>Project Coordinator: <strong className="text-foreground">{OWNER.coordinator}</strong></span>
+              </div>
+              <div className="flex items-center gap-2 justify-center lg:justify-start">
+                <Mail size={15} className="text-primary shrink-0" />
+                <a href={`mailto:${OWNER.email}`} className="hover:text-primary transition-colors">{OWNER.email}</a>
+              </div>
+            </div>
+
             {/* Stats */}
             <div className="flex flex-wrap justify-center lg:justify-start gap-6 pt-2">
               {[
-                { label: 'Final Year Project', value: '2025' },
+                { label: 'Final Year Project', value: '2026' },
                 { label: 'Technologies Used', value: '6+' },
                 { label: 'Features Built', value: '15+' },
               ].map((stat) => (
@@ -227,7 +254,7 @@ const Creator = () => {
             </div>
 
             {/* Social links */}
-            <div className="flex gap-3 justify-center lg:justify-start pt-2">
+            <div className="flex gap-3 justify-center lg:justify-start pt-2 flex-wrap">
               <a
                 href={OWNER.github}
                 target="_blank"
@@ -243,6 +270,12 @@ const Creator = () => {
                 className="glass-card rounded-full px-5 py-2.5 flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
               >
                 <Linkedin size={16} /> LinkedIn
+              </a>
+              <a
+                href={`mailto:${OWNER.email}`}
+                className="glass-card rounded-full px-5 py-2.5 flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
+              >
+                <Mail size={16} /> Email
               </a>
             </div>
           </div>
@@ -280,6 +313,37 @@ const TechStack = () => {
                 <p className="font-semibold text-foreground text-sm">{tech.label}</p>
                 <p className="text-muted-foreground text-xs mt-0.5">{tech.desc}</p>
               </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// ─── Project Info Banner ──────────────────────────────────────────────────────
+const ProjectInfo = () => {
+  const ref = useReveal();
+  return (
+    <section className="py-20 px-6 bg-primary/5 border-y border-primary/10" ref={ref}>
+      <div className="max-w-4xl mx-auto text-center space-y-4">
+        <p className="reveal text-sm font-semibold tracking-widest uppercase text-primary mb-2">Project Details</p>
+        <h2 className="reveal text-2xl md:text-3xl font-bold text-foreground leading-snug" data-reveal-delay="100">
+          {OWNER.projectName}
+        </h2>
+        <p className="reveal text-muted-foreground text-base leading-relaxed max-w-2xl mx-auto" data-reveal-delay="150">
+          An Adaptive Itinerary Optimization System with Real-Time Adaptability, Budget Efficiency, and AI Chatbot Assistant
+        </p>
+        <div className="reveal flex flex-wrap gap-3 justify-center pt-4" data-reveal-delay="200">
+          {[
+            { label: 'Institution', value: 'JD College of Engg. & Mgmt., Nagpur' },
+            { label: 'Guide', value: OWNER.guide },
+            { label: 'Coordinator', value: OWNER.coordinator },
+            { label: 'Year', value: '2025–2026' },
+          ].map(item => (
+            <div key={item.label} className="glass-card rounded-xl px-4 py-3 text-sm text-center min-w-[160px]">
+              <p className="text-muted-foreground text-xs mb-1">{item.label}</p>
+              <p className="font-semibold text-foreground">{item.value}</p>
             </div>
           ))}
         </div>
@@ -328,6 +392,7 @@ const About = () => (
     <Mission />
     <Values />
     <Creator />
+    <ProjectInfo />
     <TechStack />
     <FooterCTA />
   </div>

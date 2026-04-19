@@ -12,9 +12,12 @@ router.use(apiLimiter);
 // Protected routes (require auth)
 router.post('/', authenticate, validate(createTripSchema), asyncHandler(tripController.create));
 router.get('/', authenticate, asyncHandler(tripController.list));
+
+// NOTE: /stats MUST be registered before /:id so Express doesn't treat "stats" as a trip ID
+router.get('/stats', authenticate, asyncHandler(tripController.stats));
+
 router.put('/:id', authenticate, aiLimiter, validate(updateTripSchema), asyncHandler(tripController.update));
 router.delete('/:id', authenticate, asyncHandler(tripController.delete));
-router.get('/stats', authenticate, asyncHandler(tripController.stats));
 
 // Generate a share token for a trip (owner only)
 router.post('/:id/share', authenticate, asyncHandler(tripController.generateShareToken));

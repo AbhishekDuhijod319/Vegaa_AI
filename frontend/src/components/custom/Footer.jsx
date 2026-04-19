@@ -1,38 +1,36 @@
 import React from "react"
-import { useNavigate, Link, useLocation } from "react-router-dom"
-import { ArrowRight, Linkedin, Twitter, Youtube, Instagram } from "lucide-react"
+import { useNavigate, Link } from "react-router-dom"
+import { ArrowRight, Linkedin, Github, Mail, Globe } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 const Footer = () => {
   const navigate = useNavigate()
-  const location = useLocation()
   const year = new Date().getFullYear()
 
   const socialLinks = [
-    { icon: Linkedin, href: "#", label: "LinkedIn" },
-    { icon: Twitter, href: "#", label: "X (Twitter)" },
-    { icon: Youtube, href: "#", label: "YouTube" },
-    { icon: Instagram, href: "#", label: "Instagram" },
+    { icon: Github,   href: "https://github.com/AbhishekDuhijod319",            label: "GitHub" },
+    { icon: Linkedin, href: "https://www.linkedin.com/in/abhishek-duhijod",     label: "LinkedIn" },
+    { icon: Mail,     href: "mailto:abhishekduhijod319@gmail.com",              label: "Email" },
+    { icon: Globe,    href: "https://vegaa-ai.vercel.app",                       label: "Website" },
   ]
 
   const footerLinks = {
     Product: [
-      { label: "Plan a Trip", path: "/create-trip" },
-      { label: "My Trips", path: "/my-trips" },
-      { label: "AI Assistant", path: "#" },
-      { label: "Destinations", path: "#destinations" },
+      { label: "Plan a Trip",    path: "/create-trip" },
+      { label: "My Trips",       path: "/my-trips" },
+      { label: "AI Assistant",   path: "/create-trip" },
+      { label: "Explore",        path: "/" },
     ],
-    Resources: [
-      { label: "Travel Blog", path: "#" },
-      { label: "Community", path: "#" },
-      { label: "Help Center", path: "#" },
-      { label: "Safety Guidelines", path: "#" },
+    Project: [
+      { label: "About the Project", path: "/about" },
+      { label: "Tech Stack",        path: "/about#tech" },
+      { label: "GitHub Repo",       path: "https://github.com/AbhishekDuhijod319" },
+      { label: "Contact Developer", path: "mailto:abhishekduhijod319@gmail.com" },
     ],
-    Company: [
-      { label: "About Us", path: "/about" },
-      { label: "Careers", path: "#" },
-      { label: "Press", path: "#" },
-      { label: "Contact", path: "#" },
+    Legal: [
+      { label: "Privacy Policy",  path: "#" },
+      { label: "Terms of Use",    path: "#" },
+      { label: "Disclaimer",      path: "#" },
     ],
   }
 
@@ -50,8 +48,27 @@ const Footer = () => {
               <span className="text-xl md:text-2xl font-bold tracking-tight">Vegaa AI</span>
             </div>
             <p className="text-[15px] md:text-base text-gray-400 leading-relaxed font-light">
-              Vegaa AI is the most complete AI suite for modern travelers, trusted by explorers worldwide to craft personalized, unforgettable journeys.
+              An AI-powered smart travel planner built as a final-year MCA project by Abhishek Duhijod.
+              Crafting personalized, intelligent itineraries for modern travelers.
             </p>
+            {/* Creator Credit */}
+            <div className="pt-2 border-t border-white/[0.08]">
+              <p className="text-xs text-gray-600 leading-relaxed">
+                <span className="text-gray-500 font-medium">Developed by</span>{" "}
+                <a
+                  href="https://www.linkedin.com/in/abhishek-duhijod"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-white transition-colors font-semibold"
+                >
+                  Abhishek Rajendrarao Duhijod
+                </a>
+                <br />
+                MCA Final Year · JD College of Engineering &amp; Management, Nagpur
+                <br />
+                <span className="text-gray-600">Guide: Prof. Rohan B. Kokate &nbsp;|&nbsp; Coordinator: Mr. Rahul Ingle</span>
+              </p>
+            </div>
           </div>
 
           {/* Right: Link Columns */}
@@ -62,7 +79,16 @@ const Footer = () => {
                 <ul className="space-y-3">
                   {links.map((link) => (
                     <li key={link.label}>
-                      {link.path.startsWith("#") ? (
+                      {link.path.startsWith("http") || link.path.startsWith("mailto") ? (
+                        <a
+                          href={link.path}
+                          target={link.path.startsWith("http") ? "_blank" : undefined}
+                          rel="noopener noreferrer"
+                          className="text-gray-500 hover:text-white transition-colors text-[15px] font-medium"
+                        >
+                          {link.label}
+                        </a>
+                      ) : link.path.startsWith("#") ? (
                         <a
                           href={link.path}
                           className="text-gray-500 hover:text-white transition-colors text-[15px] font-medium"
@@ -88,8 +114,8 @@ const Footer = () => {
         {/* Newsletter & Socials */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-12 md:mb-16 border-t border-white/[0.06] pt-8 md:pt-10">
           <div className="space-y-1 text-center md:text-left">
-            <h3 className="text-lg md:text-xl font-semibold text-white">Get the latest updates</h3>
-            <p className="text-gray-500 text-xs md:text-sm">Join our newsletter for travel tips and AI features.</p>
+            <h3 className="text-lg md:text-xl font-semibold text-white">Stay in the loop</h3>
+            <p className="text-gray-500 text-xs md:text-sm">Get travel tips and AI-powered planning updates.</p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
@@ -114,6 +140,8 @@ const Footer = () => {
                 <a
                   key={social.label}
                   href={social.href}
+                  target={social.href.startsWith("http") ? "_blank" : undefined}
+                  rel="noopener noreferrer"
                   aria-label={social.label}
                   className="bg-white/[0.06] hover:bg-white text-gray-500 hover:text-black p-2.5 rounded-full transition-all duration-300"
                 >
@@ -127,11 +155,22 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="border-t border-white/[0.06] pt-6 pb-2">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-600 font-medium">
-            <p>© {year} Vegaa AI. All rights reserved.</p>
+            <p>
+              © {year} Vegaa AI · Built by{" "}
+              <a
+                href="https://www.linkedin.com/in/abhishek-duhijod"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-white transition-colors"
+              >
+                Abhishek Duhijod
+              </a>
+              {" "}· JD College of Engineering &amp; Management, Nagpur
+            </p>
             <div className="flex flex-wrap justify-center gap-8">
               <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-              <a href="#" className="hover:text-white transition-colors">Refund Policy</a>
-              <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
+              <a href="#" className="hover:text-white transition-colors">Terms of Use</a>
+              <a href="#" className="hover:text-white transition-colors">Disclaimer</a>
             </div>
           </div>
         </div>

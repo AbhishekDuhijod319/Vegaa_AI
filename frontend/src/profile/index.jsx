@@ -121,14 +121,20 @@ export default function Profile() {
   const fileInputRef = useRef(null);
   const containerRef = useReveal();
 
-  // Fetch trips and stats (fault-tolerant — one failing won't block the other)
+  // Fetch trips and stats once the user is confirmed authenticated
+  // (fault-tolerant — one failing won't block the other)
   useEffect(() => {
+    if (!user) return; // Wait until auth is resolved
+
+    let cancelled = false;
     const fetchData = async () => {
       try {
         const [tripsResult, statsResult] = await Promise.allSettled([
           tripApi.list(),
           tripApi.getStats(),
         ]);
+
+        if (cancelled) return;
 
         if (tripsResult.status === 'fulfilled') {
           setTrips(tripsResult.value.trips || []);
@@ -142,13 +148,15 @@ export default function Profile() {
           console.error("Failed to fetch stats:", statsResult.reason);
         }
       } catch (err) {
-        console.error("Error fetching profile data:", err);
+        if (!cancelled) console.error("Error fetching profile data:", err);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
     fetchData();
-  }, []);
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.email]);
 
   // Initialize edit fields when user changes or edit mode entered
   useEffect(() => {
