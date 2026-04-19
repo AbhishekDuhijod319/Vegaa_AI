@@ -8,25 +8,6 @@ const imageCache = new Map(); // key → url string
 // ── Global dedup: track Pexels photo IDs already used on this page ──
 const usedPhotoIds = new Set();
 
-// ── Curated fallback gradients (never show black/white blank) ────────
-const FALLBACK_GRADIENTS = [
-  "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-  "linear-gradient(135deg, #0f0c29, #302b63, #24243e)",
-  "linear-gradient(135deg, #1a3a5c, #0d2137, #0a1628)",
-  "linear-gradient(135deg, #232526, #414345)",
-  "linear-gradient(135deg, #11998e, #38ef7d)",
-  "linear-gradient(135deg, #fc5c7d, #6a82fb)",
-  "linear-gradient(135deg, #2C3E50, #4CA1AF)",
-];
-
-const pickGradient = (query = "") => {
-  let hash = 0;
-  for (let i = 0; i < query.length; i++) {
-    hash = ((hash << 5) - hash + query.charCodeAt(i)) | 0;
-  }
-  return FALLBACK_GRADIENTS[Math.abs(hash) % FALLBACK_GRADIENTS.length];
-};
-
 /**
  * Pick the best Pexels photo URL based on quality level.
  *  - "high" → large2x (1880px) or original (full res) for hero images
@@ -60,14 +41,72 @@ function pickUniquePhoto(photos, quality = "standard") {
 }
 
 /**
+ * ImageSkeleton — animated skeleton placeholder shown while images load
+ * or when all image sources fail. Uses a shimmer animation instead of
+ * static gradients for a modern, polished look.
+ */
+const ImageSkeleton = ({ className = "", label = "", showLabel = false }) => (
+  <div
+    className={`w-full h-full overflow-hidden relative ${className}`}
+    role="img"
+    aria-label={label || "Image loading"}
+  >
+    {/* Base layer */}
+    <div className="absolute inset-0 bg-muted" />
+
+    {/* Shimmer animation overlay */}
+    <div
+      className="absolute inset-0 skeleton-shimmer"
+      style={{
+        background: `linear-gradient(
+          90deg,
+          transparent 0%,
+          hsl(var(--muted-foreground) / 0.06) 20%,
+          hsl(var(--muted-foreground) / 0.12) 50%,
+          hsl(var(--muted-foreground) / 0.06) 80%,
+          transparent 100%
+        )`,
+        backgroundSize: "200% 100%",
+        animation: "skeleton-shimmer 1.8s ease-in-out infinite",
+      }}
+    />
+
+    {/* Subtle icon placeholder */}
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 opacity-30">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="w-8 h-8 text-muted-foreground"
+      >
+        <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+        <circle cx="9" cy="9" r="2" />
+        <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+      </svg>
+    </div>
+
+    {/* Label in error state */}
+    {showLabel && label && (
+      <span className="absolute bottom-2 left-3 text-muted-foreground/40 text-xs font-medium select-none">
+        {label}
+      </span>
+    )}
+  </div>
+);
+
+/**
  * SmartImage — robust image component with:
- *  1. Progressive loading (skeleton → smooth fade-in)
+ *  1. Progressive loading (skeleton shimmer → smooth fade-in)
  *  2. Google Places Photo support (real venue images)
  *  3. Quality-aware Pexels fallback (high = 1920+ px, standard = 940px)
- *  4. Beautiful gradient fallback (never shows blank/broken)
+ *  4. Skeleton placeholder fallback (never shows blank/broken)
  *  5. In-memory caching + global Pexels dedup
  *
- * Load priority: direct src → Google Places photo → Pexels → gradient
+ * Load priority: direct src → Google Places photo → Pexels → skeleton
  */
 const SmartImage = ({
   src,
@@ -100,9 +139,6 @@ const SmartImage = ({
     () => (src ? `src:${src}` : googlePhotoRef ? `gref:${googlePhotoRef}` : `q:${query}:${quality}`),
     [src, query, googlePhotoRef, quality]
   );
-
-  // Gradient fallback (deterministic per query)
-  const fallbackGradient = useMemo(() => pickGradient(query || src || ""), [query, src]);
 
   // Try loading a single URL via Image object
   const tryLoad = useCallback(
@@ -214,7 +250,7 @@ const SmartImage = ({
         }
       }
 
-      // All strategies failed → gradient
+      // All strategies failed → skeleton placeholder
       if (!cancelledRef.current) {
         setState("error");
       }
@@ -228,36 +264,14 @@ const SmartImage = ({
 
   // ── Render ──────────────────────────────────────────────────────────
 
-  // Loading skeleton with gradient placeholder
+  // Loading state — animated skeleton shimmer
   if (state === "loading" && !imgSrc) {
-    return (
-      <div
-        ref={containerRef}
-        className={`w-full h-full overflow-hidden ${className}`}
-        aria-busy="true"
-        aria-label="Loading image"
-        style={{ background: fallbackGradient }}
-      >
-        <div className="w-full h-full animate-pulse bg-white/5" />
-      </div>
-    );
+    return <ImageSkeleton className={className} label={alt || query} />;
   }
 
-  // Error state — beautiful gradient fallback with subtle label
+  // Error state — skeleton with subtle label (never shows gradient)
   if (state === "error" && !imgSrc) {
-    return (
-      <div
-        ref={containerRef}
-        className={`w-full h-full overflow-hidden flex items-end justify-start ${className}`}
-        style={{ background: fallbackGradient }}
-        role="img"
-        aria-label={alt || query}
-      >
-        <span className="text-white/20 text-xs font-medium px-4 py-3 select-none">
-          {alt || query}
-        </span>
-      </div>
-    );
+    return <ImageSkeleton className={className} label={alt || query} showLabel={true} />;
   }
 
   // Loaded image with smooth fade-in

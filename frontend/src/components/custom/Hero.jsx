@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { getDynamicHeroImages, getFallbackGradients } from "@/lib/imageService";
+import { getDynamicHeroImages } from "@/lib/imageService";
 
 /**
  * Hero — fullscreen slideshow with scroll-driven scale-down effect.
@@ -22,7 +22,13 @@ const Hero = ({ onGetStarted, onLearnMore }) => {
   // ── Load & preload images ──────────────────────────────────
   useEffect(() => {
     let cancelled = false;
-    const gradients = getFallbackGradients(4);
+
+    // Show skeleton placeholders immediately while images load
+    const placeholders = Array.from({ length: 4 }, (_, i) => ({
+      type: "skeleton",
+      value: `skeleton-${i}`,
+    }));
+    setSlides(placeholders);
 
     const loadSlides = async () => {
       const urls = getDynamicHeroImages(4);
@@ -52,27 +58,20 @@ const Hero = ({ onGetStarted, onLearnMore }) => {
 
       if (cancelled) return;
 
-      // Build slide list: use loaded images, fill gaps with gradients
+      // Build slide list: use loaded images, keep skeletons for failures
       const loadedSlides = [];
       results.forEach((result, i) => {
         if (result.status === "fulfilled") {
           loadedSlides.push({ type: "image", value: result.value });
         } else {
-          loadedSlides.push({ type: "gradient", value: gradients[i % gradients.length] });
+          loadedSlides.push({ type: "skeleton", value: `skeleton-${i}` });
         }
       });
 
-      // If ALL images failed, use all gradients
-      if (loadedSlides.every((s) => s.type === "gradient")) {
-        setSlides(gradients.map((g) => ({ type: "gradient", value: g })));
-      } else {
-        setSlides(loadedSlides);
-      }
+      setSlides(loadedSlides);
       setImagesReady(true);
     };
 
-    // Show gradients immediately, then upgrade to images
-    setSlides(gradients.map((g) => ({ type: "gradient", value: g })));
     loadSlides();
 
     return () => { cancelled = true; };
@@ -164,7 +163,7 @@ const Hero = ({ onGetStarted, onLearnMore }) => {
                     willChange: "transform",
                   }
                 : {
-                    background: slide.value,
+                    backgroundColor: "#0a0a1a",
                   }
             }
             aria-hidden={index !== currentSlide}
@@ -176,12 +175,24 @@ const Hero = ({ onGetStarted, onLearnMore }) => {
                 className="h-full w-full object-cover"
                 loading={index === 0 ? "eager" : "lazy"}
                 onError={(e) => {
-                  // If an image breaks after initial load, replace with gradient
+                  // If an image breaks after initial load, show dark bg
                   e.target.style.display = "none";
-                  e.target.parentElement.style.background =
-                    "linear-gradient(135deg, #0f0c29, #302b63, #24243e)";
+                  e.target.parentElement.style.backgroundColor = "#0a0a1a";
                 }}
               />
+            )}
+            {slide.type === "skeleton" && (
+              <div className="w-full h-full relative">
+                <div className="absolute inset-0 bg-[#0a0a1a]" />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.03) 50%, transparent 100%)",
+                    backgroundSize: "200% 100%",
+                    animation: "skeleton-shimmer 2s ease-in-out infinite",
+                  }}
+                />
+              </div>
             )}
           </div>
         ))}
