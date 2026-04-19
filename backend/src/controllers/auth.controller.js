@@ -39,7 +39,12 @@ const authController = {
   async logout(req, res) {
     const refreshToken = req.cookies?.refreshToken;
     await authService.logout(refreshToken);
-    res.clearCookie('refreshToken', { path: '/' });
+    res.clearCookie('refreshToken', {
+      path: '/',
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    });
     res.json({ message: 'Logged out successfully.' });
   },
 

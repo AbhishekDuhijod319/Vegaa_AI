@@ -18,6 +18,10 @@ const userRoutes = require('./routes/user.routes');
 
 const app = express();
 
+// Trust first proxy (Render, Railway, etc.) — required for
+// express-rate-limit to read the real client IP via X-Forwarded-For
+app.set('trust proxy', 1);
+
 // ─── Global Middleware ──────────────────────────────
 app.use(helmet());
 app.use(cors(corsOptions));

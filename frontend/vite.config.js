@@ -13,27 +13,18 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
+        // Keep all dependencies together in one vendor chunk.
+        // This prevents React hook errors caused by split React chunks.
         manualChunks(id) {
-          // Only split Firebase - it's large and has no React dependencies
-          if (id.includes('node_modules/firebase/') ||
-            id.includes('node_modules/@firebase/')) {
-            return 'vendor-firebase';
-          }
-
-          // Keep all other dependencies together in vendor chunk
-          // This ensures React and all React-dependent packages load together
           if (id.includes('node_modules/')) {
             return 'vendor';
           }
         },
-        // Chunk naming for better caching
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
       },
     },
-    // Increase chunk size warning limit to 600KB (from default 500KB)
-    // This is still monitored but allows for slightly larger vendor chunks
-    chunkSizeWarningLimit: 600,
+    chunkSizeWarningLimit: 1000,
   },
 })

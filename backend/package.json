@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Vegaa AI Travel Planner — Express + MongoDB Backend",
   "main": "server.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "dev": "node --watch server.js",
     "start": "node server.js"
@@ -23,7 +26,6 @@
     "mongoose": "^8.10.1",
     "morgan": "^1.10.0",
     "multer": "^2.1.1",
-    "node-cache": "^5.1.2",
-    "travel-planner-web": "file:../Vegaa_AI"
+    "node-cache": "^5.1.2"
   }
 }
