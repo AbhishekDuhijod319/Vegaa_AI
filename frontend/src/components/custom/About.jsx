@@ -8,14 +8,14 @@ import SmartImage from '@/components/ui/SmartImage';
 
 // ─── Owner Info ───────────────────────────────────────────────────────────────
 const OWNER = {
-  name: 'Abhishek Rajendrarao Duhijod',
-  title: 'MCA Final Year Student · 2025–2026',
+  name: 'Abhishek R. Duhijod',
+  title: 'MCA Final Year Student · 2024–2026',
   college: 'JD College of Engineering & Management, Nagpur',
   batch: '2026',
   email: 'abhishekduhijod319@gmail.com',
   github: 'https://github.com/AbhishekDuhijod319',
   linkedin: 'https://www.linkedin.com/in/abhishek-duhijod',
-  bio: 'A passionate full-stack developer and travel enthusiast who built Vegaa AI as a final-year MCA project to solve the real-world problem of AI-powered, personalized travel planning. Combining cutting-edge machine learning with a love for exploration, this platform turns complex travel decisions into effortless experiences.',
+  bio: 'A passionate Front-end developer and travel enthusiast who built Vegaa AI as a final-year MCA project to solve the real-world problem of AI-powered, personalized travel planning. Combining cutting-edge machine learning with a love for exploration, this platform turns complex travel decisions into effortless experiences.',
   // Cloudinary authenticated photo — secured & cannot be downloaded directly
   photo: 'https://res.cloudinary.com/dphatyl6s/image/authenticated/s--xRnHbiWP--/v1776615036/vegaa/admin/abhishek_duhijod_profile.jpg',
   guide: 'Prof. Rohan B. Kokate',
@@ -24,12 +24,12 @@ const OWNER = {
 };
 
 const TECH_STACK = [
-  { icon: Code2,    label: 'React 19',       desc: 'Frontend UI framework' },
-  { icon: Layers,   label: 'Vite + CSS',     desc: 'Build tool & styling' },
-  { icon: Server,   label: 'Node.js',         desc: 'Backend runtime' },
-  { icon: Database, label: 'MongoDB',         desc: 'NoSQL database' },
-  { icon: Cpu,      label: 'Google Gemini',   desc: 'AI itinerary engine' },
-  { icon: Cloud,    label: 'Vercel + Render', desc: 'Cloud deployment' },
+  { icon: Code2, label: 'React 19', desc: 'Frontend UI framework' },
+  { icon: Layers, label: 'Vite + CSS', desc: 'Build tool & styling' },
+  { icon: Server, label: 'Node.js', desc: 'Backend runtime' },
+  { icon: Database, label: 'MongoDB', desc: 'NoSQL database' },
+  { icon: Cpu, label: 'Google Gemini', desc: 'AI itinerary engine' },
+  { icon: Cloud, label: 'Vercel + Render', desc: 'Cloud deployment' },
 ];
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
