@@ -215,10 +215,13 @@ html {
 }
 
 @layer base {
-  * { @apply border-border; }
+  * { border-color: var(--border); }
 
   body {
-    @apply bg-background text-foreground antialiased;
+    background-color: var(--background);
+    color: var(--foreground);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
     transition: background-color 200ms ease, color 200ms ease;
   }
@@ -267,34 +270,41 @@ html {
   }
 
   .section-subheading {
-    @apply text-base font-semibold mb-3 px-4 py-2 rounded-xl text-center;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+    text-align: center;
     background: var(--accent);
     color: var(--accent-foreground);
     border: 1px solid var(--border);
   }
 
-  /* ── Brand name: mirrors logo_2 typographic style ── */
-  .brand-vegaa {
-    font-family: 'Montserrat', 'Inter', sans-serif;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    color: var(--foreground);
-  }
+}
 
-  /* "AI" badge — purple→cyan gradient, superscript-style */
-  .brand-ai {
-    font-family: 'Audiowide', sans-serif;
-    font-weight: 400;
-    font-size: 0.62em;
-    line-height: 1;
-    vertical-align: super;
-    background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-left: 0.1em;
-    letter-spacing: 0.03em;
-  }
+/* ── Brand name: mirrors logo_2 typographic style ── */
+.brand-vegaa {
+  font-family: 'Montserrat', 'Inter', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--foreground);
+}
+
+/* "AI" badge — purple→cyan gradient, superscript-style */
+.brand-ai {
+  font-family: 'Audiowide', sans-serif;
+  font-weight: 400;
+  font-size: 0.62em;
+  line-height: 1;
+  vertical-align: super;
+  background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-left: 0.1em;
+  letter-spacing: 0.03em;
 }
 
 /* ═══════════════════════════════════════════════════════════════════
