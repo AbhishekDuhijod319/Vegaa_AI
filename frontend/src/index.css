@@ -272,6 +272,29 @@ html {
     color: var(--accent-foreground);
     border: 1px solid var(--border);
   }
+
+  /* ── Brand name: mirrors logo_2 typographic style ── */
+  .brand-vegaa {
+    font-family: 'Montserrat', 'Inter', sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--foreground);
+  }
+
+  /* "AI" badge — purple→cyan gradient, superscript-style */
+  .brand-ai {
+    font-family: 'Audiowide', sans-serif;
+    font-weight: 400;
+    font-size: 0.62em;
+    line-height: 1;
+    vertical-align: super;
+    background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-left: 0.1em;
+    letter-spacing: 0.03em;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════

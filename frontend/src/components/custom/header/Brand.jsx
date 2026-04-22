@@ -5,7 +5,9 @@ const Brand = () => {
   return (
     <Link to="/" className="flex items-center gap-3 transition-transform hover:scale-105 active:scale-95 duration-300">
       <img src="/logo_1.png" alt="Vegaa AI Logo" className="h-8 w-8 md:h-10 md:w-10 object-contain" />
-      <span className="font-script font-bold tracking-tight text-2xl md:text-3xl text-foreground">Vegaaai</span>
+      <span className="font-script font-bold tracking-tight text-2xl md:text-3xl text-foreground">
+        <span className="brand-vegaa">Vegaa</span><span className="brand-ai">AI</span>
+      </span>
     </Link>
   )
 }

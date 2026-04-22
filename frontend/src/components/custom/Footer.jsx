@@ -8,29 +8,29 @@ const Footer = () => {
   const year = new Date().getFullYear()
 
   const socialLinks = [
-    { icon: Github,   href: "https://github.com/AbhishekDuhijod319",            label: "GitHub" },
-    { icon: Linkedin, href: "https://www.linkedin.com/in/abhishek-duhijod",     label: "LinkedIn" },
-    { icon: Mail,     href: "mailto:abhishekduhijod319@gmail.com",              label: "Email" },
-    { icon: Globe,    href: "https://vegaa-ai.vercel.app",                       label: "Website" },
+    { icon: Github, href: "https://github.com/AbhishekDuhijod319", label: "GitHub" },
+    { icon: Linkedin, href: "https://www.linkedin.com/in/abhishek-duhijod", label: "LinkedIn" },
+    { icon: Mail, href: "mailto:abhishekduhijod319@gmail.com", label: "Email" },
+    { icon: Globe, href: "https://vegaa-ai.vercel.app", label: "Website" },
   ]
 
   const footerLinks = {
     Product: [
-      { label: "Plan a Trip",    path: "/create-trip" },
-      { label: "My Trips",       path: "/my-trips" },
-      { label: "AI Assistant",   path: "/create-trip" },
-      { label: "Explore",        path: "/" },
+      { label: "Plan a Trip", path: "/create-trip" },
+      { label: "My Trips", path: "/my-trips" },
+      { label: "AI Assistant", path: "/create-trip" },
+      { label: "Explore", path: "/" },
     ],
     Project: [
       { label: "About the Project", path: "/about" },
-      { label: "Tech Stack",        path: "/about#tech" },
-      { label: "GitHub Repo",       path: "https://github.com/AbhishekDuhijod319" },
+      { label: "Tech Stack", path: "/about#tech" },
+      { label: "GitHub Repo", path: "https://github.com/AbhishekDuhijod319" },
       { label: "Contact Developer", path: "mailto:abhishekduhijod319@gmail.com" },
     ],
     Legal: [
-      { label: "Privacy Policy",  path: "#" },
-      { label: "Terms of Use",    path: "#" },
-      { label: "Disclaimer",      path: "#" },
+      { label: "Privacy Policy", path: "#" },
+      { label: "Terms of Use", path: "#" },
+      { label: "Disclaimer", path: "#" },
     ],
   }
 
@@ -45,7 +45,9 @@ const Footer = () => {
           <div className="max-w-md space-y-5">
             <div className="flex items-center gap-2.5">
               <img src="/logo_1.png" alt="Vegaa AI" className="h-7 w-7 md:h-9 md:w-9 object-contain" />
-              <span className="text-xl md:text-2xl font-bold tracking-tight">Vegaa AI</span>
+              <span className="text-xl md:text-2xl font-bold tracking-tight font-script">
+                <span className="brand-vegaa">Vegaa</span><span className="brand-ai">AI</span>
+              </span>
             </div>
             <p className="text-[15px] md:text-base text-gray-400 leading-relaxed font-light">
               An AI-powered smart travel planner built as a final-year MCA project by Abhishek Duhijod.
@@ -179,5 +181,3 @@ const Footer = () => {
     </footer>
   )
 }
-
-export default Footer

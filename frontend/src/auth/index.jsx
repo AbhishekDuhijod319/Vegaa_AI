@@ -15,7 +15,7 @@ const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(false); // Default to Signup as per visual
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -119,9 +119,9 @@ const AuthPage = () => {
       <div className="w-full lg:w-1/2 flex flex-col p-4 md:p-8 lg:p-12 relative h-full">
         {/* Header / Back Button */}
         <div className="flex-none">
-          <Button 
-            variant="ghost" 
-            className="gap-2 w-fit px-0 hover:bg-transparent" 
+          <Button
+            variant="ghost"
+            className="gap-2 w-fit px-0 hover:bg-transparent"
             onClick={() => navigate('/')}
           >
             <ArrowLeft size={16} /> Back to Home
@@ -132,15 +132,17 @@ const AuthPage = () => {
         <div className="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
           <div className="mb-4 text-center lg:text-left">
             <div className="flex items-center justify-center lg:justify-start gap-2 mb-2">
-               <img src="/logo_1.png" alt="Vegaa AI Logo" className="h-8 w-auto object-contain" />
-               <span className="font-bold text-xl tracking-tight">Vegaa AI</span>
+              <img src="/logo_1.png" alt="Vegaa AI Logo" className="h-8 w-auto object-contain" />
+              <span className="font-bold text-xl tracking-tight font-script">
+                <span className="brand-vegaa">Vegaa</span><span className="brand-ai">AI</span>
+              </span>
             </div>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight mb-1 text-foreground">
               {isLogin ? "Welcome back" : "Sign up"}
             </h1>
             <p className="text-sm text-muted-foreground">
-              {isLogin 
-                ? "Enter your details to access your account." 
+              {isLogin
+                ? "Enter your details to access your account."
                 : "Start turning your ideas into reality."}
             </p>
           </div>
@@ -190,17 +192,16 @@ const AuthPage = () => {
                 </button>
               </div>
               {errors.password && <p className="text-[10px] text-destructive pl-1">{errors.password}</p>}
-              
+
               {!isLogin && formData.password && (
                 <div className="flex gap-1 h-0.5 w-full overflow-hidden rounded-full bg-muted mt-1.5">
                   {[1, 2, 3, 4].map((step) => (
                     <div
                       key={step}
-                      className={`h-full flex-1 transition-all duration-300 ${
-                        passwordStrength >= step 
-                          ? (passwordStrength <= 2 ? 'bg-orange-500' : 'bg-green-500') 
+                      className={`h-full flex-1 transition-all duration-300 ${passwordStrength >= step
+                          ? (passwordStrength <= 2 ? 'bg-orange-500' : 'bg-green-500')
                           : 'bg-transparent'
-                      }`}
+                        }`}
                     />
                   ))}
                 </div>
@@ -224,9 +225,9 @@ const AuthPage = () => {
             </div>
           </div>
 
-          <Button 
-            variant="outline" 
-            className="w-full h-9 text-sm gap-2" 
+          <Button
+            variant="outline"
+            className="w-full h-9 text-sm gap-2"
             onClick={() => googleLogin()}
             disabled={loading}
           >
@@ -250,7 +251,7 @@ const AuthPage = () => {
             </button>
           </div>
         </div>
-        
+
         {/* Footer */}
         <div className="flex-none pt-4 text-[10px] text-muted-foreground text-center lg:text-left border-t border-border/40 lg:border-none">
           © {new Date().getFullYear()} Vegaa AI. All rights reserved.
@@ -259,9 +260,9 @@ const AuthPage = () => {
 
       {/* Right Side - Image */}
       <div className="hidden lg:flex w-1/2 bg-muted relative overflow-hidden">
-        <img 
-          src="https://images.pexels.com/photos/2161449/pexels-photo-2161449.jpeg?auto=compress&cs=tinysrgb&w=1600" 
-          alt="Scenic mountain landscape" 
+        <img
+          src="https://images.pexels.com/photos/2161449/pexels-photo-2161449.jpeg?auto=compress&cs=tinysrgb&w=1600"
+          alt="Scenic mountain landscape"
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-[20s] hover:scale-105"
           loading="lazy"
         />
@@ -282,5 +283,3 @@ const AuthPage = () => {
     </div>
   );
 };
-
-export default AuthPage;
