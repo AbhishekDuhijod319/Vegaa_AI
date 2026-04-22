@@ -114,9 +114,9 @@ const AuthPage = () => {
   });
 
   return (
-    <div className="h-[100vh] w-full flex bg-background font-sans overflow-hidden">
+    <div className="min-h-screen w-full flex bg-background font-sans overflow-y-auto">
       {/* Left Side - Form */}
-      <div className="w-full lg:w-1/2 flex flex-col p-4 md:p-8 lg:p-12 relative h-full">
+      <div className="w-full lg:w-1/2 flex flex-col p-4 sm:p-6 md:p-8 lg:p-12 relative min-h-screen">
         {/* Header / Back Button */}
         <div className="flex-none">
           <Button
@@ -137,7 +137,7 @@ const AuthPage = () => {
                 <span className="brand-vegaa">Vegaa</span><span className="brand-ai">AI</span>
               </span>
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight mb-1 text-foreground">
+            <h1 className="text-fluid-h2 tracking-tight mb-1 text-foreground">
               {isLogin ? "Welcome back" : "Sign up"}
             </h1>
             <p className="text-sm text-muted-foreground">

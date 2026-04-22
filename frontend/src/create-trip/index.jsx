@@ -210,17 +210,17 @@ const CreateTrip = () => {
 
   return (
     <section
-      className="h-screen w-full bg-gradient-to-b from-background via-secondary/20 to-background flex items-center justify-center overflow-hidden"
+      className="min-h-screen w-full bg-gradient-to-b from-background via-secondary/20 to-background flex items-start justify-center overflow-y-auto"
       aria-label="Create Trip Form"
     >
-      <div className="w-full max-w-6xl px-6 md:px-12 animate-in fade-in slide-in-from-bottom-4 duration-700 flex flex-col h-full max-h-[900px] justify-center">
+      <div className="w-full max-w-6xl px-4 sm:px-6 md:px-12 animate-in fade-in slide-in-from-bottom-4 duration-700 flex flex-col py-28 sm:py-32 md:py-36">
 
         {/* Compact Header */}
-        <div className="mb-6 md:mb-8 text-center md:text-left">
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground leading-tight mb-2">
+        <div className="mb-5 sm:mb-6 md:mb-8 text-center md:text-left">
+          <h2 className="text-fluid-h2 tracking-tight text-foreground leading-tight mb-2">
             Plan Your Journey
           </h2>
-          <p className="text-base md:text-lg text-muted-foreground max-w-2xl leading-relaxed md:mx-0 mx-auto">
+          <p className="text-fluid-body text-muted-foreground max-w-2xl leading-relaxed md:mx-0 mx-auto">
             Tell us about your trip, and we'll craft a personalized itinerary.
           </p>
         </div>
@@ -282,14 +282,14 @@ const CreateTrip = () => {
           </div>
 
           {/* Row 2: Dates */}
-          <div className="grid md:grid-cols-2 gap-x-8 gap-y-4">
+          <div className="grid sm:grid-cols-2 gap-x-6 sm:gap-x-8 gap-y-4">
             <div className="space-y-2 relative z-40">
               <label className="text-sm font-semibold text-foreground/90 ml-1">
                 Start Date
               </label>
               <div className="relative group">
                 <div
-                  className="transition-all duration-300 bg-white/60 dark:bg-black/40 backdrop-blur-xl rounded-xl shadow-sm hover:shadow-md ring-1 ring-black/5 dark:ring-white/10 hover:ring-primary/30 flex items-center h-14 cursor-pointer"
+                  className="transition-all duration-300 bg-white/60 dark:bg-black/40 backdrop-blur-xl rounded-xl shadow-sm hover:shadow-md ring-1 ring-black/5 dark:ring-white/10 hover:ring-primary/30 flex items-center h-11 sm:h-14 cursor-pointer"
                   onClick={() => {
                     startRef.current?.setOpen(true);
                   }}
@@ -331,7 +331,7 @@ const CreateTrip = () => {
               </label>
               <div className="relative group">
                 <div
-                  className="transition-all duration-300 bg-white/60 dark:bg-black/40 backdrop-blur-xl rounded-xl shadow-sm hover:shadow-md ring-1 ring-black/5 dark:ring-white/10 hover:ring-primary/30 flex items-center h-14 cursor-pointer"
+                  className="transition-all duration-300 bg-white/60 dark:bg-black/40 backdrop-blur-xl rounded-xl shadow-sm hover:shadow-md ring-1 ring-black/5 dark:ring-white/10 hover:ring-primary/30 flex items-center h-11 sm:h-14 cursor-pointer"
                   onClick={() => {
                     endRef.current?.setOpen(true);
                   }}
@@ -368,11 +368,11 @@ const CreateTrip = () => {
             </div>
           </div>
 
-          {/* Row 3: Budget, Currency, Transport, Travelers */}
-          <div className="grid md:grid-cols-12 gap-x-6 gap-y-4">
+          {/* Row 3: Budget, Currency, Transport, Travelers — 2x2 on mobile, full 12-col on md+ */}
+          <div className="grid grid-cols-2 md:grid-cols-12 gap-x-4 sm:gap-x-6 gap-y-4">
 
-            {/* Budget & Currency (5 cols) */}
-            <div className="md:col-span-5 grid grid-cols-2 gap-4 relative z-30">
+            {/* Budget & Currency (5 cols on md) */}
+            <div className="col-span-2 md:col-span-5 grid grid-cols-2 gap-3 sm:gap-4 relative z-30">
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-foreground/90 ml-1">Budget</label>
                 <div className="transition-all duration-300 bg-white/60 dark:bg-black/40 backdrop-blur-xl rounded-xl shadow-sm hover:shadow-md ring-1 ring-black/5 dark:ring-white/10 hover:ring-primary/30 h-14 flex items-center px-2">
@@ -401,7 +401,7 @@ const CreateTrip = () => {
               </div>
             </div>
 
-            {/* Transport (3 cols) */}
+            {/* Transport (3 cols on md, full-width on mobile) */}
             <div className="md:col-span-3 space-y-2 relative z-30">
               <label className="text-sm font-semibold text-foreground/90 ml-1">Transport</label>
               <div className="transition-all duration-300 bg-white/60 dark:bg-black/40 backdrop-blur-xl rounded-xl shadow-sm hover:shadow-md ring-1 ring-black/5 dark:ring-white/10 hover:ring-primary/30">
@@ -418,10 +418,10 @@ const CreateTrip = () => {
               </div>
             </div>
 
-            {/* Travelers (4 cols) */}
+            {/* Travelers (4 cols on md, full-width on mobile) */}
             <div className="md:col-span-4 space-y-2 relative z-20">
               <label className="text-sm font-semibold text-foreground/90 ml-1">Travelers</label>
-              <div className="h-14 bg-white/60 dark:bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 shadow-sm flex items-center justify-between px-4 ring-1 ring-black/5 dark:ring-white/10 hover:ring-primary/30">
+              <div className="h-11 sm:h-14 bg-white/60 dark:bg-black/40 backdrop-blur-xl rounded-xl border border-white/10 shadow-sm flex items-center justify-between px-3 sm:px-4 ring-1 ring-black/5 dark:ring-white/10 hover:ring-primary/30">
                 <Button
                   type="button"
                   variant="ghost"

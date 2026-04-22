@@ -46,18 +46,18 @@ const Hero = () => (
       <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/35 to-black/60" />
     </div>
 
-    <div className="relative z-10 text-center px-6 max-w-4xl mx-auto space-y-6">
+    <div className="relative z-10 text-center px-4 sm:px-6 max-w-4xl mx-auto space-y-4 sm:space-y-6 pt-[var(--app-header-offset)]">
       <div className="anim-fade-in-up">
-        <span className="inline-block py-1.5 px-4 rounded-full glass-dark text-white/90 text-sm font-medium tracking-wide mb-6">
+        <span className="inline-block py-1 px-3 sm:py-1.5 sm:px-4 rounded-full glass-dark text-white/90 text-xs sm:text-sm font-medium tracking-wide mb-4 sm:mb-6">
           MCA Final Year Project · {OWNER.batch}
         </span>
-        <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white tracking-tight leading-none">
+        <h1 className="text-fluid-hero font-bold text-white tracking-tight leading-none">
           Reimagining<br />
           <span className="italic font-light text-white/90">Travel</span>
         </h1>
       </div>
 
-      <p className="anim-fade-in-up anim-delay-2 text-lg md:text-xl text-white/75 max-w-xl mx-auto font-light leading-relaxed">
+      <p className="anim-fade-in-up anim-delay-2 text-fluid-lg text-white/75 max-w-xl mx-auto font-light leading-relaxed">
         An AI-powered itinerary platform that turns your travel ideas into
         precise, personalized plans — in seconds.
       </p>
@@ -78,14 +78,14 @@ const Hero = () => (
 const Mission = () => {
   const ref = useReveal();
   return (
-    <section className="py-24 md:py-32 px-6 bg-background" ref={ref}>
-      <div className="max-w-4xl mx-auto text-center space-y-8">
-        <p className="reveal text-sm font-semibold tracking-widest uppercase text-primary">The Mission</p>
-        <h2 className="reveal text-4xl md:text-6xl font-bold text-foreground tracking-tight leading-tight" data-reveal-delay="100">
+    <section className="py-[--section-py] px-4 sm:px-6 bg-background" ref={ref}>
+      <div className="max-w-4xl mx-auto text-center space-y-6 sm:space-y-8">
+        <p className="reveal text-xs sm:text-sm font-semibold tracking-widest uppercase text-primary">The Mission</p>
+        <h2 className="reveal text-fluid-h1 text-foreground tracking-tight leading-tight" data-reveal-delay="100">
           Travel planning was broken.<br />
           <span className="text-primary">We fixed it.</span>
         </h2>
-        <p className="reveal text-xl text-muted-foreground font-light max-w-2xl mx-auto leading-relaxed" data-reveal-delay="200">
+        <p className="reveal text-fluid-body text-muted-foreground font-light max-w-2xl mx-auto leading-relaxed" data-reveal-delay="200">
           Vegaa AI started from one frustration: travel planning was either too
           generic (endless "Top 10" lists) or too manual (spreadsheets and open
           tabs). This project set out to build the AI co-pilot every traveler
@@ -131,23 +131,24 @@ const values = [
 const ValueCard = ({ icon: Icon, title, desc, className, delay }) => (
   <div
     className={cn(
-      'reveal group relative p-8 rounded-3xl glass-card overflow-hidden',
-      'transition-all duration-500',
+      'reveal group relative p-5 sm:p-6 md:p-8 rounded-3xl glass-card overflow-hidden',
+      'transition-all duration-500 min-h-[220px] sm:min-h-[280px]',
       className
     )}
     data-reveal-delay={delay * 1000}
   >
     {/* Background icon watermark */}
-    <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity duration-500 transform group-hover:scale-110 group-hover:-rotate-12">
-      <Icon size={110} />
+    <div className="absolute top-0 right-0 p-6 sm:p-8 opacity-5 group-hover:opacity-10 transition-opacity duration-500 transform group-hover:scale-110 group-hover:-rotate-12">
+      <Icon size={80} className="sm:hidden" />
+      <Icon size={110} className="hidden sm:block" />
     </div>
     <div className="relative z-10 h-full flex flex-col justify-between">
-      <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-6">
-        <Icon size={22} />
+      <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-4 sm:mb-6">
+        <Icon size={20} />
       </div>
       <div>
-        <h3 className="text-2xl font-bold mb-3 text-foreground">{title}</h3>
-        <p className="text-muted-foreground leading-relaxed">{desc}</p>
+        <h3 className="text-fluid-h3 mb-2 sm:mb-3 text-foreground">{title}</h3>
+        <p className="text-fluid-body text-muted-foreground leading-relaxed">{desc}</p>
       </div>
     </div>
   </div>
@@ -156,13 +157,13 @@ const ValueCard = ({ icon: Icon, title, desc, className, delay }) => (
 const Values = () => {
   const ref = useReveal();
   return (
-    <section className="py-24 md:py-32 px-6 bg-secondary/30" ref={ref}>
+    <section className="py-[--section-py] px-4 sm:px-6 bg-secondary/30" ref={ref}>
       <div className="max-w-7xl mx-auto">
-        <div className="mb-16 max-w-2xl reveal">
-          <p className="text-sm font-semibold tracking-widest uppercase text-primary mb-3">Core Values</p>
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground">Built on principles,<br />not just features.</h2>
+        <div className="mb-10 sm:mb-16 max-w-2xl reveal">
+          <p className="text-xs sm:text-sm font-semibold tracking-widest uppercase text-primary mb-3">Core Values</p>
+          <h2 className="text-fluid-h1 text-foreground">Built on principles,<br />not just features.</h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 auto-rows-[360px]">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
           {values.map((v) => (
             <ValueCard key={v.title} {...v} className={v.span} />
           ))}
@@ -185,8 +186,8 @@ const Creator = () => {
 
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
           {/* Portrait */}
-          <div className="reveal flex-shrink-0">
-            <div className="relative w-64 h-64 lg:w-80 lg:h-80">
+          <div className="reveal flex-shrink-0 mx-auto lg:mx-0">
+            <div className="relative w-44 h-44 sm:w-60 sm:h-60 lg:w-80 lg:h-80">
               {/* Glow ring */}
               <div className="absolute -inset-3 rounded-full bg-gradient-to-br from-primary/30 via-primary/10 to-transparent blur-xl" />
               <div className="relative w-full h-full rounded-full overflow-hidden ring-4 ring-border shadow-2xl">
@@ -202,20 +203,20 @@ const Creator = () => {
                 />
               </div>
               {/* Badge */}
-              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 glass-card rounded-full px-4 py-2 whitespace-nowrap shadow-lg">
+              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 glass-card rounded-full px-3 py-1.5 sm:px-4 sm:py-2 whitespace-nowrap shadow-lg">
                 <span className="text-xs font-semibold text-foreground">MCA · {OWNER.batch}</span>
               </div>
             </div>
           </div>
 
           {/* Details */}
-          <div className="reveal flex-1 text-center lg:text-left space-y-6" data-reveal-delay="150">
+          <div className="reveal flex-1 text-center lg:text-left space-y-4 sm:space-y-6" data-reveal-delay="150">
             <div>
-              <h3 className="text-3xl md:text-4xl font-bold text-foreground">{OWNER.name}</h3>
-              <p className="text-primary font-medium mt-1">{OWNER.title}</p>
+              <h3 className="text-fluid-h2 text-foreground">{OWNER.name}</h3>
+              <p className="text-primary font-medium mt-1 text-fluid-sm sm:text-fluid-base">{OWNER.title}</p>
             </div>
 
-            <p className="text-muted-foreground text-lg leading-relaxed max-w-xl lg:max-w-none">
+            <p className="text-fluid-body text-muted-foreground leading-relaxed max-w-xl lg:max-w-none">
               {OWNER.bio}
             </p>
 
@@ -299,19 +300,19 @@ const TechStack = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
           {TECH_STACK.map((tech, i) => (
             <div
               key={tech.label}
-              className="reveal glass-card rounded-2xl p-5 flex flex-col items-center gap-3 text-center group cursor-default"
+              className="reveal glass-card rounded-2xl p-3 sm:p-5 flex flex-col items-center gap-2 sm:gap-3 text-center group cursor-default"
               data-reveal-delay={i * 80}
             >
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
-                <tech.icon size={22} />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
+                <tech.icon size={20} />
               </div>
               <div>
-                <p className="font-semibold text-foreground text-sm">{tech.label}</p>
-                <p className="text-muted-foreground text-xs mt-0.5">{tech.desc}</p>
+                <p className="font-semibold text-foreground text-xs sm:text-sm">{tech.label}</p>
+                <p className="text-muted-foreground text-[10px] sm:text-xs mt-0.5">{tech.desc}</p>
               </div>
             </div>
           ))}
@@ -366,10 +367,10 @@ const FooterCTA = () => {
         <div className="w-[500px] h-[500px] rounded-full bg-primary/6 blur-[100px]" />
       </div>
 
-      <h2 className="reveal relative text-4xl md:text-6xl font-bold text-foreground tracking-tight">
+      <h2 className="reveal relative text-fluid-h1 text-foreground tracking-tight">
         Ready to explore?
       </h2>
-      <p className="reveal relative text-xl text-muted-foreground font-light max-w-md" data-reveal-delay="100">
+      <p className="reveal relative text-fluid-lg text-muted-foreground font-light max-w-md" data-reveal-delay="100">
         Your next adventure is a click away. Let AI craft the perfect itinerary.
       </p>
       <div className="reveal relative" data-reveal-delay="200">

@@ -204,15 +204,15 @@ function DestinationsSection({ destinations }) {
       style={{ scrollMarginTop: "var(--app-header-offset)" }}
     >
       <div className="container px-6 mx-auto flex-none mb-2 md:mb-6 text-center md:text-left">
-        <div className="flex flex-col md:flex-row items-end justify-between gap-4">
+        <div className="flex flex-col md:flex-row items-end justify-between gap-3 md:gap-4">
           <div className="max-w-2xl space-y-2">
             {/* <span className="text-primary font-semibold tracking-wide uppercase text-xs md:text-sm bg-primary/10 px-3 py-1 rounded-full w-fit mx-auto md:mx-0">
               Inspiration for your next trip
             </span> */}
-            <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground leading-tight">
+            <h2 className="text-fluid-h1 tracking-tight text-foreground leading-tight">
               Popular Destinations
             </h2>
-            <p className="text-muted-foreground text-sm md:text-lg leading-relaxed max-w-lg mx-auto md:mx-0">
+            <p className="text-fluid-body text-muted-foreground leading-relaxed max-w-lg mx-auto md:mx-0">
               Discover the most breathtaking places across the globe, curated just for you.
             </p>
           </div>
@@ -258,7 +258,7 @@ function DestinationsSection({ destinations }) {
             <div
               key={`${d.id}-${i}`}
               // Adjusted to height-based sizing to fit viewport
-              className="relative flex-shrink-0 h-[85%] w-auto aspect-[3/4] transition-all duration-300 ease-out will-change-transform"
+              className="relative flex-shrink-0 h-[80%] sm:h-[85%] w-auto aspect-[3/4] transition-all duration-300 ease-out will-change-transform"
             >
               <article
                 className="w-full h-full rounded-3xl overflow-hidden cursor-pointer shadow-2xl transition-transform duration-100 ease-out will-change-transform relative"
@@ -338,16 +338,16 @@ function HowItWorksSections({ steps }) {
       <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-10">
 
         {/* ── Section Header ── */}
-        <div className="text-center mb-14 md:mb-20">
-          <span className="inline-block text-primary font-semibold tracking-widest uppercase text-[11px] md:text-xs bg-primary/10 px-4 py-1.5 rounded-full mb-5">
+        <div className="text-center mb-10 md:mb-16 lg:mb-20">
+          <span className="inline-block text-primary font-semibold tracking-widest uppercase text-[11px] md:text-xs bg-primary/10 px-4 py-1.5 rounded-full mb-4 sm:mb-5">
             How It Works
           </span>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-tight">
+          <h2 className="text-fluid-h1 tracking-tight text-foreground leading-tight">
             Plan your perfect trip
             <br className="hidden sm:block" />
             <span className="text-primary"> in three steps</span>
           </h2>
-          <p className="mt-4 text-muted-foreground text-base md:text-lg max-w-xl mx-auto">
+          <p className="mt-3 sm:mt-4 text-fluid-body text-muted-foreground max-w-xl mx-auto">
             Vegaa AI turns your destination idea into a complete, personalised itinerary — in under a minute.
           </p>
         </div>
@@ -385,7 +385,7 @@ function HowItWorksSections({ steps }) {
                 </div>
 
                 {/* Content */}
-                <div className="flex flex-col flex-1 p-6 md:p-7 space-y-4">
+                <div className="flex flex-col flex-1 p-4 sm:p-6 md:p-7 space-y-3 sm:space-y-4">
                   {/* Icon + label row */}
                   <div className="flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary flex-none">
@@ -396,11 +396,11 @@ function HowItWorksSections({ steps }) {
                     </span>
                   </div>
 
-                  <h3 className="text-xl md:text-2xl font-bold tracking-tight text-foreground leading-snug">
+                  <h3 className="text-fluid-h3 tracking-tight text-foreground leading-snug">
                     {s.title}
                   </h3>
 
-                  <p className="text-muted-foreground text-sm md:text-base leading-relaxed flex-1">
+                  <p className="text-fluid-body text-muted-foreground leading-relaxed flex-1">
                     {s.desc}
                   </p>
 
@@ -467,16 +467,16 @@ function FaqSection() {
     <section
       id="faq"
       data-section
-      className="min-h-[100svh] flex flex-col justify-center pt-28 md:pt-32 pb-24 bg-secondary font-sans"
+      className="min-h-[100svh] flex flex-col justify-center pt-20 sm:pt-28 md:pt-32 pb-20 sm:pb-24 bg-secondary font-sans"
       style={{ scrollMarginTop: "var(--app-header-offset)" }}
       aria-label="FAQ"
     >
       <div className="w-full max-w-3xl mx-auto px-4 sm:px-6">
-        <div className="mb-10 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
+        <div className="mb-8 sm:mb-10 text-center">
+          <h2 className="text-fluid-h1 tracking-tight text-foreground">
             Frequently Asked Questions
           </h2>
-          <p className="text-muted-foreground mt-2 text-lg">
+          <p className="text-fluid-body text-muted-foreground mt-2">
             Find answers to common questions about Vegaa AI.
           </p>
         </div>
@@ -508,7 +508,7 @@ function FaqSection() {
                       className="w-full flex items-center justify-between p-5 text-left bg-transparent hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
                       aria-expanded={isOpen}
                     >
-                      <span className="text-[17px] font-semibold text-foreground pr-4">
+                      <span className="text-base sm:text-[17px] font-semibold text-foreground pr-4">
                         {item.q}
                       </span>
                       <span className={`text-primary transition-transform duration-300 ${isOpen ? "rotate-45" : ""}`}>
@@ -519,7 +519,7 @@ function FaqSection() {
                       className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
                         }`}
                     >
-                      <div className="p-5 pt-0 text-[16px] text-muted-foreground leading-relaxed">
+                      <div className="p-4 sm:p-5 pt-0 text-sm sm:text-base text-muted-foreground leading-relaxed">
                         {item.a}
                       </div>
                     </div>

@@ -66,13 +66,13 @@ const Header = () => {
   return (
     <div
       className={cn(
-        "fixed inset-x-0 z-[100] top-4 md:top-6 pointer-events-none flex justify-center px-4"
+        "fixed inset-x-0 z-[100] top-2 sm:top-4 md:top-6 pointer-events-none flex justify-center px-3 sm:px-4"
       )}
     >
       <header
         className={cn(
           "relative w-full max-w-5xl mx-auto",
-          "px-2 py-2 pl-6",
+          "px-2 py-1.5 pl-3 sm:pl-6",
           "flex items-center justify-between",
           // Proper CSS glassmorphism navbar
           "rounded-full glass-nav",
@@ -133,7 +133,7 @@ const Header = () => {
 
             {/* Mobile Menu Dropdown */}
             {menuOpen && (
-              <div className="absolute right-0 top-full mt-3 w-[88vw] max-w-xs rounded-3xl glass-strong p-4 anim-scale-in origin-top-right">
+              <div className="absolute right-0 top-full mt-3 w-[92vw] max-w-sm rounded-3xl glass-strong p-4 anim-scale-in origin-top-right">
                 <nav className="grid gap-1.5" aria-label="Mobile navigation">
                   <Button
                     variant="ghost"

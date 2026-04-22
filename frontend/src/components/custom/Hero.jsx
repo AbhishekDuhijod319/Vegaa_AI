@@ -218,13 +218,13 @@ const Hero = ({ onGetStarted, onLearnMore }) => {
             pointerEvents: transforms.contentOpacity < 0.3 ? "none" : "auto",
           }}
         >
-          <div className="space-y-6 max-w-4xl anim-slide-in">
-            <div className="inline-flex items-center rounded-full px-4 py-1.5 text-sm font-medium text-white glass-dark shadow-sm mb-2">
+          <div className="space-y-4 sm:space-y-6 max-w-4xl anim-slide-in">
+            <div className="inline-flex items-center rounded-full px-3 py-1 sm:px-4 sm:py-1.5 text-xs sm:text-sm font-medium text-white glass-dark shadow-sm mb-2">
               <span>✨ AI-Powered Travel Planning</span>
             </div>
 
             <h1
-              className="font-bold leading-tight text-4xl sm:text-6xl md:text-7xl tracking-tight"
+              className="text-fluid-hero font-bold leading-tight tracking-tight"
               style={{
                 color: "#ffffff",
                 textShadow: "0 2px 8px rgba(0,0,0,0.5), 0 1px 3px rgba(0,0,0,0.3)",
@@ -234,7 +234,7 @@ const Hero = ({ onGetStarted, onLearnMore }) => {
             </h1>
 
             <p
-              className="max-w-2xl mx-auto text-lg sm:text-xl leading-relaxed font-medium"
+              className="max-w-2xl mx-auto text-fluid-lg leading-relaxed font-medium"
               style={{
                 color: "rgba(255,255,255,0.92)",
                 textShadow: "0 1px 4px rgba(0,0,0,0.4)",
@@ -244,11 +244,11 @@ const Hero = ({ onGetStarted, onLearnMore }) => {
               and pace. Experience the future of travel.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 mt-8 w-full justify-center items-center">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6 sm:mt-8 w-full justify-center items-center">
               <Button
                 size="lg"
                 onClick={onGetStarted}
-                className="h-14 px-8 text-lg font-semibold rounded-full bg-white text-black hover:bg-white/90 shadow-lg hover:scale-105 transition-transform duration-200 w-full sm:w-auto"
+                className="h-11 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-semibold rounded-full bg-white text-black hover:bg-white/90 shadow-lg hover:scale-105 transition-transform duration-200 w-full sm:w-auto"
               >
                 Start Planning Free
               </Button>
@@ -256,7 +256,7 @@ const Hero = ({ onGetStarted, onLearnMore }) => {
                 size="lg"
                 variant="outline"
                 onClick={onLearnMore}
-                className="h-14 px-8 text-lg font-semibold rounded-full border border-white/25 text-white glass-dark hover:bg-white/10 hover:border-white/40 transition-all duration-200 w-full sm:w-auto"
+                className="h-11 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-semibold rounded-full border border-white/25 text-white glass-dark hover:bg-white/10 hover:border-white/40 transition-all duration-200 w-full sm:w-auto"
               >
                 Learn How It Works
               </Button>
@@ -266,7 +266,7 @@ const Hero = ({ onGetStarted, onLearnMore }) => {
 
         {/* Pagination dots */}
         <div
-          className="absolute bottom-10 left-1/2 flex -translate-x-1/2 gap-3 z-20"
+          className="absolute bottom-6 sm:bottom-10 left-1/2 flex -translate-x-1/2 gap-2 sm:gap-3 z-20"
           style={{ opacity: transforms.contentOpacity }}
         >
           {slides.map((_, index) => (

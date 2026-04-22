@@ -35,11 +35,11 @@ const Footer = () => {
   }
 
   return (
-    <footer className="bg-[#0a0a0a] text-white pt-20 md:pt-24 pb-6 overflow-hidden relative font-sans mt-auto">
+    <footer className="bg-[#0a0a0a] text-white pt-14 sm:pt-20 md:pt-24 pb-6 overflow-hidden relative font-sans mt-auto">
       <div className="max-w-[1400px] mx-auto px-6 md:px-12 relative z-10 w-full">
 
         {/* Top Section: Description & Links */}
-        <div className="flex flex-col lg:flex-row justify-between gap-10 lg:gap-16 mb-12 md:mb-16">
+        <div className="flex flex-col lg:flex-row justify-between gap-8 sm:gap-10 lg:gap-16 mb-10 sm:mb-12 md:mb-16">
 
           {/* Left: Description */}
           <div className="max-w-md space-y-5">
@@ -74,10 +74,10 @@ const Footer = () => {
           </div>
 
           {/* Right: Link Columns */}
-          <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-12">
+          <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-5 sm:gap-8 md:gap-12">
             {Object.entries(footerLinks).map(([category, links]) => (
-              <div key={category} className="space-y-5">
-                <h4 className="text-sm font-semibold text-white/80 tracking-widest uppercase">{category}</h4>
+              <div key={category} className="space-y-3 sm:space-y-5">
+                <h4 className="text-xs sm:text-sm font-semibold text-white/80 tracking-widest uppercase">{category}</h4>
                 <ul className="space-y-3">
                   {links.map((link) => (
                     <li key={link.label}>
@@ -122,7 +122,7 @@ const Footer = () => {
 
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
             {/* Input Group */}
-            <div className="group flex items-center bg-white/[0.04] rounded-full p-1.5 pl-5 border border-white/[0.08] focus-within:border-white/20 transition-all w-full sm:w-[380px]">
+            <div className="group flex items-center bg-white/[0.04] rounded-full p-1.5 pl-5 border border-white/[0.08] focus-within:border-white/20 transition-all w-full sm:w-[340px] lg:w-[380px]">
               <input
                 type="email"
                 placeholder="Email address"
@@ -156,8 +156,8 @@ const Footer = () => {
 
         {/* Bottom Bar */}
         <div className="border-t border-white/[0.06] pt-6 pb-2">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-600 font-medium">
-            <p>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-gray-600 font-medium flex-wrap">
+            <p className="text-center md:text-left">
               © {year} Vegaa AI · Built by{" "}
               <a
                 href="https://www.linkedin.com/in/abhishek-duhijod"
@@ -169,7 +169,7 @@ const Footer = () => {
               </a>
               {" "}· JD College of Engineering &amp; Management, Nagpur
             </p>
-            <div className="flex flex-wrap justify-center gap-8">
+            <div className="flex flex-wrap justify-center gap-4 sm:gap-8">
               <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
               <a href="#" className="hover:text-white transition-colors">Terms of Use</a>
               <a href="#" className="hover:text-white transition-colors">Disclaimer</a>

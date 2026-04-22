@@ -350,8 +350,8 @@ export default function Profile() {
         <div className="max-w-4xl mx-auto">
           <div className="rounded-3xl bg-card border border-border overflow-hidden shadow-sm">
             {/* Profile Header */}
-            <div className="p-6 sm:p-8">
-              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+            <div className="p-4 sm:p-6 md:p-8">
+              <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
                 {/* Avatar with Upload */}
                 <div className="relative group shrink-0">
                   <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden border-2 border-border shadow-md">
@@ -475,11 +475,11 @@ export default function Profile() {
               ) : (
                 <div className="grid grid-cols-3 divide-x divide-border">
                   {processedStats.map((stat) => (
-                    <div key={stat.label} className="p-4 sm:p-5 text-center">
-                      <div className="text-2xl sm:text-3xl font-bold text-foreground">{stat.value}</div>
-                      <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground mt-1">
-                        <stat.icon size={12} />
-                        {stat.label}
+                    <div key={stat.label} className="p-3 sm:p-4 md:p-5 text-center">
+                      <div className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">{stat.value}</div>
+                      <div className="flex items-center justify-center gap-1 text-[10px] sm:text-xs text-muted-foreground mt-1">
+                        <stat.icon size={11} />
+                        <span className="truncate">{stat.label}</span>
                       </div>
                     </div>
                   ))}
