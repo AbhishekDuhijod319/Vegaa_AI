@@ -44,7 +44,7 @@ const Footer = () => {
           {/* Left: Description */}
           <div className="max-w-md space-y-5">
             <div className="flex items-center gap-2.5">
-              <img src="/logo.svg" alt="Vegaa AI" className="h-7 w-7 md:h-9 md:w-9" />
+              <img src="/logo_1.png" alt="Vegaa AI" className="h-7 w-7 md:h-9 md:w-9 object-contain" />
               <span className="text-xl md:text-2xl font-bold tracking-tight">Vegaa AI</span>
             </div>
             <p className="text-[15px] md:text-base text-gray-400 leading-relaxed font-light">

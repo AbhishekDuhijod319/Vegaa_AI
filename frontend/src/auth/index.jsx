@@ -132,7 +132,7 @@ const AuthPage = () => {
         <div className="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full">
           <div className="mb-4 text-center lg:text-left">
             <div className="flex items-center justify-center lg:justify-start gap-2 mb-2">
-               <img src="/logo.svg" alt="Vegaa AI Logo" className="h-8 w-auto" />
+               <img src="/logo_1.png" alt="Vegaa AI Logo" className="h-8 w-auto object-contain" />
                <span className="font-bold text-xl tracking-tight">Vegaa AI</span>
             </div>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight mb-1 text-foreground">
