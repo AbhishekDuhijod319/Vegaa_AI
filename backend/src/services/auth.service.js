@@ -158,7 +158,12 @@ const authService = {
     if (user) {
       // Update profile info from Google
       user.name = profile.name || user.name;
-      user.picture = profile.picture || user.picture;
+      // Only refresh picture from Google if the user hasn't uploaded a custom
+      // Cloudinary avatar — otherwise we'd overwrite their custom picture on every login.
+      const hasCustomAvatar = user.picture && user.picture.includes('res.cloudinary.com');
+      if (!hasCustomAvatar) {
+        user.picture = profile.picture || user.picture;
+      }
       user.googleId = profile.sub;
       user.lastLoginAt = new Date();
 
